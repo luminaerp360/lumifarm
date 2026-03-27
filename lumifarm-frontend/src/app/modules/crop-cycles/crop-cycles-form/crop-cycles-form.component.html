@@ -66,65 +66,101 @@
           <div>
             <label
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Farm</label
             >
-              Farm
-            </label>
             <select
               [(ngModel)]="form.farmId"
               name="farmId"
+              (change)="onFarmChange()"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
             >
               <option value="">Select Farm</option>
+              <option *ngFor="let f of farms" [value]="f._id">
+                {{ f.name }}
+              </option>
             </select>
           </div>
           <div>
             <label
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Plot</label
             >
-              Plot
-            </label>
             <select
               [(ngModel)]="form.plotId"
               name="plotId"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
             >
               <option value="">Select Plot</option>
+              <option *ngFor="let p of filteredPlots" [value]="p._id">
+                {{ p.name || p.plotNumber }}
+              </option>
             </select>
           </div>
         </div>
 
-        <!-- Farm Worker Selection -->
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >
-            Farm Worker <span class="text-red-500">*</span>
-          </label>
-          <select
-            [(ngModel)]="form.farmWorkerId"
-            name="farmWorkerId"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
-            required
-          >
-            <option value="">Select Farm Worker</option>
-          </select>
+        <!-- Farm Worker & Crop Type -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Farm Worker</label
+            >
+            <select
+              [(ngModel)]="form.farmWorkerId"
+              name="farmWorkerId"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+            >
+              <option value="">Select Farm Worker</option>
+              <option *ngFor="let w of workers" [value]="w._id">
+                {{ w.firstName }} {{ w.lastName }}
+              </option>
+            </select>
+          </div>
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Crop Type <span class="text-red-500">*</span>
+            </label>
+            <input
+              [(ngModel)]="form.cropType"
+              type="text"
+              name="cropType"
+              placeholder="e.g., Potato, Maize, Beans"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              required
+            />
+          </div>
         </div>
 
-        <!-- Crop Type -->
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-          >
-            Crop Type <span class="text-red-500">*</span>
-          </label>
-          <input
-            [(ngModel)]="form.cropType"
-            type="text"
-            name="cropType"
-            placeholder="e.g., Maize, Beans, Tomato"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
-            required
-          />
+        <!-- Season -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Season Name</label
+            >
+            <input
+              [(ngModel)]="form.seasonName"
+              type="text"
+              name="seasonName"
+              placeholder="e.g., Long Rains 2026"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Season Year</label
+            >
+            <input
+              [(ngModel)]="form.seasonYear"
+              type="number"
+              name="seasonYear"
+              placeholder="2026"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+            />
+          </div>
         </div>
 
         <!-- Planting & Harvest Dates -->
@@ -146,9 +182,8 @@
           <div>
             <label
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Expected Harvest Date</label
             >
-              Expected Harvest Date
-            </label>
             <input
               [(ngModel)]="form.expectedHarvestDate"
               type="date"
@@ -158,132 +193,317 @@
           </div>
         </div>
 
-        <!-- Seed Info -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              Seed Supplier
-            </label>
-            <input
-              [(ngModel)]="form.seedSupplier"
-              type="text"
-              name="seedSupplier"
-              placeholder="e.g., ABC Seeds Ltd"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
-            />
-          </div>
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              Seed Variety
-            </label>
-            <input
-              [(ngModel)]="form.seedVariety"
-              type="text"
-              name="seedVariety"
-              placeholder="e.g., Hybrid H625"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
-            />
-          </div>
-        </div>
-
-        <!-- Projections -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              Projected Yield (units)
-            </label>
-            <input
-              [(ngModel)]="form.projectedYield"
-              type="number"
-              name="projectedYield"
-              placeholder="e.g., 500"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
-            />
-          </div>
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              Expected Crop Value
-            </label>
-            <input
-              [(ngModel)]="form.expectedCropValue"
-              type="number"
-              name="expectedCropValue"
-              placeholder="e.g., 50000"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
-            />
-          </div>
-        </div>
-
-        <!-- Inputs & Labor -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              Water Consumption (units)
-            </label>
-            <input
-              [(ngModel)]="form.waterConsumption"
-              type="number"
-              name="waterConsumption"
-              placeholder="0"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
-            />
-          </div>
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              Labor Cost
-            </label>
-            <input
-              [(ngModel)]="form.laborCost"
-              type="number"
-              name="laborCost"
-              placeholder="0"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
-            />
-          </div>
-        </div>
-
-        <!-- Harvest Frequency -->
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        <!-- Seed Details Section -->
+        <div class="border-t border-gray-200 dark:border-slate-700 pt-4 mt-2">
+          <h3
+            class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3"
           >
-            Harvest Frequency
-          </label>
-          <select
-            [(ngModel)]="form.harvestFrequency"
-            name="harvestFrequency"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+            <i class="fas fa-seedling mr-1 text-green-500"></i> Seed Details
+          </h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Seed Variety</label
+              >
+              <input
+                [(ngModel)]="form.seedVariety"
+                type="text"
+                name="seedVariety"
+                placeholder="e.g., Shangi, Dutch Robijn"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Seed Supplier</label
+              >
+              <input
+                [(ngModel)]="form.seedSupplier"
+                type="text"
+                name="seedSupplier"
+                placeholder="e.g., ADC Seeds"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              />
+            </div>
+          </div>
+          <div class="grid grid-cols-4 gap-4 mt-3">
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Quantity</label
+              >
+              <input
+                [(ngModel)]="form.seedQuantity"
+                type="number"
+                name="seedQuantity"
+                placeholder="0"
+                (input)="calculateSeedCost()"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Unit</label
+              >
+              <select
+                [(ngModel)]="form.seedUnit"
+                name="seedUnit"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              >
+                <option *ngFor="let u of seedUnitOptions" [value]="u">
+                  {{ u }}
+                </option>
+              </select>
+            </div>
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Cost/Unit (KES)</label
+              >
+              <input
+                [(ngModel)]="form.seedCostPerUnit"
+                type="number"
+                name="seedCostPerUnit"
+                placeholder="0"
+                (input)="calculateSeedCost()"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Total Seed Cost</label
+              >
+              <input
+                [value]="form.totalSeedCost | number"
+                type="text"
+                readonly
+                class="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Soil & Weather Section -->
+        <div class="border-t border-gray-200 dark:border-slate-700 pt-4 mt-2">
+          <h3
+            class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3"
           >
-            <option *ngFor="let freq of frequencyOptions" [value]="freq">
-              {{ freq }}
-            </option>
-          </select>
+            <i class="fas fa-mountain mr-1 text-amber-500"></i> Soil & Weather
+            at Planting
+          </h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Soil Condition</label
+              >
+              <select
+                [(ngModel)]="form.soilCondition"
+                name="soilCondition"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              >
+                <option value="">Select</option>
+                <option *ngFor="let s of soilConditionOptions" [value]="s">
+                  {{ s | titlecase }}
+                </option>
+              </select>
+            </div>
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Soil Preparation</label
+              >
+              <select
+                [(ngModel)]="form.soilPreparationMethod"
+                name="soilPreparationMethod"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              >
+                <option value="">Select</option>
+                <option *ngFor="let s of soilPrepOptions" [value]="s">
+                  {{ s | titlecase }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-4 mt-3">
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Weather</label
+              >
+              <select
+                [(ngModel)]="form.weatherAtPlanting.condition"
+                name="weatherCondition"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              >
+                <option value="">Select</option>
+                <option *ngFor="let w of weatherOptions" [value]="w">
+                  {{ w | titlecase }}
+                </option>
+              </select>
+            </div>
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Temperature (°C)</label
+              >
+              <input
+                [(ngModel)]="form.weatherAtPlanting.temperature"
+                type="number"
+                name="temperature"
+                placeholder="e.g., 22"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Rainfall (mm)</label
+              >
+              <input
+                [(ngModel)]="form.weatherAtPlanting.rainfall"
+                type="number"
+                name="rainfall"
+                placeholder="e.g., 50"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Yield & Value Section -->
+        <div class="border-t border-gray-200 dark:border-slate-700 pt-4 mt-2">
+          <h3
+            class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3"
+          >
+            <i class="fas fa-chart-line mr-1 text-blue-500"></i> Yield & Value
+            Projections
+          </h3>
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Projected Yield</label
+              >
+              <input
+                [(ngModel)]="form.projectedYield"
+                type="number"
+                name="projectedYield"
+                placeholder="e.g., 500"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Yield Unit</label
+              >
+              <select
+                [(ngModel)]="form.yieldUnit"
+                name="yieldUnit"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              >
+                <option *ngFor="let u of yieldUnitOptions" [value]="u">
+                  {{ u }}
+                </option>
+              </select>
+            </div>
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Price/Unit (KES)</label
+              >
+              <input
+                [(ngModel)]="form.pricePerUnit"
+                type="number"
+                name="pricePerUnit"
+                placeholder="e.g., 80"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4 mt-3">
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Expected Crop Value (KES)</label
+              >
+              <input
+                [(ngModel)]="form.expectedCropValue"
+                type="number"
+                name="expectedCropValue"
+                placeholder="e.g., 40000"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Est. Labor Cost (KES)</label
+              >
+              <input
+                [(ngModel)]="form.laborCost"
+                type="number"
+                name="laborCost"
+                placeholder="0"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Inputs Section -->
+        <div class="border-t border-gray-200 dark:border-slate-700 pt-4 mt-2">
+          <h3
+            class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-3"
+          >
+            <i class="fas fa-flask mr-1 text-purple-500"></i> Farm Inputs
+          </h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Fertilizer</label
+              >
+              <input
+                [(ngModel)]="form.fertilizer"
+                type="text"
+                name="fertilizer"
+                placeholder="e.g., DAP, CAN, NPK"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <label
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >Pesticides</label
+              >
+              <input
+                [(ngModel)]="form.pesticides"
+                type="text"
+                name="pesticides"
+                placeholder="e.g., Ridomil, Dithane"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              />
+            </div>
+          </div>
         </div>
 
         <!-- Notes -->
         <div>
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >Notes</label
           >
-            Notes
-          </label>
           <textarea
-            [(ngModel)]="form.terms"
-            name="terms"
+            [(ngModel)]="form.notes"
+            name="notes"
             rows="3"
-            placeholder="Additional notes..."
+            placeholder="Additional notes about this cycle..."
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
           ></textarea>
         </div>

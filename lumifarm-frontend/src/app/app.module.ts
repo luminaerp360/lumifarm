@@ -50,6 +50,12 @@ import { CropIssuesFormComponent } from "./modules/crop-issues/crop-issues-form/
 // Farm Workers - Form
 import { FarmWorkersFormComponent } from "./modules/farm-workers/farm-workers-form/farm-workers-form.component";
 
+// New Modules (Coming Soon)
+import { TasksComponent } from "./modules/tasks/tasks.component";
+import { InventoryComponent } from "./modules/inventory/inventory.component";
+import { EquipmentComponent } from "./modules/equipment/equipment.component";
+import { HarvestComponent } from "./modules/harvest/harvest.component";
+
 // Reports
 import { ReportsComponent } from "./modules/reports/reports.component";
 
@@ -94,6 +100,10 @@ import { AuthInterceptor } from "./shared/interceptors/auth.interceptor";
     CropIssuesListComponent,
     CropIssueDetailComponent,
     CropIssuesFormComponent,
+    TasksComponent,
+    InventoryComponent,
+    EquipmentComponent,
+    HarvestComponent,
     ReportsComponent,
     UsersListComponent,
     SettingsComponent,

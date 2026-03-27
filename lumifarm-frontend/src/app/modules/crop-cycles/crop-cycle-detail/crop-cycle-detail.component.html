@@ -1,115 +1,924 @@
 <div *ngIf="loading" class="flex items-center justify-center py-20">
-  <i class="fas fa-spinner fa-spin text-2xl" [style.color]="themeService.accent"></i>
+  <i
+    class="fas fa-spinner fa-spin text-2xl"
+    [style.color]="themeService.accent"
+  ></i>
 </div>
 
-<div *ngIf="!loading && lease">
+<div *ngIf="!loading && cycle" class="p-6">
   <!-- Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+  <div
+    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6"
+  >
     <div class="flex items-center gap-3">
-      <button (click)="goBack()" class="w-8 h-8 rounded-lg border border-gray-300 dark:border-slate-600 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700">
+      <button
+        (click)="goBack()"
+        class="w-8 h-8 rounded-lg border border-gray-300 dark:border-slate-600 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700"
+      >
         <i class="fas fa-arrow-left text-sm"></i>
       </button>
       <div>
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ lease.leaseNumber }}</h1>
-        <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getStatusClasses(lease.status)">{{ lease.status }}</span>
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">
+          {{ cycle.cropType }} —
+          {{ cycle.seasonName || cycle.cycleNumber || "Cycle" }}
+        </h1>
+        <div class="flex items-center gap-2 mt-1">
+          <span
+            class="px-2 py-0.5 rounded-full text-xs font-medium"
+            [ngClass]="getStatusClasses(cycle.status)"
+            >{{ cycle.status }}</span
+          >
+          <span class="text-sm text-gray-500 dark:text-gray-400"
+            >{{ cycle.plantingDate | date: "mediumDate" }} →
+            {{ cycle.expectedHarvestDate | date: "mediumDate" }}</span
+          >
+        </div>
       </div>
     </div>
-    <div class="flex gap-2">
-      <button *ngIf="lease.status === 'draft'" (click)="activate()" class="px-4 py-2 rounded-lg text-white text-sm font-medium" [style.background-color]="themeService.accent">
-        <i class="fas fa-check mr-1"></i> Activate
+    <div class="flex gap-2 flex-wrap">
+      <button
+        *ngIf="cycle.status === 'draft'"
+        (click)="updateStatus('active')"
+        class="px-4 py-2 rounded-lg text-white text-sm font-medium"
+        [style.background-color]="themeService.accent"
+      >
+        <i class="fas fa-play mr-1"></i> Start Cycle
       </button>
-      <button *ngIf="lease.status === 'active'" (click)="showTerminate = true" class="px-4 py-2 rounded-lg border border-orange-300 text-orange-600 text-sm hover:bg-orange-50 dark:border-orange-800 dark:text-orange-400 dark:hover:bg-orange-900/20">
-        <i class="fas fa-ban mr-1"></i> Terminate
+      <button
+        *ngIf="cycle.status === 'active'"
+        (click)="updateStatus('growing')"
+        class="px-4 py-2 rounded-lg text-white text-sm font-medium bg-green-600"
+      >
+        <i class="fas fa-seedling mr-1"></i> Mark Growing
       </button>
-      <button (click)="deleteLease()" class="px-4 py-2 rounded-lg border border-red-300 text-red-600 text-sm hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">
-        <i class="fas fa-trash mr-1"></i> Delete
+      <button
+        *ngIf="cycle.status === 'growing'"
+        (click)="updateStatus('harvesting')"
+        class="px-4 py-2 rounded-lg text-white text-sm font-medium bg-yellow-600"
+      >
+        <i class="fas fa-truck-loading mr-1"></i> Start Harvest
+      </button>
+      <button
+        *ngIf="cycle.status === 'harvesting'"
+        (click)="updateStatus('completed')"
+        class="px-4 py-2 rounded-lg text-white text-sm font-medium bg-emerald-600"
+      >
+        <i class="fas fa-check mr-1"></i> Complete
+      </button>
+      <button
+        (click)="deleteCycle()"
+        class="px-3 py-2 rounded-lg border border-red-300 text-red-600 text-sm hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+      >
+        <i class="fas fa-trash"></i>
       </button>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Details -->
-    <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6">
-      <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Lease Details</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-        <div><span class="text-gray-500 dark:text-gray-400 block">Property</span><a [routerLink]="['/properties', lease.propertyId]" class="font-medium hover:underline" [style.color]="themeService.accent">{{ lease.propertyName }}</a></div>
-        <div><span class="text-gray-500 dark:text-gray-400 block">Tenant</span><a [routerLink]="['/tenants', lease.propertyTenantId]" class="font-medium hover:underline" [style.color]="themeService.accent">{{ lease.propertyTenantName }}</a></div>
-        <div><span class="text-gray-500 dark:text-gray-400 block">Start Date</span><span class="text-gray-800 dark:text-gray-100">{{ lease.startDate | date:'mediumDate' }}</span></div>
-        <div><span class="text-gray-500 dark:text-gray-400 block">End Date</span><span class="text-gray-800 dark:text-gray-100">{{ lease.endDate | date:'mediumDate' }}</span></div>
-        <div><span class="text-gray-500 dark:text-gray-400 block">Payment Frequency</span><span class="text-gray-800 dark:text-gray-100 capitalize">{{ lease.paymentFrequency }}</span></div>
-        <div><span class="text-gray-500 dark:text-gray-400 block">Due Day</span><span class="text-gray-800 dark:text-gray-100">{{ lease.paymentDueDay }}{{ lease.paymentDueDay === 1 ? 'st' : lease.paymentDueDay === 2 ? 'nd' : lease.paymentDueDay === 3 ? 'rd' : 'th' }} of month</span></div>
-        <div><span class="text-gray-500 dark:text-gray-400 block">Grace Period</span><span class="text-gray-800 dark:text-gray-100">{{ lease.gracePeriodDays }} days</span></div>
-        <div><span class="text-gray-500 dark:text-gray-400 block">Late Fee</span><span class="text-gray-800 dark:text-gray-100">{{ lease.currency }} {{ lease.lateFeeAmount | number }}</span></div>
+  <!-- Progress Bar -->
+  <div
+    class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4 mb-6"
+  >
+    <div class="flex items-center justify-between mb-2">
+      <span class="text-sm font-medium text-gray-700 dark:text-gray-300"
+        >Cycle Progress</span
+      >
+      <span class="text-sm text-gray-500 dark:text-gray-400"
+        >{{ getCycleProgress() }}%</span
+      >
+    </div>
+    <div class="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-3">
+      <div
+        class="h-3 rounded-full transition-all"
+        [style.width.%]="getCycleProgress()"
+        [style.background-color]="themeService.accent"
+      ></div>
+    </div>
+    <div
+      class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1"
+    >
+      <span>Planted: {{ cycle.plantingDate | date: "d MMM" }}</span>
+      <span
+        >Expected Harvest: {{ cycle.expectedHarvestDate | date: "d MMM" }}</span
+      >
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4"
+    >
+      <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
+        Seed Variety
       </div>
-      <div *ngIf="lease.terms" class="mt-4">
-        <span class="text-gray-500 dark:text-gray-400 block text-sm">Terms</span>
-        <p class="text-sm text-gray-800 dark:text-gray-100 whitespace-pre-line">{{ lease.terms }}</p>
+      <div class="text-lg font-bold text-gray-800 dark:text-gray-100">
+        {{ cycle.seedVariety || "—" }}
       </div>
-      <div *ngIf="lease.terminationReason" class="mt-4 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-        <span class="text-sm font-medium text-orange-700 dark:text-orange-400">Termination Reason</span>
-        <p class="text-sm text-orange-600 dark:text-orange-300 mt-1">{{ lease.terminationReason }}</p>
+      <div class="text-xs text-gray-400" *ngIf="cycle.seedQuantity">
+        {{ cycle.seedQuantity }} {{ cycle.seedUnit }}
       </div>
     </div>
-
-    <!-- Financial -->
-    <div class="space-y-4">
-      <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
-        <div class="text-sm text-gray-500 dark:text-gray-400">Monthly Rent</div>
-        <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ lease.currency }} {{ lease.rentAmount | number }}</div>
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4"
+    >
+      <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
+        Activities
       </div>
-      <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
-        <div class="text-sm text-gray-500 dark:text-gray-400">Deposit</div>
-        <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ lease.currency }} {{ lease.depositAmount | number }}</div>
-        <span class="text-xs" [ngClass]="lease.depositPaid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">{{ lease.depositPaid ? 'Paid' : 'Not Paid' }}</span>
+      <div class="text-lg font-bold text-gray-800 dark:text-gray-100">
+        {{ getCompletedActivities() }}/{{ activities.length }}
       </div>
-      <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
-        <div class="text-sm text-gray-500 dark:text-gray-400">Total Payments</div>
-        <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ payments.length }}</div>
+      <div class="text-xs text-gray-400">completed</div>
+    </div>
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4"
+    >
+      <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
+        Total Expenses
+      </div>
+      <div class="text-lg font-bold text-red-600 dark:text-red-400">
+        {{ cycle.currency }}
+        {{ getTotalActivityCost() + getTotalExpenses() | number }}
+      </div>
+      <div class="text-xs text-gray-400">activities + inputs</div>
+    </div>
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4"
+    >
+      <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
+        Target Yield
+      </div>
+      <div class="text-lg font-bold text-gray-800 dark:text-gray-100">
+        {{ cycle.projectedYield | number }} {{ cycle.yieldUnit || "kg" }}
+      </div>
+      <div class="text-xs text-green-600" *ngIf="cycle.actualYield">
+        Actual: {{ cycle.actualYield | number }} {{ cycle.yieldUnit || "kg" }}
       </div>
     </div>
   </div>
 
-  <!-- Payments -->
-  <div class="mt-6 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
-    <div class="px-4 py-3 border-b border-gray-200 dark:border-slate-700">
-      <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Payments</h2>
+  <!-- Tabs -->
+  <div
+    class="flex gap-1 mb-6 bg-gray-100 dark:bg-slate-700/50 rounded-lg p-1 w-fit"
+  >
+    <button
+      (click)="activeTab = 'timeline'"
+      class="px-4 py-2 rounded-md text-sm font-medium transition-colors"
+      [class]="
+        activeTab === 'timeline'
+          ? 'bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-100 shadow-sm'
+          : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+      "
+    >
+      <i class="fas fa-stream mr-1"></i> Activity Timeline
+    </button>
+    <button
+      (click)="activeTab = 'expenses'"
+      class="px-4 py-2 rounded-md text-sm font-medium transition-colors"
+      [class]="
+        activeTab === 'expenses'
+          ? 'bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-100 shadow-sm'
+          : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+      "
+    >
+      <i class="fas fa-coins mr-1"></i> Expenses
+    </button>
+    <button
+      (click)="activeTab = 'harvest'"
+      class="px-4 py-2 rounded-md text-sm font-medium transition-colors"
+      [class]="
+        activeTab === 'harvest'
+          ? 'bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-100 shadow-sm'
+          : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+      "
+    >
+      <i class="fas fa-truck-loading mr-1"></i> Harvest & Yield
+    </button>
+  </div>
+
+  <!-- TAB: Activity Timeline -->
+  <div *ngIf="activeTab === 'timeline'">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">
+        Farm Activities
+      </h2>
+      <button
+        (click)="openActivityForm()"
+        class="px-4 py-2 rounded-lg text-white text-sm font-medium"
+        [style.background-color]="themeService.accent"
+      >
+        <i class="fas fa-plus mr-1"></i> Schedule Activity
+      </button>
     </div>
-    <div class="overflow-x-auto">
-      <table *ngIf="payments.length" class="w-full text-sm">
+
+    <div *ngIf="activities.length > 0" class="space-y-3">
+      <div
+        *ngFor="let act of activities"
+        class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4"
+      >
+        <div class="flex items-start gap-4">
+          <div
+            class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+            [class]="
+              act.status === 'completed'
+                ? 'bg-green-100 dark:bg-green-900/30'
+                : act.status === 'overdue'
+                  ? 'bg-red-100 dark:bg-red-900/30'
+                  : 'bg-blue-100 dark:bg-blue-900/30'
+            "
+          >
+            <i
+              [class]="getActivityIcon(act.activityType)"
+              [class.text-green-600]="act.status === 'completed'"
+              [class.text-red-600]="act.status === 'overdue'"
+              [class.text-blue-600]="
+                act.status !== 'completed' && act.status !== 'overdue'
+              "
+              class="text-sm"
+            ></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-semibold text-gray-800 dark:text-gray-100">{{
+                act.title
+              }}</span>
+              <span
+                class="px-2 py-0.5 rounded-full text-xs font-medium"
+                [ngClass]="getActivityStatusClasses(act.status)"
+                >{{ act.status }}</span
+              >
+              <span class="text-xs text-gray-400 dark:text-gray-500"
+                >Day
+                {{
+                  act.daysAfterPlanting ||
+                    getDaysFromPlanting(act.scheduledDate)
+                }}</span
+              >
+            </div>
+            <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Scheduled: {{ act.scheduledDate | date: "d MMM yyyy" }}
+              <span *ngIf="act.completedDate">
+                · Done: {{ act.completedDate | date: "d MMM yyyy" }}</span
+              >
+            </div>
+            <div
+              *ngIf="act.description"
+              class="text-sm text-gray-600 dark:text-gray-300 mt-1"
+            >
+              {{ act.description }}
+            </div>
+            <div
+              *ngIf="act.inputs && act.inputs.length > 0"
+              class="mt-2 flex flex-wrap gap-2"
+            >
+              <span
+                *ngFor="let inp of act.inputs"
+                class="px-2 py-1 rounded-md bg-gray-50 dark:bg-slate-700 text-xs text-gray-600 dark:text-gray-300"
+              >
+                {{ inp.inputName }} · {{ inp.quantity }}{{ inp.unit }} ·
+                {{ cycle?.currency }} {{ inp.totalCost | number }}
+              </span>
+            </div>
+            <div
+              *ngIf="act.weather?.condition"
+              class="mt-2 text-xs text-gray-400 dark:text-gray-500"
+            >
+              <i class="fas fa-cloud-sun mr-1"></i> {{ act.weather.condition }}
+              <span *ngIf="act.weather.temperature">
+                · {{ act.weather.temperature }}</span
+              >
+              <span *ngIf="act.weather.rainfall">
+                · Rain: {{ act.weather.rainfall }}</span
+              >
+            </div>
+            <div
+              *ngIf="act.totalActivityCost"
+              class="mt-1 text-sm font-medium"
+              [style.color]="themeService.accent"
+            >
+              Cost: {{ cycle?.currency }} {{ act.totalActivityCost | number }}
+            </div>
+          </div>
+          <div class="flex gap-1 flex-shrink-0">
+            <button
+              *ngIf="act.status === 'scheduled' || act.status === 'overdue'"
+              (click)="openCompleteForm(act)"
+              class="w-8 h-8 rounded-lg flex items-center justify-center text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
+              title="Mark Complete"
+            >
+              <i class="fas fa-check"></i>
+            </button>
+            <button
+              (click)="deleteActivity(act)"
+              class="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+              title="Delete"
+            >
+              <i class="fas fa-trash text-xs"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      *ngIf="activities.length === 0"
+      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-12 text-center"
+    >
+      <i
+        class="fas fa-stream text-3xl text-gray-300 dark:text-gray-600 mb-3"
+      ></i>
+      <p class="text-gray-500 dark:text-gray-400">
+        No activities scheduled yet.
+      </p>
+      <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
+        Schedule spraying, weeding, fertilizing and other farm activities.
+      </p>
+    </div>
+  </div>
+
+  <!-- TAB: Expenses -->
+  <div *ngIf="activeTab === 'expenses'">
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden"
+    >
+      <div
+        class="px-4 py-3 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between"
+      >
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">
+          Cycle Expenses
+        </h2>
+        <span class="text-sm font-medium" [style.color]="themeService.accent"
+          >Total: {{ cycle.currency }} {{ getTotalExpenses() | number }}</span
+        >
+      </div>
+      <table *ngIf="expenses.length" class="w-full text-sm">
         <thead>
-          <tr class="border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-700/50">
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Date</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Type</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Method</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Status</th>
-            <th class="text-right px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Amount</th>
+          <tr
+            class="border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-700/50"
+          >
+            <th
+              class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
+            >
+              Date
+            </th>
+            <th
+              class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
+            >
+              Category
+            </th>
+            <th
+              class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
+            >
+              Description
+            </th>
+            <th
+              class="text-right px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
+            >
+              Amount
+            </th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let p of payments" [routerLink]="['/payments', p._id]" class="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors">
-            <td class="px-4 py-3 text-gray-800 dark:text-gray-100">{{ p.paymentDate | date:'mediumDate' }}</td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 capitalize">{{ p.paymentType }}</td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 capitalize">{{ p.paymentMethod }}</td>
-            <td class="px-4 py-3"><span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="{'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': p.status === 'completed', 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400': p.status === 'pending', 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400': p.status === 'failed'}">{{ p.status }}</span></td>
-            <td class="px-4 py-3 text-right font-medium text-gray-800 dark:text-gray-100">{{ p.currency }} {{ p.amount | number }}</td>
+          <tr
+            *ngFor="let e of expenses"
+            class="border-b border-gray-100 dark:border-slate-700"
+          >
+            <td class="px-4 py-3 text-gray-800 dark:text-gray-100">
+              {{ e.transactionDate | date: "d MMM" }}
+            </td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 capitalize">
+              {{ e.category }}
+            </td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300">
+              {{ e.description }}
+            </td>
+            <td
+              class="px-4 py-3 text-right font-medium text-gray-800 dark:text-gray-100"
+            >
+              {{ e.currency }} {{ e.amount | number }}
+            </td>
           </tr>
         </tbody>
       </table>
+      <div
+        *ngIf="expenses.length === 0"
+        class="text-center py-8 text-gray-500 dark:text-gray-400 text-sm"
+      >
+        No expenses linked to this cycle. Add expenses in Farm Finance and
+        select this crop cycle.
+      </div>
     </div>
-    <div *ngIf="payments.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">No payments recorded</div>
   </div>
 
-  <!-- Terminate Modal -->
-  <div *ngIf="showTerminate" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 w-full max-w-md mx-4">
-      <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Terminate Lease</h2>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason *</label>
-        <textarea [(ngModel)]="terminationReason" rows="3" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none"></textarea>
+  <!-- TAB: Harvest & Yield -->
+  <div *ngIf="activeTab === 'harvest'">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div
+        class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6"
+      >
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+          Yield Tracking
+        </h3>
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between">
+            <span class="text-gray-500 dark:text-gray-400">Projected Yield</span
+            ><span class="text-gray-800 dark:text-gray-100 font-medium"
+              >{{ cycle.projectedYield | number }}
+              {{ cycle.yieldUnit || "kg" }}</span
+            >
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500 dark:text-gray-400">Actual Yield</span
+            ><span
+              class="font-medium"
+              [class]="
+                cycle.actualYield >= cycle.projectedYield
+                  ? 'text-green-600'
+                  : 'text-red-600'
+              "
+              >{{ cycle.actualYield | number }}
+              {{ cycle.yieldUnit || "kg" }}</span
+            >
+          </div>
+          <div *ngIf="cycle.projectedYield > 0" class="flex justify-between">
+            <span class="text-gray-500 dark:text-gray-400">Yield Rate</span>
+            <span
+              class="font-medium"
+              [class]="
+                (cycle.actualYield / cycle.projectedYield) * 100 >= 80
+                  ? 'text-green-600'
+                  : 'text-orange-600'
+              "
+            >
+              {{
+                (cycle.actualYield / cycle.projectedYield) * 100
+                  | number: "1.0-0"
+              }}%
+            </span>
+          </div>
+          <hr class="dark:border-slate-700" />
+          <div class="flex justify-between">
+            <span class="text-gray-500 dark:text-gray-400">Harvest Quality</span
+            ><span class="text-gray-800 dark:text-gray-100">{{
+              cycle.harvestQuality || "Not recorded"
+            }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500 dark:text-gray-400">Storage</span
+            ><span class="text-gray-800 dark:text-gray-100">{{
+              cycle.storageLocation || "Not set"
+            }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500 dark:text-gray-400">Buyer</span
+            ><span class="text-gray-800 dark:text-gray-100">{{
+              cycle.buyerName || "—"
+            }}</span>
+          </div>
+        </div>
       </div>
-      <div class="flex justify-end gap-3 mt-4">
-        <button (click)="showTerminate = false" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 text-sm text-gray-700 dark:text-gray-300">Cancel</button>
-        <button (click)="terminate()" class="px-6 py-2 rounded-lg bg-orange-500 text-white text-sm font-medium">Terminate</button>
+
+      <div
+        class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6"
+      >
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+          Financial Summary
+        </h3>
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between">
+            <span class="text-gray-500 dark:text-gray-400">Seed Cost</span
+            ><span class="text-gray-800 dark:text-gray-100"
+              >{{ cycle.currency }} {{ cycle.totalSeedCost | number }}</span
+            >
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500 dark:text-gray-400">Activity Costs</span
+            ><span class="text-gray-800 dark:text-gray-100"
+              >{{ cycle.currency }} {{ getTotalActivityCost() | number }}</span
+            >
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500 dark:text-gray-400">Other Expenses</span
+            ><span class="text-gray-800 dark:text-gray-100"
+              >{{ cycle.currency }} {{ getTotalExpenses() | number }}</span
+            >
+          </div>
+          <hr class="dark:border-slate-700" />
+          <div class="flex justify-between font-semibold">
+            <span class="text-red-600 dark:text-red-400">Total Spent</span
+            ><span class="text-red-600 dark:text-red-400"
+              >{{ cycle.currency }}
+              {{
+                cycle.totalSeedCost +
+                  getTotalActivityCost() +
+                  getTotalExpenses() | number
+              }}</span
+            >
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500 dark:text-gray-400">Expected Value</span
+            ><span class="text-gray-800 dark:text-gray-100"
+              >{{ cycle.currency }} {{ cycle.expectedCropValue | number }}</span
+            >
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-500 dark:text-gray-400">Actual Revenue</span
+            ><span class="text-green-600 font-medium"
+              >{{ cycle.currency }} {{ cycle.actualCropValue | number }}</span
+            >
+          </div>
+          <hr class="dark:border-slate-700" />
+          <div class="flex justify-between font-bold text-lg">
+            <span>Profit/Loss</span>
+            <span
+              [class]="
+                cycle.actualCropValue -
+                  (cycle.totalSeedCost +
+                    getTotalActivityCost() +
+                    getTotalExpenses()) >=
+                0
+                  ? 'text-green-600'
+                  : 'text-red-600'
+              "
+            >
+              {{ cycle.currency }}
+              {{
+                cycle.actualCropValue -
+                  (cycle.totalSeedCost +
+                    getTotalActivityCost() +
+                    getTotalExpenses()) | number
+              }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      *ngIf="cycle.weatherAtPlanting?.condition"
+      class="mt-6 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6"
+    >
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+        <i class="fas fa-cloud-sun mr-2"></i>Weather at Planting
+      </h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div>
+          <span class="text-gray-500 dark:text-gray-400 block">Condition</span
+          ><span class="text-gray-800 dark:text-gray-100 capitalize">{{
+            cycle.weatherAtPlanting.condition
+          }}</span>
+        </div>
+        <div>
+          <span class="text-gray-500 dark:text-gray-400 block">Temperature</span
+          ><span class="text-gray-800 dark:text-gray-100">{{
+            cycle.weatherAtPlanting.temperature || "—"
+          }}</span>
+        </div>
+        <div>
+          <span class="text-gray-500 dark:text-gray-400 block">Rainfall</span
+          ><span class="text-gray-800 dark:text-gray-100 capitalize">{{
+            cycle.weatherAtPlanting.rainfall || "—"
+          }}</span>
+        </div>
+        <div>
+          <span class="text-gray-500 dark:text-gray-400 block"
+            >Soil Moisture</span
+          ><span class="text-gray-800 dark:text-gray-100 capitalize">{{
+            cycle.weatherAtPlanting.soilMoisture || "—"
+          }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Schedule Activity -->
+  <div
+    *ngIf="showActivityForm"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 overflow-y-auto py-8"
+  >
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto"
+    >
+      <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+        Schedule Farm Activity
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Activity Type *</label
+          >
+          <select
+            [(ngModel)]="activityForm.activityType"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
+          >
+            <option *ngFor="let t of activityTypes" [value]="t.value">
+              {{ t.label }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Title *</label
+          >
+          <input
+            [(ngModel)]="activityForm.title"
+            type="text"
+            placeholder="e.g. First Spraying - Ridomil"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
+          />
+        </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Scheduled Date *</label
+          >
+          <input
+            [(ngModel)]="activityForm.scheduledDate"
+            type="date"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
+          />
+        </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Days After Planting</label
+          >
+          <input
+            [(ngModel)]="activityForm.daysAfterPlanting"
+            type="number"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
+          />
+        </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Assigned Worker</label
+          >
+          <input
+            [(ngModel)]="activityForm.assignedWorkerName"
+            type="text"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
+          />
+        </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >No. of Workers</label
+          >
+          <input
+            [(ngModel)]="activityForm.workersCount"
+            type="number"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
+          />
+        </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Labor Hours</label
+          >
+          <input
+            [(ngModel)]="activityForm.laborHours"
+            type="number"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
+          />
+        </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Labor Cost (KES)</label
+          >
+          <input
+            [(ngModel)]="activityForm.laborCost"
+            type="number"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
+          />
+        </div>
+      </div>
+      <div class="mt-4">
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >Description</label
+        >
+        <textarea
+          [(ngModel)]="activityForm.description"
+          rows="2"
+          class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
+          placeholder="e.g. Apply Ridomil Gold MZ at 50g/20L water for late blight prevention"
+        ></textarea>
+      </div>
+      <div class="mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >Inputs Used</label
+          >
+          <button
+            (click)="addInput()"
+            class="text-xs px-2 py-1 rounded-md"
+            [style.color]="themeService.accent"
+          >
+            <i class="fas fa-plus mr-1"></i> Add Input
+          </button>
+        </div>
+        <div
+          *ngFor="let inp of activityForm.inputs; let i = index"
+          class="grid grid-cols-6 gap-2 mb-2 items-end"
+        >
+          <div class="col-span-2">
+            <input
+              [(ngModel)]="inp.inputName"
+              type="text"
+              placeholder="Product name"
+              class="w-full px-2 py-1.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-xs"
+            />
+          </div>
+          <div>
+            <select
+              [(ngModel)]="inp.inputType"
+              class="w-full px-2 py-1.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-xs"
+            >
+              <option *ngFor="let t of inputTypes" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+          <div>
+            <input
+              [(ngModel)]="inp.quantity"
+              type="number"
+              placeholder="Qty"
+              (ngModelChange)="calculateInputTotal(inp)"
+              class="w-full px-2 py-1.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-xs"
+            />
+          </div>
+          <div>
+            <input
+              [(ngModel)]="inp.costPerUnit"
+              type="number"
+              placeholder="Cost/unit"
+              (ngModelChange)="calculateInputTotal(inp)"
+              class="w-full px-2 py-1.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-xs"
+            />
+          </div>
+          <div class="flex items-center gap-1">
+            <span class="text-xs text-gray-500 dark:text-gray-400"
+              >={{ inp.totalCost | number }}</span
+            >
+            <button
+              (click)="removeInput(i)"
+              class="text-red-400 hover:text-red-600"
+            >
+              <i class="fas fa-times text-xs"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <label
+          class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block"
+          >Weather Conditions</label
+        >
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <select
+            [(ngModel)]="activityForm.weather.condition"
+            class="px-2 py-1.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-xs"
+          >
+            <option value="">Condition</option>
+            <option value="sunny">Sunny</option>
+            <option value="cloudy">Cloudy</option>
+            <option value="rainy">Rainy</option>
+            <option value="overcast">Overcast</option>
+            <option value="cold">Cold</option>
+            <option value="hot">Hot</option>
+          </select>
+          <input
+            [(ngModel)]="activityForm.weather.temperature"
+            type="text"
+            placeholder="Temp e.g. 22°C"
+            class="px-2 py-1.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-xs"
+          />
+          <select
+            [(ngModel)]="activityForm.weather.rainfall"
+            class="px-2 py-1.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-xs"
+          >
+            <option value="">Rainfall</option>
+            <option value="none">None</option>
+            <option value="light">Light</option>
+            <option value="moderate">Moderate</option>
+            <option value="heavy">Heavy</option>
+          </select>
+          <input
+            [(ngModel)]="activityForm.weather.humidity"
+            type="text"
+            placeholder="Humidity e.g. 65%"
+            class="px-2 py-1.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-xs"
+          />
+        </div>
+      </div>
+      <div class="mt-4">
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >Notes</label
+        >
+        <textarea
+          [(ngModel)]="activityForm.notes"
+          rows="2"
+          class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
+        ></textarea>
+      </div>
+      <div class="flex justify-end gap-3 mt-6">
+        <button
+          (click)="showActivityForm = false"
+          class="px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 text-sm text-gray-700 dark:text-gray-300"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="saveActivity()"
+          class="px-6 py-2 rounded-lg text-white text-sm font-medium"
+          [style.background-color]="themeService.accent"
+        >
+          Save Activity
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Complete Activity -->
+  <div
+    *ngIf="showCompleteForm && selectedActivity"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 overflow-y-auto py-8"
+  >
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 w-full max-w-lg mx-4"
+    >
+      <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+        Complete: {{ selectedActivity.title }}
+      </h2>
+      <div class="space-y-4">
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Completion Date</label
+          >
+          <input
+            [(ngModel)]="activityForm.completedDate"
+            type="date"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
+          />
+        </div>
+        <div>
+          <label
+            class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block"
+            >Weather During Activity</label
+          >
+          <div class="grid grid-cols-2 gap-2">
+            <select
+              [(ngModel)]="activityForm.weather.condition"
+              class="px-2 py-1.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-xs"
+            >
+              <option value="">Condition</option>
+              <option value="sunny">Sunny</option>
+              <option value="cloudy">Cloudy</option>
+              <option value="rainy">Rainy</option>
+              <option value="overcast">Overcast</option>
+            </select>
+            <select
+              [(ngModel)]="activityForm.weather.rainfall"
+              class="px-2 py-1.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-xs"
+            >
+              <option value="">Rainfall</option>
+              <option value="none">None</option>
+              <option value="light">Light</option>
+              <option value="moderate">Moderate</option>
+              <option value="heavy">Heavy</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Notes</label
+          >
+          <textarea
+            [(ngModel)]="activityForm.notes"
+            rows="3"
+            placeholder="How did it go? Any observations?"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
+          ></textarea>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 mt-6">
+        <button
+          (click)="showCompleteForm = false; selectedActivity = null"
+          class="px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 text-sm text-gray-700 dark:text-gray-300"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="completeActivity()"
+          class="px-6 py-2 rounded-lg bg-green-600 text-white text-sm font-medium"
+        >
+          <i class="fas fa-check mr-1"></i> Mark Done
+        </button>
       </div>
     </div>
   </div>

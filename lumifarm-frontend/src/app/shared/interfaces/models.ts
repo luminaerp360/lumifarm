@@ -1,6 +1,19 @@
 // ─── Properties ─── //
-export type PropertyType = 'apartment' | 'house' | 'commercial' | 'land' | 'bedsitter' | 'single_room' | 'one_bedroom' | 'two_bedroom' | 'three_bedroom';
-export type PropertyStatus = 'available' | 'occupied' | 'maintenance' | 'unavailable';
+export type PropertyType =
+  | "apartment"
+  | "house"
+  | "commercial"
+  | "land"
+  | "bedsitter"
+  | "single_room"
+  | "one_bedroom"
+  | "two_bedroom"
+  | "three_bedroom";
+export type PropertyStatus =
+  | "available"
+  | "occupied"
+  | "maintenance"
+  | "unavailable";
 
 export interface Property {
   _id: string;
@@ -53,8 +66,17 @@ export interface PropertyTenant {
 }
 
 // ─── Leases ─── //
-export type LeaseStatus = 'draft' | 'active' | 'expired' | 'terminated' | 'renewed';
-export type PaymentFrequency = 'monthly' | 'quarterly' | 'semi_annually' | 'annually';
+export type LeaseStatus =
+  | "draft"
+  | "active"
+  | "expired"
+  | "terminated"
+  | "renewed";
+export type PaymentFrequency =
+  | "monthly"
+  | "quarterly"
+  | "semi_annually"
+  | "annually";
 
 export interface Lease {
   _id: string;
@@ -85,9 +107,26 @@ export interface Lease {
 }
 
 // ─── Payments ─── //
-export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded' | 'partial';
-export type PaymentMethod = 'mpesa' | 'bank_transfer' | 'cash' | 'cheque' | 'card' | 'other';
-export type PaymentType = 'rent' | 'deposit' | 'late_fee' | 'damage' | 'utility' | 'other';
+export type PaymentStatus =
+  | "pending"
+  | "completed"
+  | "failed"
+  | "refunded"
+  | "partial";
+export type PaymentMethod =
+  | "mpesa"
+  | "bank_transfer"
+  | "cash"
+  | "cheque"
+  | "card"
+  | "other";
+export type PaymentType =
+  | "rent"
+  | "deposit"
+  | "late_fee"
+  | "damage"
+  | "utility"
+  | "other";
 
 export interface Payment {
   _id: string;
@@ -116,9 +155,24 @@ export interface Payment {
 }
 
 // ─── Damages ─── //
-export type DamageStatus = 'reported' | 'assessed' | 'in_repair' | 'repaired' | 'deducted' | 'closed';
-export type DamageSeverity = 'low' | 'medium' | 'high' | 'critical';
-export type DamageType = 'structural' | 'plumbing' | 'electrical' | 'appliance' | 'cosmetic' | 'fixture' | 'flooring' | 'window_door' | 'other';
+export type DamageStatus =
+  | "reported"
+  | "assessed"
+  | "in_repair"
+  | "repaired"
+  | "deducted"
+  | "closed";
+export type DamageSeverity = "low" | "medium" | "high" | "critical";
+export type DamageType =
+  | "structural"
+  | "plumbing"
+  | "electrical"
+  | "appliance"
+  | "cosmetic"
+  | "fixture"
+  | "flooring"
+  | "window_door"
+  | "other";
 
 export interface Damage {
   _id: string;
@@ -150,20 +204,38 @@ export interface Damage {
 
 // ─── Auth & Users ─── //
 export type RentiumPermission =
-  | 'view_dashboard'
-  | 'view_properties' | 'create_properties' | 'edit_properties' | 'delete_properties'
-  | 'view_tenants' | 'create_tenants' | 'edit_tenants' | 'delete_tenants'
-  | 'view_leases' | 'create_leases' | 'edit_leases' | 'delete_leases'
-  | 'view_payments' | 'create_payments' | 'edit_payments' | 'delete_payments'
-  | 'view_damages' | 'create_damages' | 'edit_damages' | 'delete_damages'
-  | 'view_reports'
-  | 'view_users' | 'create_users' | 'edit_users' | 'delete_users';
+  | "view_dashboard"
+  | "view_properties"
+  | "create_properties"
+  | "edit_properties"
+  | "delete_properties"
+  | "view_tenants"
+  | "create_tenants"
+  | "edit_tenants"
+  | "delete_tenants"
+  | "view_leases"
+  | "create_leases"
+  | "edit_leases"
+  | "delete_leases"
+  | "view_payments"
+  | "create_payments"
+  | "edit_payments"
+  | "delete_payments"
+  | "view_damages"
+  | "create_damages"
+  | "edit_damages"
+  | "delete_damages"
+  | "view_reports"
+  | "view_users"
+  | "create_users"
+  | "edit_users"
+  | "delete_users";
 
 export interface RentiumUser {
   _id: string;
   name: string;
   email: string;
-  role: 'super_admin' | 'admin' | 'manager' | 'agent';
+  role: "super_admin" | "admin" | "manager" | "agent";
   isActive: boolean;
   assignedPropertyIds: string[];
   permissions: RentiumPermission[];
@@ -172,7 +244,7 @@ export interface RentiumUser {
   avatar?: string;
   isEmailVerified?: boolean;
   isApproved?: boolean;
-  authProvider?: 'credentials' | 'google';
+  authProvider?: "credentials" | "google";
   tenantIds?: string[];
   activeTenantId?: string;
 }
@@ -202,7 +274,7 @@ export interface PaginatedResponse<T> {
 }
 
 // ─── System Tenants (Organizations) ─── //
-export type TenantPlan = 'free' | 'basic' | 'pro' | 'enterprise';
+export type TenantPlan = "free" | "basic" | "pro" | "enterprise";
 
 export interface Tenant {
   _id: string;
@@ -224,10 +296,149 @@ export interface Tenant {
 
 // ─── Dashboard / Reports ─── //
 export interface DashboardStats {
-  properties: { total: number; available: number; occupied: number; occupancyRate: number };
+  properties: {
+    total: number;
+    available: number;
+    occupied: number;
+    occupancyRate: number;
+  };
   tenants: { total: number; active: number };
   leases: { total: number; active: number; expiringSoonCount: number };
   payments: { total: number; completed: number; pending: number };
   revenue: { monthly: number; total: number };
   damages: { total: number; reported: number };
+}
+
+// ─── Crop Cycles ─── //
+export type CropCycleStatus =
+  | "draft"
+  | "active"
+  | "growing"
+  | "harvesting"
+  | "completed"
+  | "abandoned";
+
+export interface WeatherRecord {
+  condition: string;
+  temperature: string;
+  rainfall: string;
+  soilMoisture?: string;
+  humidity?: string;
+  notes: string;
+}
+
+export interface CropCycle {
+  _id: string;
+  tenantId: string;
+  farmId: string;
+  plotId: string;
+  farmWorkerId: string;
+  cycleNumber: string;
+  seasonName: string;
+  seasonYear: string;
+  status: CropCycleStatus;
+  plantingDate: string;
+  expectedHarvestDate: string;
+  actualHarvestDate: string;
+  cropType: string;
+  seedSupplier: string;
+  seedVariety: string;
+  seedQuantity: number;
+  seedUnit: string;
+  seedCostPerUnit: number;
+  totalSeedCost: number;
+  projectedYield: number;
+  actualYield: number;
+  yieldUnit: string;
+  pricePerUnit: number;
+  expectedCropValue: number;
+  actualCropValue: number;
+  currency: string;
+  harvestQuality: string;
+  storageLocation: string;
+  buyerName: string;
+  fertilizer: string;
+  pesticides: string;
+  waterConsumption: number;
+  laborCost: number;
+  harvestFrequency: string;
+  weatherAtPlanting: WeatherRecord;
+  soilCondition: string;
+  soilPreparationMethod: string;
+  totalInputsCost: number;
+  totalLaborCost: number;
+  totalExpenses: number;
+  totalRevenue: number;
+  profitOrLoss: number;
+  farmingPractices: string;
+  pestManagementMethod: string;
+  terms: string;
+  notes: string;
+  documents: string[];
+  completedAt: string;
+  abandonmentReason: string;
+  renewedFromCycleId: string;
+  farmName: string;
+  farmWorkerName: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ─── Crop Activities ─── //
+export type ActivityType =
+  | "soil_preparation"
+  | "planting"
+  | "weeding"
+  | "spraying"
+  | "fertilizing"
+  | "earthing_up"
+  | "irrigation"
+  | "scouting"
+  | "pruning"
+  | "harvesting"
+  | "post_harvest"
+  | "other";
+export type ActivityStatus =
+  | "scheduled"
+  | "in_progress"
+  | "completed"
+  | "skipped"
+  | "overdue";
+
+export interface ActivityInput {
+  inputName: string;
+  inputType: string;
+  quantity: number;
+  unit: string;
+  costPerUnit: number;
+  totalCost: number;
+}
+
+export interface CropActivity {
+  _id: string;
+  tenantId: string;
+  cropCycleId: string;
+  farmId: string;
+  plotId: string;
+  activityType: ActivityType;
+  title: string;
+  description: string;
+  status: ActivityStatus;
+  scheduledDate: string;
+  completedDate: string;
+  daysAfterPlanting: number;
+  inputs: ActivityInput[];
+  workersCount: number;
+  laborHours: number;
+  laborCost: number;
+  assignedWorkerId: string;
+  assignedWorkerName: string;
+  weather: WeatherRecord;
+  totalInputCost: number;
+  totalActivityCost: number;
+  currency: string;
+  notes: string;
+  images: string[];
+  createdAt: string;
+  updatedAt: string;
 }

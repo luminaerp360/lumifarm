@@ -18,6 +18,11 @@ interface NavItem {
   superAdminOnly?: boolean;
 }
 
+interface NavGroup {
+  title: string;
+  items: NavItem[];
+}
+
 @Component({
   selector: "app-sidebar",
   templateUrl: "./sidebar.component.html",
@@ -30,34 +35,80 @@ export class SidebarComponent implements OnInit, OnDestroy {
   @Output() toggle = new EventEmitter<void>();
   @Output() navigate = new EventEmitter<void>();
 
-  allNavItems: NavItem[] = [
-    { label: "Dashboard", icon: "fas fa-th-large", route: "/dashboard" },
-    { label: "Farms", icon: "fas fa-tractor", route: "/farms" },
-    { label: "Plots", icon: "fas fa-seedling", route: "/plots" },
-    { label: "Farm Workers", icon: "fas fa-users", route: "/farm-workers" },
+  allNavGroups: NavGroup[] = [
     {
-      label: "Crop Cycles",
-      icon: "fas fa-calendar-alt",
-      route: "/crop-cycles",
+      title: "Overview",
+      items: [
+        { label: "Dashboard", icon: "fas fa-th-large", route: "/dashboard" },
+      ],
     },
     {
-      label: "Farm Finance",
-      icon: "fas fa-money-bill-wave",
-      route: "/farm-finance",
+      title: "Farm Operations",
+      items: [
+        { label: "Farms", icon: "fas fa-tractor", route: "/farms" },
+        { label: "Plots / Fields", icon: "fas fa-border-all", route: "/plots" },
+        {
+          label: "Crop Cycles",
+          icon: "fas fa-sync-alt",
+          route: "/crop-cycles",
+        },
+        { label: "Tasks", icon: "fas fa-tasks", route: "/tasks" },
+      ],
     },
-    { label: "Crop Issues", icon: "fas fa-bug", route: "/crop-issues" },
-    { label: "Reports", icon: "fas fa-chart-bar", route: "/reports" },
-    { label: "Users", icon: "fas fa-users-cog", route: "/users" },
-    { label: "Settings", icon: "fas fa-cog", route: "/settings" },
     {
-      label: "Organizations",
-      icon: "fas fa-city",
-      route: "/system-tenants",
-      superAdminOnly: true,
+      title: "Resources",
+      items: [
+        {
+          label: "Farm Workers",
+          icon: "fas fa-hard-hat",
+          route: "/farm-workers",
+        },
+        {
+          label: "Inventory & Inputs",
+          icon: "fas fa-warehouse",
+          route: "/inventory",
+        },
+        { label: "Equipment", icon: "fas fa-cogs", route: "/equipment" },
+      ],
+    },
+    {
+      title: "Monitoring",
+      items: [
+        {
+          label: "Crop Issues",
+          icon: "fas fa-exclamation-triangle",
+          route: "/crop-issues",
+        },
+        {
+          label: "Harvest & Yield",
+          icon: "fas fa-wheat-awn",
+          route: "/harvest",
+        },
+      ],
+    },
+    {
+      title: "Finance & Reports",
+      items: [
+        { label: "Farm Finance", icon: "fas fa-coins", route: "/farm-finance" },
+        { label: "Reports", icon: "fas fa-chart-pie", route: "/reports" },
+      ],
+    },
+    {
+      title: "Administration",
+      items: [
+        { label: "Users", icon: "fas fa-user-shield", route: "/users" },
+        { label: "Settings", icon: "fas fa-sliders-h", route: "/settings" },
+        {
+          label: "Organizations",
+          icon: "fas fa-sitemap",
+          route: "/system-tenants",
+          superAdminOnly: true,
+        },
+      ],
     },
   ];
 
-  navItems: NavItem[] = [];
+  navGroups: NavGroup[] = [];
   private userSub?: Subscription;
 
   constructor(
@@ -69,9 +120,14 @@ export class SidebarComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.userSub = this.authService.user$.subscribe((user) => {
       const isSuperAdmin = user?.role === "super_admin";
-      this.navItems = this.allNavItems.filter(
-        (item) => !item.superAdminOnly || isSuperAdmin,
-      );
+      this.navGroups = this.allNavGroups
+        .map((group) => ({
+          ...group,
+          items: group.items.filter(
+            (item) => !item.superAdminOnly || isSuperAdmin,
+          ),
+        }))
+        .filter((group) => group.items.length > 0);
     });
   }
 

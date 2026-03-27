@@ -1,6 +1,29 @@
-import { IsString, IsNotEmpty, IsOptional, IsEnum, IsNumber, IsArray, IsDate } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsEnum, IsNumber, IsArray, IsDate, ValidateNested } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
+import { Type } from 'class-transformer';
 import { CropCycleStatus, HarvestFrequency } from '../schemas/crop-cycle.schema';
+
+export class WeatherAtPlantingDto {
+  @IsString()
+  @IsOptional()
+  condition?: string;
+
+  @IsString()
+  @IsOptional()
+  temperature?: string;
+
+  @IsString()
+  @IsOptional()
+  rainfall?: string;
+
+  @IsString()
+  @IsOptional()
+  soilMoisture?: string;
+
+  @IsString()
+  @IsOptional()
+  notes?: string;
+}
 
 export class CreateCropCycleDto {
   @IsString()
@@ -86,6 +109,68 @@ export class CreateCropCycleDto {
   @IsString()
   @IsOptional()
   notes?: string;
+
+  // Season
+  @IsString()
+  @IsOptional()
+  seasonName?: string;
+
+  @IsString()
+  @IsOptional()
+  seasonYear?: string;
+
+  // Weather at planting
+  @ValidateNested()
+  @Type(() => WeatherAtPlantingDto)
+  @IsOptional()
+  weatherAtPlanting?: WeatherAtPlantingDto;
+
+  // Soil
+  @IsString()
+  @IsOptional()
+  soilCondition?: string;
+
+  @IsString()
+  @IsOptional()
+  soilPreparationMethod?: string;
+
+  // Seed details
+  @IsNumber()
+  @IsOptional()
+  seedQuantity?: number;
+
+  @IsString()
+  @IsOptional()
+  seedUnit?: string;
+
+  @IsNumber()
+  @IsOptional()
+  seedCostPerUnit?: number;
+
+  @IsNumber()
+  @IsOptional()
+  totalSeedCost?: number;
+
+  // Harvest details
+  @IsString()
+  @IsOptional()
+  yieldUnit?: string;
+
+  @IsNumber()
+  @IsOptional()
+  pricePerUnit?: number;
+
+  @IsString()
+  @IsOptional()
+  harvestQuality?: string;
+
+  @IsString()
+  @IsOptional()
+  storageLocation?: string;
+
+  @IsString()
+  @IsOptional()
+  buyerName?: string;
 }
 
 export class UpdateCropCycleDto extends PartialType(CreateCropCycleDto) {
@@ -112,4 +197,25 @@ export class UpdateCropCycleDto extends PartialType(CreateCropCycleDto) {
   @IsString()
   @IsOptional()
   abandonmentReason?: string;
+
+  // Cost totals (computed from activities + finance)
+  @IsNumber()
+  @IsOptional()
+  totalInputsCost?: number;
+
+  @IsNumber()
+  @IsOptional()
+  totalLaborCost?: number;
+
+  @IsNumber()
+  @IsOptional()
+  totalExpenses?: number;
+
+  @IsNumber()
+  @IsOptional()
+  totalRevenue?: number;
+
+  @IsNumber()
+  @IsOptional()
+  profitOrLoss?: number;
 }

@@ -25,25 +25,45 @@
   </div>
 
   <!-- Navigation -->
-  <nav class="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
-    <a
-      *ngFor="let item of navItems"
-      [routerLink]="item.route"
-      (click)="navigate.emit()"
-      class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer"
-      [class.text-white]="isActive(item.route)"
-      [class.text-gray-600]="!isActive(item.route)"
-      [class.dark:text-gray-400]="!isActive(item.route)"
-      [class.hover:bg-gray-100]="!isActive(item.route)"
-      [class.dark:hover:bg-slate-700]="!isActive(item.route)"
-      [class.justify-center]="collapsed && !isMobile"
-      [style.background-color]="
-        isActive(item.route) ? themeService.accent : 'transparent'
-      "
+  <nav class="flex-1 py-3 px-2 overflow-y-auto">
+    <div
+      *ngFor="let group of navGroups; let first = first"
+      [class.mt-4]="!first"
     >
-      <i [class]="item.icon" class="text-base w-5 text-center"></i>
-      <span *ngIf="!collapsed || isMobile">{{ item.label }}</span>
-    </a>
+      <!-- Group title -->
+      <div
+        *ngIf="!collapsed || isMobile"
+        class="px-3 mb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500"
+      >
+        {{ group.title }}
+      </div>
+      <div
+        *ngIf="collapsed && !isMobile"
+        class="border-t border-gray-100 dark:border-slate-700 mx-2 mb-2"
+        [class.hidden]="first"
+      ></div>
+
+      <!-- Items -->
+      <a
+        *ngFor="let item of group.items"
+        [routerLink]="item.route"
+        (click)="navigate.emit()"
+        class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer"
+        [class.text-white]="isActive(item.route)"
+        [class.text-gray-600]="!isActive(item.route)"
+        [class.dark:text-gray-400]="!isActive(item.route)"
+        [class.hover:bg-gray-100]="!isActive(item.route)"
+        [class.dark:hover:bg-slate-700]="!isActive(item.route)"
+        [class.justify-center]="collapsed && !isMobile"
+        [style.background-color]="
+          isActive(item.route) ? themeService.accent : 'transparent'
+        "
+        [title]="collapsed && !isMobile ? item.label : ''"
+      >
+        <i [class]="item.icon" class="text-base w-5 text-center"></i>
+        <span *ngIf="!collapsed || isMobile">{{ item.label }}</span>
+      </a>
+    </div>
   </nav>
 
   <!-- Collapse toggle (desktop only) -->

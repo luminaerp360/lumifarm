@@ -34,6 +34,13 @@ export class CropCycle extends BaseDocument {
   @Prop({ required: false, default: '' })
   cycleNumber: string;
 
+  // Season tracking
+  @Prop({ required: false, default: '' })
+  seasonName: string; // e.g. "Long Rains 2026", "Short Rains 2026", "Dry Season 2026"
+
+  @Prop({ required: false, default: '' })
+  seasonYear: string;
+
   @Prop({ type: String, enum: CropCycleStatus, default: CropCycleStatus.DRAFT })
   status: CropCycleStatus;
 
@@ -115,6 +122,77 @@ export class CropCycle extends BaseDocument {
 
   @Prop({ required: false, default: '' })
   notes: string;
+
+  // Weather at planting
+  @Prop({
+    type: {
+      condition: { type: String, default: '' },
+      temperature: { type: String, default: '' },
+      rainfall: { type: String, default: '' },
+      soilMoisture: { type: String, default: '' },
+      notes: { type: String, default: '' },
+    },
+    default: {},
+  })
+  weatherAtPlanting: {
+    condition: string;
+    temperature: string;
+    rainfall: string;
+    soilMoisture: string;
+    notes: string;
+  };
+
+  // Soil condition at start
+  @Prop({ required: false, default: '' })
+  soilCondition: string;
+
+  @Prop({ required: false, default: '' })
+  soilPreparationMethod: string; // plowing, harrowing, ridging
+
+  // Seed details
+  @Prop({ required: false, default: 0 })
+  seedQuantity: number;
+
+  @Prop({ required: false, default: '' })
+  seedUnit: string; // kg, bags
+
+  @Prop({ required: false, default: 0 })
+  seedCostPerUnit: number;
+
+  @Prop({ required: false, default: 0 })
+  totalSeedCost: number;
+
+  // Computed totals (updated when activities are completed)
+  @Prop({ required: false, default: 0 })
+  totalInputsCost: number;
+
+  @Prop({ required: false, default: 0 })
+  totalLaborCost: number;
+
+  @Prop({ required: false, default: 0 })
+  totalExpenses: number;
+
+  @Prop({ required: false, default: 0 })
+  totalRevenue: number;
+
+  @Prop({ required: false, default: 0 })
+  profitOrLoss: number;
+
+  // Harvest details
+  @Prop({ required: false, default: '' })
+  yieldUnit: string; // kg, bags, tonnes
+
+  @Prop({ required: false, default: 0 })
+  pricePerUnit: number;
+
+  @Prop({ required: false, default: '' })
+  harvestQuality: string; // grade A, grade B, mixed
+
+  @Prop({ required: false, default: '' })
+  storageLocation: string;
+
+  @Prop({ required: false, default: '' })
+  buyerName: string;
 }
 
 export const CropCycleSchema = SchemaFactory.createForClass(CropCycle);

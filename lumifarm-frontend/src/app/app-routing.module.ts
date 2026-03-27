@@ -20,6 +20,10 @@ import { ReportsComponent } from "./modules/reports/reports.component";
 import { UsersListComponent } from "./modules/users/users-list/users-list.component";
 import { SettingsComponent } from "./modules/settings/settings.component";
 import { SystemTenantsComponent } from "./modules/system-tenants/system-tenants.component";
+import { TasksComponent } from "./modules/tasks/tasks.component";
+import { InventoryComponent } from "./modules/inventory/inventory.component";
+import { EquipmentComponent } from "./modules/equipment/equipment.component";
+import { HarvestComponent } from "./modules/harvest/harvest.component";
 import { AuthGuard } from "./shared/guards/auth.guard";
 
 const routes: Routes = [
@@ -47,6 +51,12 @@ const routes: Routes = [
       { path: "farm-finance/:id", component: FarmFinanceDetailComponent },
       { path: "crop-issues", component: CropIssuesListComponent },
       { path: "crop-issues/:id", component: CropIssueDetailComponent },
+
+      // New modules
+      { path: "tasks", component: TasksComponent },
+      { path: "inventory", component: InventoryComponent },
+      { path: "equipment", component: EquipmentComponent },
+      { path: "harvest", component: HarvestComponent },
 
       { path: "reports", component: ReportsComponent },
       { path: "users", component: UsersListComponent },

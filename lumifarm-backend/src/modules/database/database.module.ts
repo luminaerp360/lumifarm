@@ -4,8 +4,17 @@ import { MongooseModule } from '@nestjs/mongoose';
 @Module({
   imports: [
     MongooseModule.forRootAsync({
-      useFactory: () => ({
-        uri: process.env.MONGODB_URI,
+      useFactory: () => {
+        const uri = process.env.MONGODB_URI || '';
+
+        if (!uri || uri.includes('<db_password>')) {
+          throw new Error(
+            'Invalid MONGODB_URI. Replace <db_password> in your .env with the actual MongoDB Atlas database user password.',
+          );
+        }
+
+        return {
+          uri,
         retryAttempts: Number.MAX_SAFE_INTEGER,
         retryDelay: 10000,
         connectionFactory: (connection) => {
@@ -20,7 +29,8 @@ import { MongooseModule } from '@nestjs/mongoose';
           });
           return connection;
         },
-      }),
+        };
+      },
     }),
   ],
 })

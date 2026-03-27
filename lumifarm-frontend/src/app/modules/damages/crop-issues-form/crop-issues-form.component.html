@@ -1,0 +1,338 @@
+<div
+  *ngIf="isOpen"
+  class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 dark:bg-opacity-70"
+>
+  <div
+    class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
+  >
+    <!-- Sticky Header -->
+    <div
+      class="sticky top-0 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 px-6 py-4 flex justify-between items-center"
+    >
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+        {{ isEditMode ? "Edit Crop Issue" : "Report Crop Issue" }}
+      </h2>
+      <button
+        (click)="closeModal()"
+        class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+      >
+        ✕
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="overflow-y-auto flex-1 px-6 py-4">
+      <!-- Tenant Loading -->
+      <div
+        *ngIf="tenantRefreshLoading"
+        class="flex items-center justify-center py-8"
+      >
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-b-2"
+          [style.border-color]="themeService.accentColor"
+        ></div>
+      </div>
+
+      <!-- Tenant Error -->
+      <div
+        *ngIf="tenantMissing && !tenantRefreshLoading"
+        class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4"
+      >
+        <p class="text-red-800 dark:text-red-200 text-sm">{{ error }}</p>
+        <button
+          (click)="authService.logout()"
+          class="mt-2 text-sm text-red-600 dark:text-red-400 hover:underline"
+        >
+          Logout and login again
+        </button>
+      </div>
+
+      <!-- Error Message -->
+      <div
+        *ngIf="error && !tenantMissing"
+        class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4"
+      >
+        <p class="text-red-800 dark:text-red-200 text-sm">{{ error }}</p>
+      </div>
+
+      <!-- Form -->
+      <form
+        *ngIf="!tenantRefreshLoading"
+        (ngSubmit)="onSubmit()"
+        class="space-y-4"
+      >
+        <!-- Issue Severity -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Issue Type <span class="text-red-500">*</span>
+            </label>
+            <select
+              [(ngModel)]="form.issueType"
+              name="issueType"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+              required
+            >
+              <option *ngFor="let type of issueTypes" [value]="type">
+                {{ type }}
+              </option>
+            </select>
+          </div>
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Severity
+            </label>
+            <select
+              [(ngModel)]="form.severity"
+              name="severity"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+            >
+              <option *ngFor="let sev of severityOptions" [value]="sev">
+                {{ sev }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Farm & Plot Selection -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Farm
+            </label>
+            <select
+              [(ngModel)]="form.farmId"
+              name="farmId"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+            >
+              <option value="">Select Farm</option>
+            </select>
+          </div>
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Plot
+            </label>
+            <select
+              [(ngModel)]="form.plotId"
+              name="plotId"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+            >
+              <option value="">Select Plot</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Crop Cycle -->
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
+            Crop Cycle
+          </label>
+          <select
+            [(ngModel)]="form.cropCycleId"
+            name="cropCycleId"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+          >
+            <option value="">Select Crop Cycle</option>
+          </select>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
+            Description <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            [(ngModel)]="form.description"
+            name="description"
+            rows="3"
+            placeholder="Describe the issue in detail..."
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+            required
+          ></textarea>
+        </div>
+
+        <!-- Affected Area -->
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
+            Affected Area
+          </label>
+          <input
+            [(ngModel)]="form.affectedArea"
+            type="text"
+            name="affectedArea"
+            placeholder="e.g., 2 acres, North section"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+          />
+        </div>
+
+        <!-- Diagnosis & Remedy -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Diagnosis
+            </label>
+            <textarea
+              [(ngModel)]="form.diagnosis"
+              name="diagnosis"
+              rows="2"
+              placeholder="Root cause analysis..."
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+            ></textarea>
+          </div>
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Remedial Measure
+            </label>
+            <textarea
+              [(ngModel)]="form.remedialMeasure"
+              name="remedialMeasure"
+              rows="2"
+              placeholder="Treatment or solution..."
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Cost to Fix & Status -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Cost to Fix
+            </label>
+            <input
+              [(ngModel)]="form.costToFix"
+              type="number"
+              name="costToFix"
+              placeholder="0"
+              step="0.01"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Status
+            </label>
+            <select
+              [(ngModel)]="form.status"
+              name="status"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+            >
+              <option *ngFor="let stat of statusOptions" [value]="stat">
+                {{ stat }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Chemical/Pest Name -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              {{
+                form.issueType === "pest_infestation"
+                  ? "Pest Name"
+                  : "Disease/Issue Name"
+              }}
+            </label>
+            <input
+              [(ngModel)]="
+                form.issueType === 'pest_infestation'
+                  ? form.pestName
+                  : form.diseaseName
+              "
+              type="text"
+              [name]="
+                form.issueType === 'pest_infestation'
+                  ? 'pestName'
+                  : 'diseaseName'
+              "
+              [placeholder]="
+                form.issueType === 'pest_infestation'
+                  ? 'e.g., Army Worms'
+                  : 'e.g., Early Blight'
+              "
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Chemical/Treatment Used
+            </label>
+            <input
+              [(ngModel)]="form.chemicalUsed"
+              type="text"
+              name="chemicalUsed"
+              placeholder="e.g., Insecticide A, Fungicide B"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+            />
+          </div>
+        </div>
+
+        <!-- Additional Notes -->
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
+            Additional Notes
+          </label>
+          <textarea
+            [(ngModel)]="form.notes"
+            name="notes"
+            rows="2"
+            placeholder="Any other relevant information..."
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+          ></textarea>
+        </div>
+      </form>
+    </div>
+
+    <!-- Sticky Footer -->
+    <div
+      class="sticky bottom-0 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 px-6 py-4 flex justify-end gap-3"
+    >
+      <button
+        (click)="closeModal()"
+        class="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700"
+      >
+        Cancel
+      </button>
+      <button
+        (click)="onSubmit()"
+        [disabled]="loading || tenantMissing || tenantRefreshLoading"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 flex items-center gap-2"
+      >
+        <span
+          *ngIf="loading"
+          class="animate-spin inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full"
+        ></span>
+        {{ isEditMode ? "Update" : "Report" }} Issue
+      </button>
+    </div>
+  </div>
+</div>

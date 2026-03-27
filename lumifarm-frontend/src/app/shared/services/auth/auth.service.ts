@@ -1,15 +1,15 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import { AuthResponse, RentiumUser, Tenant } from '../../interfaces/models';
+import { Injectable } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { Observable, BehaviorSubject, tap, switchMap, of } from "rxjs";
+import { environment } from "../../../../environments/environment";
+import { AuthResponse, RentiumUser, Tenant } from "../../interfaces/models";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
   private currentUser$ = new BehaviorSubject<RentiumUser | null>(null);
   private tenants$ = new BehaviorSubject<Tenant[]>([]);
-  private activeTenantId$ = new BehaviorSubject<string>('');
+  private activeTenantId$ = new BehaviorSubject<string>("");
 
   user$ = this.currentUser$.asObservable();
   tenantList$ = this.tenants$.asObservable();
@@ -20,88 +20,133 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { email, password }).pipe(
-      tap((res) => {
-        localStorage.setItem('rentium_token', res.token);
-        localStorage.setItem('rentium_user', JSON.stringify(res.user));
-        this.currentUser$.next(res.user);
-        this.setTenantContext(res.tenants || [], res.activeTenantId || '');
-      }),
-    );
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/login`, { email, password })
+      .pipe(
+        tap((res) => {
+          localStorage.setItem("rentium_token", res.token);
+          localStorage.setItem("rentium_user", JSON.stringify(res.user));
+          this.currentUser$.next(res.user);
+          this.setTenantContext(res.tenants || [], res.activeTenantId || "");
+        }),
+      );
   }
 
-  signup(name: string, email: string, password: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/signup`, { name, email, password });
+  signup(
+    name: string,
+    email: string,
+    password: string,
+  ): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/signup`, {
+      name,
+      email,
+      password,
+    });
   }
 
   verifyEmail(token: string): Observable<{ message: string }> {
-    return this.http.get<{ message: string }>(`${this.apiUrl}/verify-email`, { params: { token } });
+    return this.http.get<{ message: string }>(`${this.apiUrl}/verify-email`, {
+      params: { token },
+    });
   }
 
-  register(name: string, email: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, { name, email, password }).pipe(
-      tap((res) => {
-        localStorage.setItem('rentium_token', res.token);
-        localStorage.setItem('rentium_user', JSON.stringify(res.user));
-        this.currentUser$.next(res.user);
-      }),
-    );
+  register(
+    name: string,
+    email: string,
+    password: string,
+  ): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/register`, { name, email, password })
+      .pipe(
+        tap((res) => {
+          localStorage.setItem("rentium_token", res.token);
+          localStorage.setItem("rentium_user", JSON.stringify(res.user));
+          this.currentUser$.next(res.user);
+        }),
+      );
   }
 
   googleLogin(): void {
     window.location.href = `${environment.apiUrl}/auth/google`;
   }
 
-  handleGoogleCallback(token: string, user: RentiumUser, tenants: Tenant[] = [], activeTenantId: string = ''): void {
-    localStorage.setItem('rentium_token', token);
-    localStorage.setItem('rentium_user', JSON.stringify(user));
+  handleGoogleCallback(
+    token: string,
+    user: RentiumUser,
+    tenants: Tenant[] = [],
+    activeTenantId: string = "",
+  ): void {
+    localStorage.setItem("rentium_token", token);
+    localStorage.setItem("rentium_user", JSON.stringify(user));
     this.currentUser$.next(user);
     this.setTenantContext(tenants, activeTenantId);
   }
 
   approveUser(userId: string): Observable<{ message: string }> {
-    return this.http.put<{ message: string }>(`${this.apiUrl}/users/${userId}/approve`, {});
-  }
-
-  rejectUser(userId: string): Observable<{ message: string }> {
-    return this.http.put<{ message: string }>(`${this.apiUrl}/users/${userId}/reject`, {});
-  }
-
-  switchTenant(tenantId: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/switch-tenant`, { tenantId }).pipe(
-      tap((res) => {
-        localStorage.setItem('rentium_token', res.token);
-        localStorage.setItem('rentium_user', JSON.stringify(res.user));
-        this.currentUser$.next(res.user);
-        this.setTenantContext(res.tenants || this.tenants$.value || [], res.activeTenantId || tenantId || '');
-      }),
+    return this.http.put<{ message: string }>(
+      `${this.apiUrl}/users/${userId}/approve`,
+      {},
     );
   }
 
-  addUserToTenant(userId: string, tenantId: string): Observable<RentiumUser> {
-    return this.http.post<RentiumUser>(`${this.apiUrl}/users/${userId}/add-to-tenant`, { tenantId });
+  rejectUser(userId: string): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(
+      `${this.apiUrl}/users/${userId}/reject`,
+      {},
+    );
   }
 
-  removeUserFromTenant(userId: string, tenantId: string): Observable<RentiumUser> {
-    return this.http.post<RentiumUser>(`${this.apiUrl}/users/${userId}/remove-from-tenant`, { tenantId });
+  switchTenant(tenantId: string): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/switch-tenant`, { tenantId })
+      .pipe(
+        tap((res) => {
+          localStorage.setItem("rentium_token", res.token);
+          localStorage.setItem("rentium_user", JSON.stringify(res.user));
+          this.currentUser$.next(res.user);
+          this.setTenantContext(
+            res.tenants || this.tenants$.value || [],
+            res.activeTenantId || tenantId || "",
+          );
+        }),
+      );
+  }
+
+  addUserToTenant(userId: string, tenantId: string): Observable<RentiumUser> {
+    return this.http.post<RentiumUser>(
+      `${this.apiUrl}/users/${userId}/add-to-tenant`,
+      { tenantId },
+    );
+  }
+
+  removeUserFromTenant(
+    userId: string,
+    tenantId: string,
+  ): Observable<RentiumUser> {
+    return this.http.post<RentiumUser>(
+      `${this.apiUrl}/users/${userId}/remove-from-tenant`,
+      { tenantId },
+    );
   }
 
   setPassword(password: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/set-password`, { password });
+    return this.http.post<{ message: string }>(`${this.apiUrl}/set-password`, {
+      password,
+    });
   }
 
   logout(): void {
-    localStorage.removeItem('rentium_token');
-    localStorage.removeItem('rentium_user');
-    localStorage.removeItem('rentium_tenants');
-    localStorage.removeItem('rentium_active_tenant');
+    localStorage.removeItem("rentium_token");
+    localStorage.removeItem("rentium_user");
+    localStorage.removeItem("rentium_tenants");
+    localStorage.removeItem("rentium_active_tenant");
     this.currentUser$.next(null);
     this.tenants$.next([]);
-    this.activeTenantId$.next('');
+    this.activeTenantId$.next("");
   }
 
   getToken(): string | null {
-    return localStorage.getItem('rentium_token');
+    return localStorage.getItem("rentium_token");
   }
 
   getUser(): RentiumUser | null {
@@ -122,29 +167,36 @@ export class AuthService {
 
   isSuperAdmin(): boolean {
     const user = this.getUser();
-    return user?.role === 'super_admin';
+    return user?.role === "super_admin";
   }
 
-  setTenantContext(tenants: Tenant[], activeTenantId = ''): void {
+  setTenantContext(tenants: Tenant[], activeTenantId = ""): void {
     const normalizedTenants = (tenants || []).map((tenant: any) => ({
       ...tenant,
       _id: this.normalizeTenantId(tenant?._id ?? tenant?.id),
     })) as Tenant[];
     const normalizedActiveTenantId = this.normalizeTenantId(activeTenantId);
-    const resolvedActiveTenantId = normalizedActiveTenantId && normalizedTenants.some((tenant) => tenant._id === normalizedActiveTenantId)
-      ? normalizedActiveTenantId
-      : normalizedTenants[0]?._id || '';
+    const resolvedActiveTenantId =
+      normalizedActiveTenantId &&
+      normalizedTenants.some(
+        (tenant) => tenant._id === normalizedActiveTenantId,
+      )
+        ? normalizedActiveTenantId
+        : normalizedTenants[0]?._id || "";
 
     if (normalizedTenants.length) {
-      localStorage.setItem('rentium_tenants', JSON.stringify(normalizedTenants));
+      localStorage.setItem(
+        "rentium_tenants",
+        JSON.stringify(normalizedTenants),
+      );
     } else {
-      localStorage.removeItem('rentium_tenants');
+      localStorage.removeItem("rentium_tenants");
     }
 
     if (resolvedActiveTenantId) {
-      localStorage.setItem('rentium_active_tenant', resolvedActiveTenantId);
+      localStorage.setItem("rentium_active_tenant", resolvedActiveTenantId);
     } else {
-      localStorage.removeItem('rentium_active_tenant');
+      localStorage.removeItem("rentium_active_tenant");
     }
 
     this.tenants$.next(normalizedTenants);
@@ -152,25 +204,62 @@ export class AuthService {
   }
 
   private normalizeTenantId(value: any): string {
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       return value;
     }
     if (value === null || value === undefined) {
-      return '';
+      return "";
     }
     return String(value);
   }
 
-  private loadUser(): void {
-    const userJson = localStorage.getItem('rentium_user');
-    if (userJson) {
-      try { this.currentUser$.next(JSON.parse(userJson)); } catch (e) {}
+  refreshTenantContext(): Observable<any> {
+    const token = this.getToken();
+    if (!token) {
+      return new Observable((obs) => {
+        obs.next(null);
+        obs.complete();
+      });
     }
-    const tenantsJson = localStorage.getItem('rentium_tenants');
+
+    return this.http.get<any>(`${this.apiUrl}/profile`).pipe(
+      tap((profile) => {
+        if (profile?.tenants) {
+          this.setTenantContext(profile.tenants, profile.activeTenantId);
+        }
+      }),
+      switchMap((profile) => {
+        // If profile has a valid activeTenantId, re-issue JWT via switchTenant
+        const activeTenantId =
+          profile?.activeTenantId ||
+          (profile?.tenants?.length
+            ? profile.tenants[0]._id || profile.tenants[0].id
+            : "");
+        if (activeTenantId) {
+          return this.switchTenant(activeTenantId);
+        }
+        return of(profile);
+      }),
+    );
+  }
+
+  private loadUser(): void {
+    const userJson = localStorage.getItem("rentium_user");
+    if (userJson) {
+      try {
+        this.currentUser$.next(JSON.parse(userJson));
+      } catch (e) {}
+    }
+    const tenantsJson = localStorage.getItem("rentium_tenants");
     let tenants: Tenant[] = [];
     if (tenantsJson) {
-      try { tenants = JSON.parse(tenantsJson); } catch (e) {}
+      try {
+        tenants = JSON.parse(tenantsJson);
+      } catch (e) {}
     }
-    this.setTenantContext(tenants, localStorage.getItem('rentium_active_tenant') || '');
+    this.setTenantContext(
+      tenants,
+      localStorage.getItem("rentium_active_tenant") || "",
+    );
   }
 }

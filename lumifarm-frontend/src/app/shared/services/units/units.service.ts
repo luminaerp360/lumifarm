@@ -1,21 +1,20 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { Injectable } from "@angular/core";
+import { HttpClient, HttpParams } from "@angular/common/http";
+import { Observable } from "rxjs";
+import { environment } from "../../../../environments/environment";
 
 export interface Unit {
   _id?: string;
   tenantId?: string;
-  propertyId: string;
-  unitNumber: string;
+  farmId: string;
+  plotNumber: string;
   description?: string;
   status: string;
-  rentAmount: number;
+  areaInAcres: number;
+  cropType?: string;
+  soilQuality?: string;
+  costToOperatePerCycle?: number;
   currency?: string;
-  securityDeposit?: number;
-  currentTenantId?: string;
-  currentLeaseId?: string;
-  currentPropertyTenantId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -28,7 +27,7 @@ export interface PaginatedResponse<T> {
   totalPages: number;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class UnitsService {
   private apiUrl = `${environment.apiUrl}/units`;
 
@@ -37,14 +36,14 @@ export class UnitsService {
   getAll(
     page = 1,
     limit = 20,
-    propertyId?: string,
+    farmId?: string,
     status?: string,
     search?: string,
   ): Observable<PaginatedResponse<Unit>> {
-    let params = new HttpParams().set('page', page).set('limit', limit);
-    if (propertyId) params = params.set('propertyId', propertyId);
-    if (status) params = params.set('status', status);
-    if (search) params = params.set('search', search);
+    let params = new HttpParams().set("page", page).set("limit", limit);
+    if (farmId) params = params.set("farmId", farmId);
+    if (status) params = params.set("status", status);
+    if (search) params = params.set("search", search);
     return this.http.get<PaginatedResponse<Unit>>(this.apiUrl, { params });
   }
 
@@ -52,8 +51,8 @@ export class UnitsService {
     return this.http.get<Unit>(`${this.apiUrl}/${id}`);
   }
 
-  getByProperty(propertyId: string): Observable<Unit[]> {
-    return this.http.get<Unit[]>(`${this.apiUrl}/property/${propertyId}`);
+  getByFarm(farmId: string): Observable<Unit[]> {
+    return this.http.get<Unit[]>(`${this.apiUrl}/farm/${farmId}`);
   }
 
   create(data: Partial<Unit>): Observable<Unit> {

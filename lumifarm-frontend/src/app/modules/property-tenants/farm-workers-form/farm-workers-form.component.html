@@ -17,7 +17,7 @@
       class="sticky top-0 z-10 flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800"
     >
       <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-        {{ isEditMode ? "Edit Plot" : "Add New Plot" }}
+        {{ isEditMode ? "Edit Farm Worker" : "Add Farm Worker" }}
       </h2>
       <button
         (click)="closeModal()"
@@ -59,53 +59,49 @@
         </div>
       </div>
 
-      <!-- Farm & Plot Number -->
+      <!-- Name & Phone -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
           >
-            Farm <span class="text-red-500">*</span>
+            Full Name <span class="text-red-500">*</span>
           </label>
-          <select
-            [(ngModel)]="form.farmId"
-            [disabled]="loading || loadingFarms || tenantMissing"
+          <input
+            [(ngModel)]="form.fullName"
+            type="text"
+            placeholder="e.g., John Doe"
+            [disabled]="loading || tenantMissing"
             class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
-          >
-            <option value="">-- Select Farm --</option>
-            <option *ngFor="let farm of farms" [value]="farm._id">
-              {{ farm.name }}
-            </option>
-          </select>
+          />
         </div>
         <div>
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
           >
-            Plot Number <span class="text-red-500">*</span>
+            Phone <span class="text-red-500">*</span>
           </label>
           <input
-            [(ngModel)]="form.plotNumber"
-            type="text"
-            placeholder="e.g., P-001"
+            [(ngModel)]="form.phone"
+            type="tel"
+            placeholder="+254712345678"
             [disabled]="loading || tenantMissing"
             class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
           />
         </div>
       </div>
 
-      <!-- Area & Status -->
+      <!-- Email & ID -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Email</label
           >
-            Area (Acres) <span class="text-red-500">*</span>
-          </label>
           <input
-            [(ngModel)]="form.areaInAcres"
-            type="number"
-            placeholder="0"
+            [(ngModel)]="form.email"
+            type="email"
+            placeholder="email@example.com"
             [disabled]="loading || tenantMissing"
             class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
           />
@@ -113,61 +109,95 @@
         <div>
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Status</label
+            >National ID</label
+          >
+          <input
+            [(ngModel)]="form.nationalId"
+            type="text"
+            placeholder="ID number"
+            [disabled]="loading || tenantMissing"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          />
+        </div>
+      </div>
+
+      <!-- Role & Specialization -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Role</label
           >
           <select
-            [(ngModel)]="form.status"
+            [(ngModel)]="form.role"
             [disabled]="loading || tenantMissing"
             class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
           >
-            <option *ngFor="let opt of statusOptions" [value]="opt">
+            <option *ngFor="let opt of roleOptions" [value]="opt">
+              {{ opt }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Specialization</label
+          >
+          <select
+            [(ngModel)]="form.specialization"
+            [disabled]="loading || tenantMissing"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          >
+            <option *ngFor="let opt of specializationOptions" [value]="opt">
               {{ opt }}
             </option>
           </select>
         </div>
       </div>
 
-      <!-- Crop Type & Soil Quality -->
+      <!-- Availability & Monthly Wage -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Crop Type</label
+            >Availability</label
           >
-          <input
-            [(ngModel)]="form.cropType"
-            type="text"
-            placeholder="e.g., maize, beans"
+          <select
+            [(ngModel)]="form.availability"
             [disabled]="loading || tenantMissing"
             class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
-          />
+          >
+            <option *ngFor="let opt of availabilityOptions" [value]="opt">
+              {{ opt }}
+            </option>
+          </select>
         </div>
         <div>
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Soil Quality</label
+            >Monthly Wage</label
           >
           <input
-            [(ngModel)]="form.soilQuality"
-            type="text"
-            placeholder="e.g., loamy, sandy"
+            [(ngModel)]="form.monthlyWage"
+            type="number"
+            placeholder="0"
             [disabled]="loading || tenantMissing"
             class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
           />
         </div>
       </div>
 
-      <!-- Cost & Currency -->
+      <!-- Address & Currency -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Cost per Cycle</label
+            >Address</label
           >
           <input
-            [(ngModel)]="form.costToOperatePerCycle"
-            type="number"
-            placeholder="0"
+            [(ngModel)]="form.address"
+            type="text"
+            placeholder="Street address"
             [disabled]="loading || tenantMissing"
             class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
           />
@@ -187,19 +217,34 @@
         </div>
       </div>
 
-      <!-- Description -->
-      <div>
-        <label
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >Description</label
-        >
-        <textarea
-          [(ngModel)]="form.description"
-          placeholder="Additional details about the plot..."
-          [disabled]="loading || tenantMissing"
-          rows="2"
-          class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0 resize-none"
-        ></textarea>
+      <!-- Skills & Insurance -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Skills</label
+          >
+          <input
+            [(ngModel)]="form.skills"
+            type="text"
+            placeholder="Comma-separated skills"
+            [disabled]="loading || tenantMissing"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          />
+        </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Health Insurance Number</label
+          >
+          <input
+            [(ngModel)]="form.healthInsuranceNumber"
+            type="text"
+            placeholder="Insurance ID"
+            [disabled]="loading || tenantMissing"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          />
+        </div>
       </div>
     </div>
 
@@ -220,9 +265,7 @@
         class="px-6 py-2 rounded-lg text-white text-sm font-medium transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
         [style.background-color]="themeService.accent"
       >
-        <span *ngIf="!loading"
-          >{{ isEditMode ? "Update" : "Create" }} Plot</span
-        >
+        <span *ngIf="!loading">{{ isEditMode ? "Update" : "Add" }} Worker</span>
         <span *ngIf="loading"
           ><i class="fas fa-spinner fa-spin mr-2"></i>Saving...</span
         >

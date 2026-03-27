@@ -91,7 +91,7 @@
                 class="font-medium text-gray-800 dark:text-gray-100 cursor-pointer"
                 (click)="viewUnit(unit._id)"
               >
-                {{ unit.unitNumber }}
+                {{ unit.plotNumber }}
               </p>
             </td>
             <td
@@ -100,7 +100,8 @@
               {{ unit.description || "-" }}
             </td>
             <td class="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">
-              {{ unit.currency || "KES" }} {{ unit.rentAmount | number }}
+              {{ unit.currency || "KES" }}
+              {{ unit.costToOperatePerCycle | number }}
             </td>
             <td class="px-4 py-3">
               <span
@@ -167,7 +168,7 @@
   <app-units-form
     [isOpen]="formModalOpen"
     [unit]="selectedUnit"
-    [propertyId]="propertyId"
+    [farmId]="propertyId"
     (close)="closeFormModal()"
     (save)="onUnitSaved($event)"
   ></app-units-form>

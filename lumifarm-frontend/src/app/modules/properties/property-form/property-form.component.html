@@ -1,13 +1,23 @@
 <!-- Modal Backdrop -->
-<div *ngIf="isOpen" class="fixed inset-0 z-40 bg-black/50 transition-opacity"></div>
+<div
+  *ngIf="isOpen"
+  class="fixed inset-0 z-40 bg-black/50 transition-opacity"
+></div>
 
 <!-- Modal -->
-<div *ngIf="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-  <div class="bg-white dark:bg-slate-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-lg border border-gray-200 dark:border-slate-700 animate-in fade-in zoom-in-95 duration-200">
+<div
+  *ngIf="isOpen"
+  class="fixed inset-0 z-50 flex items-center justify-center p-4"
+>
+  <div
+    class="bg-white dark:bg-slate-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-lg border border-gray-200 dark:border-slate-700 animate-in fade-in zoom-in-95 duration-200"
+  >
     <!-- Header -->
-    <div class="sticky top-0 z-10 flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+    <div
+      class="sticky top-0 z-10 flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+    >
       <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-        {{ isEditMode ? 'Edit Property' : 'Add New Property' }}
+        {{ isEditMode ? "Edit Farm" : "Add New Farm" }}
       </h2>
       <button
         (click)="closeModal()"
@@ -21,20 +31,62 @@
     <!-- Content -->
     <div class="p-6 space-y-4">
       <!-- Error Message -->
-      <div *ngIf="error" class="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-sm border border-red-200 dark:border-red-800">
-        <i class="fas fa-exclamation-circle mr-2"></i>{{ error }}
+      <div
+        *ngIf="error"
+        class="p-4 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-sm border border-red-200 dark:border-red-800"
+      >
+        <div class="flex items-start gap-3">
+          <i class="fas fa-exclamation-circle mt-0.5 flex-shrink-0"></i>
+          <div class="flex-1">
+            <p>{{ error }}</p>
+            <button
+              *ngIf="tenantMissing"
+              (click)="authService.logout(); closeModal()"
+              class="mt-2 inline-block text-sm underline hover:no-underline font-medium"
+            >
+              Log Out and Log In Again
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading Tenant Context -->
+      <div
+        *ngIf="tenantRefreshLoading"
+        class="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 text-sm border border-blue-200 dark:border-blue-800 flex items-center gap-2"
+      >
+        <i class="fas fa-spinner fa-spin"></i>
+        <span>Loading organization...</span>
       </div>
 
       <!-- Name & Type -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Property Name <span class="text-red-500">*</span></label>
-          <input type="text" [(ngModel)]="form.name" [disabled]="loading" placeholder="e.g., Greenview Apartments" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0" />
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Farm Name <span class="text-red-500">*</span></label
+          >
+          <input
+            type="text"
+            [(ngModel)]="form.name"
+            [disabled]="loading"
+            placeholder="e.g., Green Valley Farm"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
-          <select [(ngModel)]="form.type" [disabled]="loading" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0">
-            <option *ngFor="let t of typeOptions" [value]="t">{{ t.replace('_', ' ') | titlecase }}</option>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Type</label
+          >
+          <select
+            [(ngModel)]="form.type"
+            [disabled]="loading"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          >
+            <option *ngFor="let t of typeOptions" [value]="t">
+              {{ t.replace("_", " ") | titlecase }}
+            </option>
           </select>
         </div>
       </div>
@@ -42,95 +94,263 @@
       <!-- Status & Currency -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-          <select [(ngModel)]="form.status" [disabled]="loading" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0">
-            <option *ngFor="let s of statusOptions" [value]="s">{{ s | titlecase }}</option>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Status</label
+          >
+          <select
+            [(ngModel)]="form.status"
+            [disabled]="loading"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          >
+            <option *ngFor="let s of statusOptions" [value]="s">
+              {{ s | titlecase }}
+            </option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Currency</label>
-          <input type="text" [(ngModel)]="form.currency" [disabled]="loading" placeholder="KES" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0" />
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Currency</label
+          >
+          <input
+            type="text"
+            [(ngModel)]="form.currency"
+            [disabled]="loading"
+            placeholder="KES"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          />
         </div>
       </div>
 
-      <!-- Financial -->
+      <!-- Farm Configuration -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rent Amount</label>
-          <input type="number" [(ngModel)]="form.rentAmount" [disabled]="loading" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0" />
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Total Acreage <span class="text-red-500">*</span></label
+          >
+          <input
+            type="number"
+            [(ngModel)]="form.totalAcreage"
+            [disabled]="loading"
+            min="0"
+            step="0.1"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Deposit Amount</label>
-          <input type="number" [(ngModel)]="form.depositAmount" [disabled]="loading" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0" />
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Soil Type</label
+          >
+          <select
+            [(ngModel)]="form.soilType"
+            [disabled]="loading"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          >
+            <option *ngFor="let soil of soilTypeOptions" [value]="soil">
+              {{ soil | titlecase }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Irrigation Type</label
+          >
+          <select
+            [(ngModel)]="form.irrationType"
+            [disabled]="loading"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          >
+            <option
+              *ngFor="let irrigation of irrigationTypeOptions"
+              [value]="irrigation"
+            >
+              {{ irrigation | titlecase }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Manager ID</label
+          >
+          <input
+            type="text"
+            [(ngModel)]="form.managerId"
+            [disabled]="loading"
+            placeholder="Optional manager reference"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          />
         </div>
       </div>
 
       <!-- Location -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address</label>
-        <input type="text" [(ngModel)]="form.address" [disabled]="loading" placeholder="Street address" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0" />
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >Address <span class="text-red-500">*</span></label
+        >
+        <input
+          type="text"
+          [(ngModel)]="form.address"
+          [disabled]="loading"
+          placeholder="Street address"
+          class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+        />
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">City</label>
-          <input type="text" [(ngModel)]="form.city" [disabled]="loading" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0" />
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >City</label
+          >
+          <input
+            type="text"
+            [(ngModel)]="form.city"
+            [disabled]="loading"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">County</label>
-          <input type="text" [(ngModel)]="form.county" [disabled]="loading" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0" />
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >County</label
+          >
+          <input
+            type="text"
+            [(ngModel)]="form.county"
+            [disabled]="loading"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          />
         </div>
       </div>
 
-      <!-- Property Details -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <!-- Ownership & Coordinates -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bedrooms</label>
-          <input type="number" [(ngModel)]="form.bedrooms" [disabled]="loading" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0" />
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Owner Name</label
+          >
+          <input
+            type="text"
+            [(ngModel)]="form.ownerName"
+            [disabled]="loading"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bathrooms</label>
-          <input type="number" [(ngModel)]="form.bathrooms" [disabled]="loading" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0" />
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Owner Phone</label
+          >
+          <input
+            type="text"
+            [(ngModel)]="form.ownerPhone"
+            [disabled]="loading"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sq Footage</label>
-          <input type="number" [(ngModel)]="form.squareFootage" [disabled]="loading" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Floor</label>
-          <input type="number" [(ngModel)]="form.floor" [disabled]="loading" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0" />
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Owner Email</label
+          >
+          <input
+            type="email"
+            [(ngModel)]="form.ownerEmail"
+            [disabled]="loading"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          />
         </div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit Number</label>
-          <input type="text" [(ngModel)]="form.unitNumber" [disabled]="loading" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0" />
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Latitude</label
+          >
+          <input
+            type="number"
+            [(ngModel)]="form.latitude"
+            [disabled]="loading"
+            step="0.000001"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Building Name</label>
-          <input type="text" [(ngModel)]="form.buildingName" [disabled]="loading" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0" />
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Longitude</label
+          >
+          <input
+            type="number"
+            [(ngModel)]="form.longitude"
+            [disabled]="loading"
+            step="0.000001"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          />
         </div>
       </div>
 
       <!-- Description -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-        <textarea [(ngModel)]="form.description" [disabled]="loading" rows="2" placeholder="Additional details about the property" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none resize-none focus:ring-2 focus:ring-offset-0"></textarea>
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >Description</label
+        >
+        <textarea
+          [(ngModel)]="form.description"
+          [disabled]="loading"
+          rows="2"
+          placeholder="Additional details about the farm"
+          class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none resize-none focus:ring-2 focus:ring-offset-0"
+        ></textarea>
       </div>
 
-      <!-- Amenities -->
+      <!-- Dominant Crops -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Amenities</label>
+        <label
+          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >Dominant Crops</label
+        >
         <div class="flex gap-2 mb-2">
-          <input type="text" [(ngModel)]="newAmenity" (keyup.enter)="addAmenity()" [disabled]="loading" placeholder="e.g., WiFi, Pool" class="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0" />
-          <button (click)="addAmenity()" [disabled]="loading" class="px-3 py-2 rounded-lg text-white text-sm font-medium transition-opacity" [style.background-color]="themeService.accent" [class.opacity-50]="loading">
+          <input
+            type="text"
+            [(ngModel)]="newCrop"
+            (keyup.enter)="addCrop()"
+            [disabled]="loading"
+            placeholder="e.g., maize, tomatoes"
+            class="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          />
+          <button
+            (click)="addCrop()"
+            [disabled]="loading"
+            class="px-3 py-2 rounded-lg text-white text-sm font-medium transition-opacity"
+            [style.background-color]="themeService.accent"
+            [class.opacity-50]="loading"
+          >
             <i class="fas fa-plus"></i>
           </button>
         </div>
         <div class="flex flex-wrap gap-2">
-          <span *ngFor="let a of form.amenities; let i = index" class="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 flex items-center gap-1">
-            {{ a }}
-            <button (click)="removeAmenity(i)" [disabled]="loading" class="text-gray-400 hover:text-red-500 transition-colors">
+          <span
+            *ngFor="let crop of form.dominantCrops; let i = index"
+            class="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 flex items-center gap-1"
+          >
+            {{ crop }}
+            <button
+              (click)="removeCrop(i)"
+              [disabled]="loading"
+              class="text-gray-400 hover:text-red-500 transition-colors"
+            >
               <i class="fas fa-times text-xs"></i>
             </button>
           </span>
@@ -139,7 +359,9 @@
     </div>
 
     <!-- Footer -->
-    <div class="sticky bottom-0 z-10 flex justify-end gap-3 p-6 border-t border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+    <div
+      class="sticky bottom-0 z-10 flex justify-end gap-3 p-6 border-t border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+    >
       <button
         (click)="closeModal()"
         [disabled]="loading"
@@ -149,13 +371,16 @@
       </button>
       <button
         (click)="onSubmit()"
-        [disabled]="loading"
-        class="px-6 py-2 rounded-lg text-white text-sm font-medium transition-opacity"
+        [disabled]="loading || tenantMissing || tenantRefreshLoading"
+        class="px-6 py-2 rounded-lg text-white text-sm font-medium transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
         [style.background-color]="themeService.accent"
-        [class.opacity-50]="loading"
       >
-        <span *ngIf="!loading">{{ isEditMode ? 'Update' : 'Create' }} Property</span>
-        <span *ngIf="loading"><i class="fas fa-spinner fa-spin mr-2"></i>Saving...</span>
+        <span *ngIf="!loading"
+          >{{ isEditMode ? "Update" : "Create" }} Farm</span
+        >
+        <span *ngIf="loading"
+          ><i class="fas fa-spinner fa-spin mr-2"></i>Saving...</span
+        >
       </button>
     </div>
   </div>

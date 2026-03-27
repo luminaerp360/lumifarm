@@ -6,12 +6,21 @@
   [class.translate-x-0]="!isMobile || !mobileHidden"
 >
   <!-- Logo -->
-  <div class="flex items-center h-16 px-4 border-b border-gray-100 dark:border-slate-700">
+  <div
+    class="flex items-center h-16 px-4 border-b border-gray-100 dark:border-slate-700"
+  >
     <div class="flex items-center gap-3">
-      <div class="w-8 h-8 rounded-lg flex items-center justify-center" [style.background-color]="themeService.accent">
-        <i class="fas fa-home text-white text-sm"></i>
+      <div
+        class="w-8 h-8 rounded-lg flex items-center justify-center"
+        [style.background-color]="themeService.accent"
+      >
+        <i class="fas fa-leaf text-white text-sm"></i>
       </div>
-      <span *ngIf="!collapsed || isMobile" class="text-lg font-bold text-gray-800 dark:text-gray-100">Rentium</span>
+      <span
+        *ngIf="!collapsed || isMobile"
+        class="text-lg font-bold text-gray-800 dark:text-gray-100"
+        >Lumifarm</span
+      >
     </div>
   </div>
 
@@ -28,7 +37,9 @@
       [class.hover:bg-gray-100]="!isActive(item.route)"
       [class.dark:hover:bg-slate-700]="!isActive(item.route)"
       [class.justify-center]="collapsed && !isMobile"
-      [style.background-color]="isActive(item.route) ? themeService.accent : 'transparent'"
+      [style.background-color]="
+        isActive(item.route) ? themeService.accent : 'transparent'
+      "
     >
       <i [class]="item.icon" class="text-base w-5 text-center"></i>
       <span *ngIf="!collapsed || isMobile">{{ item.label }}</span>
@@ -36,12 +47,18 @@
   </nav>
 
   <!-- Collapse toggle (desktop only) -->
-  <div class="p-3 border-t border-gray-100 dark:border-slate-700 hidden lg:block">
+  <div
+    class="p-3 border-t border-gray-100 dark:border-slate-700 hidden lg:block"
+  >
     <button
       (click)="toggle.emit()"
       class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
     >
-      <i class="fas" [class.fa-chevron-left]="!collapsed" [class.fa-chevron-right]="collapsed"></i>
+      <i
+        class="fas"
+        [class.fa-chevron-left]="!collapsed"
+        [class.fa-chevron-right]="collapsed"
+      ></i>
       <span *ngIf="!collapsed">Collapse</span>
     </button>
   </div>

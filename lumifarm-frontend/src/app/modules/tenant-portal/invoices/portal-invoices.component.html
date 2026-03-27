@@ -10,7 +10,8 @@
   </div>
 
   <div class="loading-state" *ngIf="loading">
-    <div class="spinner"></div><p>Loading invoices…</p>
+    <div class="spinner"></div>
+    <p>Loading invoices…</p>
   </div>
 
   <div class="error-alert" *ngIf="error">{{ error }}</div>
@@ -18,7 +19,9 @@
   <div class="empty-state" *ngIf="!loading && payments.length === 0 && !error">
     <div class="empty-icon">🧾</div>
     <h3>No invoices yet</h3>
-    <p>Your payment history will appear here once you make your first payment.</p>
+    <p>
+      Your payment history will appear here once you make your first payment.
+    </p>
   </div>
 
   <div class="invoices-list" *ngIf="!loading && payments.length > 0">
@@ -33,46 +36,99 @@
         <span *ngIf="p.status === 'failed'">✗</span>
       </div>
       <div class="inv-details">
-        <div class="inv-title">{{ p.paymentPeriod || 'Rent Payment' }}</div>
+        <div class="inv-title">{{ p.paymentPeriod || "Farm Payment" }}</div>
         <div class="inv-meta">
-          {{ p.paymentDate | date:'mediumDate' }} · {{ p.receiptNumber }}
+          {{ p.paymentDate | date: "mediumDate" }} · {{ p.receiptNumber }}
           <span class="method-badge">{{ p.paymentMethod | uppercase }}</span>
         </div>
         <div class="inv-property">{{ p.propertyName }}</div>
       </div>
       <div class="inv-right">
-        <div class="inv-amount" [class]="p.status">KES {{ p.amount | number }}</div>
-        <div class="inv-status-badge" [class]="p.status">{{ p.status | titlecase }}</div>
+        <div class="inv-amount" [class]="p.status">
+          KES {{ p.amount | number }}
+        </div>
+        <div class="inv-status-badge" [class]="p.status">
+          {{ p.status | titlecase }}
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <!-- Receipt modal -->
-<div class="modal-overlay" *ngIf="selectedPayment" (click)="selectedPayment = null">
+<div
+  class="modal-overlay"
+  *ngIf="selectedPayment"
+  (click)="selectedPayment = null"
+>
   <div class="modal receipt-modal" (click)="$event.stopPropagation()">
     <div class="receipt-header">
-      <div class="receipt-logo">🏠 Rentium</div>
-      <button class="modal-close" (click)="selectedPayment = null">&times;</button>
+      <div class="receipt-logo">🌿 Lumifarm</div>
+      <button class="modal-close" (click)="selectedPayment = null">
+        &times;
+      </button>
     </div>
 
     <div class="receipt-check" [class]="selectedPayment.status">
       <span *ngIf="selectedPayment.status === 'completed'">✓</span>
-      <span *ngIf="selectedPayment.status !== 'completed'">{{ selectedPayment.status === 'pending' ? '⏳' : '✗' }}</span>
+      <span *ngIf="selectedPayment.status !== 'completed'">{{
+        selectedPayment.status === "pending" ? "⏳" : "✗"
+      }}</span>
     </div>
 
-    <h2>{{ selectedPayment.status === 'completed' ? 'Payment Receipt' : 'Payment ' + (selectedPayment.status | titlecase) }}</h2>
+    <h2>
+      {{
+        selectedPayment.status === "completed"
+          ? "Payment Receipt"
+          : "Payment " + (selectedPayment.status | titlecase)
+      }}
+    </h2>
 
     <table class="receipt-table">
-      <tr><td>Receipt No.</td><td><strong>{{ selectedPayment.receiptNumber }}</strong></td></tr>
-      <tr *ngIf="selectedPayment.mpesaTransactionId"><td>M-Pesa Code</td><td><strong>{{ selectedPayment.mpesaTransactionId }}</strong></td></tr>
-      <tr><td>Amount</td><td><strong class="amount-cell">KES {{ selectedPayment.amount | number }}</strong></td></tr>
-      <tr><td>Period</td><td>{{ selectedPayment.paymentPeriod || '—' }}</td></tr>
-      <tr><td>Property</td><td>{{ selectedPayment.propertyName }}</td></tr>
-      <tr><td>Method</td><td>{{ selectedPayment.paymentMethod | uppercase }}</td></tr>
-      <tr *ngIf="selectedPayment.mpesaPhoneNumber"><td>Phone</td><td>{{ selectedPayment.mpesaPhoneNumber }}</td></tr>
-      <tr><td>Date</td><td>{{ selectedPayment.paymentDate | date:'longDate' }}</td></tr>
-      <tr *ngIf="selectedPayment.notes"><td>Notes</td><td>{{ selectedPayment.notes }}</td></tr>
+      <tr>
+        <td>Receipt No.</td>
+        <td>
+          <strong>{{ selectedPayment.receiptNumber }}</strong>
+        </td>
+      </tr>
+      <tr *ngIf="selectedPayment.mpesaTransactionId">
+        <td>M-Pesa Code</td>
+        <td>
+          <strong>{{ selectedPayment.mpesaTransactionId }}</strong>
+        </td>
+      </tr>
+      <tr>
+        <td>Amount</td>
+        <td>
+          <strong class="amount-cell"
+            >KES {{ selectedPayment.amount | number }}</strong
+          >
+        </td>
+      </tr>
+      <tr>
+        <td>Period</td>
+        <td>{{ selectedPayment.paymentPeriod || "—" }}</td>
+      </tr>
+      <tr>
+        <td>Property</td>
+        <td>{{ selectedPayment.propertyName }}</td>
+      </tr>
+      <tr>
+        <td>Method</td>
+        <td>{{ selectedPayment.paymentMethod | uppercase }}</td>
+      </tr>
+      <tr *ngIf="selectedPayment.mpesaPhoneNumber">
+        <td>Phone</td>
+        <td>{{ selectedPayment.mpesaPhoneNumber }}</td>
+      </tr>
+      <tr>
+        <td>Date</td>
+        <td>{{ selectedPayment.paymentDate | date: "longDate" }}</td>
+      </tr>
+      <tr *ngIf="selectedPayment.notes">
+        <td>Notes</td>
+        <td>{{ selectedPayment.notes }}</td>
+      </tr>
     </table>
 
     <p class="receipt-footer">Keep this receipt as proof of payment</p>

@@ -1,85 +1,222 @@
 <div>
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Payments</h1>
-    <button (click)="openForm()" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium" [style.background-color]="themeService.accent">
-      <i class="fas fa-plus"></i> Record Payment
+  <div
+    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6"
+  >
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">
+      Farm Finance
+    </h1>
+    <button
+      (click)="openForm()"
+      class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium"
+      [style.background-color]="themeService.accent"
+    >
+      <i class="fas fa-plus"></i> Record Transaction
     </button>
   </div>
 
   <!-- Filters -->
   <div class="flex flex-col sm:flex-row gap-3 mb-6">
-    <input type="text" [(ngModel)]="search" (keyup.enter)="onSearch()" placeholder="Search payments..." class="w-full sm:w-80 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none" />
-    <select [(ngModel)]="statusFilter" (change)="onFilterChange()" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none">
+    <input
+      type="text"
+      [(ngModel)]="search"
+      (keyup.enter)="onSearch()"
+      placeholder="Search transactions..."
+      class="w-full sm:w-80 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none"
+    />
+    <select
+      [(ngModel)]="statusFilter"
+      (change)="onFilterChange()"
+      class="px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none"
+    >
       <option value="">All Statuses</option>
-      <option *ngFor="let s of statuses" [value]="s">{{ s | titlecase }}</option>
+      <option *ngFor="let s of statuses" [value]="s">
+        {{ s | titlecase }}
+      </option>
     </select>
-    <select [(ngModel)]="methodFilter" (change)="onFilterChange()" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none">
+    <select
+      [(ngModel)]="methodFilter"
+      (change)="onFilterChange()"
+      class="px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none"
+    >
       <option value="">All Methods</option>
       <option *ngFor="let m of methods" [value]="m">{{ m | titlecase }}</option>
     </select>
   </div>
 
   <div *ngIf="loading" class="flex items-center justify-center py-20">
-    <i class="fas fa-spinner fa-spin text-2xl" [style.color]="themeService.accent"></i>
+    <i
+      class="fas fa-spinner fa-spin text-2xl"
+      [style.color]="themeService.accent"
+    ></i>
   </div>
 
-  <div *ngIf="!loading" class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+  <div
+    *ngIf="!loading"
+    class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden"
+  >
     <div class="overflow-x-auto">
       <table class="w-full text-sm">
         <thead>
-          <tr class="border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-700/50">
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Date</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden sm:table-cell">Property</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden md:table-cell">Tenant</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Type</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden lg:table-cell">Method</th>
-            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Status</th>
-            <th class="text-right px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Amount</th>
+          <tr
+            class="border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-700/50"
+          >
+            <th
+              class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
+            >
+              Date
+            </th>
+            <th
+              class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden sm:table-cell"
+            >
+              Farm
+            </th>
+            <th
+              class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden md:table-cell"
+            >
+              Worker
+            </th>
+            <th
+              class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
+            >
+              Type
+            </th>
+            <th
+              class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden lg:table-cell"
+            >
+              Method
+            </th>
+            <th
+              class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
+            >
+              Status
+            </th>
+            <th
+              class="text-right px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
+            >
+              Amount
+            </th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let p of payments" (click)="viewPayment(p._id)" class="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors">
-            <td class="px-4 py-3 text-gray-800 dark:text-gray-100">{{ p.paymentDate | date:'mediumDate' }}</td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden sm:table-cell">{{ p.propertyName }}</td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden md:table-cell">{{ p.propertyTenantName }}</td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 capitalize">{{ p.paymentType }}</td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 capitalize hidden lg:table-cell">{{ p.paymentMethod }}</td>
-            <td class="px-4 py-3"><span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getStatusClasses(p.status)">{{ p.status }}</span></td>
-            <td class="px-4 py-3 text-right font-medium text-gray-800 dark:text-gray-100">{{ p.currency }} {{ p.amount | number }}</td>
+          <tr
+            *ngFor="let p of payments"
+            (click)="viewPayment(p._id)"
+            class="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors"
+          >
+            <td class="px-4 py-3 text-gray-800 dark:text-gray-100">
+              {{ p.paymentDate | date: "mediumDate" }}
+            </td>
+            <td
+              class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden sm:table-cell"
+            >
+              {{ p.propertyName }}
+            </td>
+            <td
+              class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden md:table-cell"
+            >
+              {{ p.propertyTenantName }}
+            </td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 capitalize">
+              {{ p.paymentType }}
+            </td>
+            <td
+              class="px-4 py-3 text-gray-600 dark:text-gray-300 capitalize hidden lg:table-cell"
+            >
+              {{ p.paymentMethod }}
+            </td>
+            <td class="px-4 py-3">
+              <span
+                class="px-2 py-1 rounded-full text-xs font-medium"
+                [ngClass]="getStatusClasses(p.status)"
+                >{{ p.status }}</span
+              >
+            </td>
+            <td
+              class="px-4 py-3 text-right font-medium text-gray-800 dark:text-gray-100"
+            >
+              {{ p.currency }} {{ p.amount | number }}
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
-    <div *ngIf="payments.length === 0" class="text-center py-12 text-gray-500 dark:text-gray-400">
-      <i class="fas fa-money-bill-wave text-3xl mb-3 block"></i><p>No payments found</p>
+    <div
+      *ngIf="payments.length === 0"
+      class="text-center py-12 text-gray-500 dark:text-gray-400"
+    >
+      <i class="fas fa-money-bill-wave text-3xl mb-3 block"></i>
+      <p>No transactions found</p>
     </div>
-    <div *ngIf="totalPages > 1" class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-slate-700">
-      <span class="text-sm text-gray-500 dark:text-gray-400">{{ total }} total</span>
+    <div
+      *ngIf="totalPages > 1"
+      class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-slate-700"
+    >
+      <span class="text-sm text-gray-500 dark:text-gray-400"
+        >{{ total }} total</span
+      >
       <div class="flex gap-1">
-        <button *ngFor="let pg of [].constructor(totalPages); let i = index" (click)="goToPage(i + 1)" class="w-8 h-8 rounded text-sm font-medium" [class.text-white]="page === i + 1" [style.background-color]="page === i + 1 ? themeService.accent : 'transparent'" [class.text-gray-600]="page !== i + 1">{{ i + 1 }}</button>
+        <button
+          *ngFor="let pg of [].constructor(totalPages); let i = index"
+          (click)="goToPage(i + 1)"
+          class="w-8 h-8 rounded text-sm font-medium"
+          [class.text-white]="page === i + 1"
+          [style.background-color]="
+            page === i + 1 ? themeService.accent : 'transparent'
+          "
+          [class.text-gray-600]="page !== i + 1"
+        >
+          {{ i + 1 }}
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Record Payment Modal -->
-  <div *ngIf="showForm" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-      <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Record Payment</h2>
+  <!-- Record Transaction Modal -->
+  <div
+    *ngIf="showForm"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+  >
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto"
+    >
+      <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+        Record Transaction
+      </h2>
       <div class="space-y-4">
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount *</label>
-            <input type="number" [(ngModel)]="form.amount" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none" />
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Amount *</label
+            >
+            <input
+              type="number"
+              [(ngModel)]="form.amount"
+              class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none"
+            />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date *</label>
-            <input type="date" [(ngModel)]="form.paymentDate" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none" />
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Date *</label
+            >
+            <input
+              type="date"
+              [(ngModel)]="form.paymentDate"
+              class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none"
+            />
           </div>
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Payment Type</label>
-            <select [(ngModel)]="form.paymentType" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none">
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Payment Type</label
+            >
+            <select
+              [(ngModel)]="form.paymentType"
+              class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none"
+            >
               <option value="rent">Rent</option>
               <option value="deposit">Deposit</option>
               <option value="late_fee">Late Fee</option>
@@ -89,8 +226,14 @@
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Method</label>
-            <select [(ngModel)]="form.paymentMethod" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none">
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Method</label
+            >
+            <select
+              [(ngModel)]="form.paymentMethod"
+              class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none"
+            >
               <option value="mpesa">M-Pesa</option>
               <option value="bank_transfer">Bank Transfer</option>
               <option value="cash">Cash</option>
@@ -100,29 +243,71 @@
             </select>
           </div>
         </div>
-        <div *ngIf="form.paymentMethod === 'mpesa'" class="grid grid-cols-2 gap-4">
+        <div
+          *ngIf="form.paymentMethod === 'mpesa'"
+          class="grid grid-cols-2 gap-4"
+        >
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">M-Pesa Transaction ID</label>
-            <input type="text" [(ngModel)]="form.mpesaTransactionId" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none" />
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >M-Pesa Transaction ID</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="form.mpesaTransactionId"
+              class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none"
+            />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone Number</label>
-            <input type="text" [(ngModel)]="form.mpesaPhoneNumber" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none" />
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Phone Number</label
+            >
+            <input
+              type="text"
+              [(ngModel)]="form.mpesaPhoneNumber"
+              class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none"
+            />
           </div>
         </div>
         <div *ngIf="form.paymentMethod === 'bank_transfer'">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bank Reference</label>
-          <input type="text" [(ngModel)]="form.bankReference" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none" />
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Bank Reference</label
+          >
+          <input
+            type="text"
+            [(ngModel)]="form.bankReference"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none"
+          />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
-          <textarea [(ngModel)]="form.notes" rows="2" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none"></textarea>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >Notes</label
+          >
+          <textarea
+            [(ngModel)]="form.notes"
+            rows="2"
+            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none"
+          ></textarea>
         </div>
       </div>
       <div class="flex justify-end gap-3 mt-6">
-        <button (click)="showForm = false" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 text-sm text-gray-700 dark:text-gray-300">Cancel</button>
-        <button (click)="save()" [disabled]="saving" class="px-6 py-2 rounded-lg text-white text-sm font-medium" [style.background-color]="themeService.accent" [class.opacity-50]="saving">
-          {{ saving ? 'Saving...' : 'Record' }}
+        <button
+          (click)="showForm = false"
+          class="px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 text-sm text-gray-700 dark:text-gray-300"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="save()"
+          [disabled]="saving"
+          class="px-6 py-2 rounded-lg text-white text-sm font-medium"
+          [style.background-color]="themeService.accent"
+          [class.opacity-50]="saving"
+        >
+          {{ saving ? "Saving..." : "Record" }}
         </button>
       </div>
     </div>

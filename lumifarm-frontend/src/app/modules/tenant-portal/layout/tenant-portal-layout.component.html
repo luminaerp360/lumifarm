@@ -1,13 +1,17 @@
 <div class="portal-shell">
   <!-- Sidebar overlay (mobile) -->
-  <div class="sidebar-overlay" [class.active]="sidebarOpen" (click)="sidebarOpen = false"></div>
+  <div
+    class="sidebar-overlay"
+    [class.active]="sidebarOpen"
+    (click)="sidebarOpen = false"
+  ></div>
 
   <!-- Sidebar -->
   <aside class="portal-sidebar" [class.open]="sidebarOpen">
     <div class="sidebar-brand">
-      <div class="brand-icon">🏠</div>
-      <span class="brand-name">Rentium</span>
-      <span class="brand-tag">Tenant Portal</span>
+      <div class="brand-icon">🌿</div>
+      <span class="brand-name">Lumifarm</span>
+      <span class="brand-tag">Farm Portal</span>
     </div>
 
     <nav class="sidebar-nav">
@@ -42,7 +46,7 @@
     <!-- Top bar -->
     <header class="portal-topbar">
       <button class="hamburger" (click)="toggleSidebar()">☰</button>
-      <div class="topbar-title">Tenant Portal</div>
+      <div class="topbar-title">Farm Portal</div>
       <div class="topbar-user" *ngIf="profile">
         <div class="user-chip">{{ profile.name[0] | uppercase }}</div>
         <span class="user-chip-name">{{ profile.name }}</span>

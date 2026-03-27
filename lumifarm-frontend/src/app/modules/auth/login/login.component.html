@@ -1,31 +1,53 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900 px-4 transition-colors duration-200">
+<div
+  class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900 px-4 transition-colors duration-200"
+>
   <div class="w-full max-w-md">
     <!-- Logo -->
     <div class="text-center mb-8">
-      <div class="inline-flex w-14 h-14 rounded-2xl items-center justify-center mb-4" [style.background-color]="themeService.accent">
-        <i class="fas fa-home text-white text-2xl"></i>
+      <div
+        class="inline-flex w-14 h-14 rounded-2xl items-center justify-center mb-4"
+        [style.background-color]="themeService.accent"
+      >
+        <i class="fas fa-leaf text-white text-2xl"></i>
       </div>
-      <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">Rentium</h1>
-      <p class="text-gray-500 dark:text-gray-400 mt-1">Rental Management System</p>
+      <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">
+        Lumifarm
+      </h1>
+      <p class="text-gray-500 dark:text-gray-400 mt-1">
+        Farm Operations Platform
+      </p>
     </div>
 
     <!-- Card -->
-    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700 p-6 sm:p-8">
+    <div
+      class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-700 p-6 sm:p-8"
+    >
       <!-- Error / Success -->
-      <div *ngIf="error" class="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm">
+      <div
+        *ngIf="error"
+        class="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm"
+      >
         {{ error }}
       </div>
-      <div *ngIf="success" class="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 text-sm">
+      <div
+        *ngIf="success"
+        class="mb-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 text-sm"
+      >
         {{ success }}
       </div>
 
       <!-- Login Form -->
       <div *ngIf="mode === 'login'">
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-6">Sign In</h2>
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-6">
+          Sign In
+        </h2>
 
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Email</label
+            >
             <input
               type="email"
               [(ngModel)]="email"
@@ -36,7 +58,10 @@
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Password</label
+            >
             <input
               type="password"
               [(ngModel)]="password"
@@ -53,15 +78,21 @@
             [class.opacity-50]="loading"
           >
             <span *ngIf="!loading">Sign In</span>
-            <span *ngIf="loading"><i class="fas fa-spinner fa-spin mr-2"></i>Signing in...</span>
+            <span *ngIf="loading"
+              ><i class="fas fa-spinner fa-spin mr-2"></i>Signing in...</span
+            >
           </button>
         </div>
 
         <!-- Divider -->
         <div class="flex items-center my-6">
-          <div class="flex-1 border-t border-gray-200 dark:border-slate-700"></div>
+          <div
+            class="flex-1 border-t border-gray-200 dark:border-slate-700"
+          ></div>
           <span class="px-3 text-sm text-gray-400 dark:text-gray-500">or</span>
-          <div class="flex-1 border-t border-gray-200 dark:border-slate-700"></div>
+          <div
+            class="flex-1 border-t border-gray-200 dark:border-slate-700"
+          ></div>
         </div>
 
         <!-- Google Login -->
@@ -74,17 +105,28 @@
 
         <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
           Don't have an account?
-          <button (click)="mode = 'signup'; error = ''" class="font-medium hover:underline" [style.color]="themeService.accent">Sign up</button>
+          <button
+            (click)="mode = 'signup'; error = ''"
+            class="font-medium hover:underline"
+            [style.color]="themeService.accent"
+          >
+            Sign up
+          </button>
         </p>
       </div>
 
       <!-- Signup Form -->
       <div *ngIf="mode === 'signup'">
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-6">Create Account</h2>
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-6">
+          Create Account
+        </h2>
 
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Full Name</label
+            >
             <input
               type="text"
               [(ngModel)]="signupName"
@@ -93,7 +135,10 @@
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Email</label
+            >
             <input
               type="email"
               [(ngModel)]="signupEmail"
@@ -102,7 +147,10 @@
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >Password</label
+            >
             <input
               type="password"
               [(ngModel)]="signupPassword"
@@ -119,13 +167,21 @@
             [class.opacity-50]="loading"
           >
             <span *ngIf="!loading">Create Account</span>
-            <span *ngIf="loading"><i class="fas fa-spinner fa-spin mr-2"></i>Creating...</span>
+            <span *ngIf="loading"
+              ><i class="fas fa-spinner fa-spin mr-2"></i>Creating...</span
+            >
           </button>
         </div>
 
         <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
           Already have an account?
-          <button (click)="mode = 'login'; error = ''" class="font-medium hover:underline" [style.color]="themeService.accent">Sign in</button>
+          <button
+            (click)="mode = 'login'; error = ''"
+            class="font-medium hover:underline"
+            [style.color]="themeService.accent"
+          >
+            Sign in
+          </button>
         </p>
       </div>
     </div>

@@ -1,0 +1,266 @@
+$green: #059669;
+$green-light: #d1fae5;
+$green-dark: #047857;
+$sidebar-width: 260px;
+
+.portal-shell {
+  display: flex;
+  min-height: 100vh;
+  background: #f1f5f9;
+}
+
+// Sidebar
+.portal-sidebar {
+  width: $sidebar-width;
+  background: #1e293b;
+  color: #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 200;
+  transform: translateX(-100%);
+  transition: transform 0.25s ease;
+
+  @media (min-width: 768px) {
+    transform: translateX(0);
+    position: relative;
+    height: auto;
+    flex-shrink: 0;
+  }
+
+  &.open {
+    transform: translateX(0);
+  }
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 199;
+
+  &.active {
+    display: block;
+  }
+
+  @media (min-width: 768px) {
+    display: none !important;
+  }
+}
+
+.sidebar-brand {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid #334155;
+
+  .brand-icon {
+    font-size: 28px;
+    margin-bottom: 4px;
+  }
+
+  .brand-name {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    color: #f1f5f9;
+  }
+
+  .brand-tag {
+    display: inline-block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: $green;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-top: 4px;
+  }
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+
+  .nav-icon {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+  }
+
+  &:hover {
+    background: #334155;
+    color: #f1f5f9;
+  }
+
+  &.active {
+    background: $green;
+    color: white;
+  }
+}
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid #334155;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: $green;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.user-details {
+  .user-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #f1f5f9;
+  }
+  .user-email {
+    font-size: 11px;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+  }
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 8px 12px;
+  background: #334155;
+  border: none;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: #ef4444;
+    color: white;
+  }
+}
+
+// Main area
+.portal-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-left: 0;
+
+  @media (min-width: 768px) {
+    margin-left: 0;
+  }
+}
+
+.portal-topbar {
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 20px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  .hamburger {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #475569;
+    padding: 4px 8px;
+    border-radius: 6px;
+
+    &:hover { background: #f1f5f9; }
+
+    @media (min-width: 768px) { display: none; }
+  }
+
+  .topbar-title {
+    flex: 1;
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 15px;
+  }
+
+  .topbar-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .user-chip {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: $green;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .user-chip-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #475569;
+
+    @media (max-width: 480px) { display: none; }
+  }
+}
+
+.portal-content {
+  flex: 1;
+  padding: 24px 20px;
+
+  @media (min-width: 640px) {
+    padding: 28px 28px;
+  }
+}

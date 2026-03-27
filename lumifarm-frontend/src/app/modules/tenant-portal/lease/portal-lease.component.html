@@ -1,0 +1,97 @@
+<div class="page">
+  <div class="page-header">
+    <h1>My Lease Agreement</h1>
+    <p>Review and sign your lease below</p>
+  </div>
+
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div><p>Loading lease…</p>
+  </div>
+
+  <div class="error-alert" *ngIf="error && !loading">{{ error }}</div>
+
+  <ng-container *ngIf="!loading && lease">
+    <!-- Status ribbon -->
+    <div class="status-ribbon" [class]="lease.status">
+      <span class="status-dot"></span>
+      <strong>{{ lease.status | titlecase }}</strong>
+      <span *ngIf="lease.isSigned"> · ✓ Signed on {{ lease.signedAt | date:'mediumDate' }}</span>
+      <span *ngIf="!lease.isSigned && lease.status !== 'terminated'"> · Awaiting your signature</span>
+    </div>
+
+    <!-- Sign success -->
+    <div class="success-banner" *ngIf="signed">
+      ✓ Lease signed successfully! A copy has been noted.
+    </div>
+
+    <!-- Lease details card -->
+    <div class="card">
+      <div class="card-header-row">
+        <div>
+          <h2>{{ lease.leaseNumber }}</h2>
+          <p>{{ lease.propertyName }}</p>
+        </div>
+        <button
+          *ngIf="!lease.isSigned && lease.status !== 'terminated'"
+          class="btn-sign"
+          (click)="openSignModal()"
+          [disabled]="signing"
+        >
+          {{ signing ? 'Signing…' : '✍️ Sign Lease' }}
+        </button>
+      </div>
+
+      <div class="details-grid">
+        <div class="detail-item">
+          <div class="d-label">Start Date</div>
+          <div class="d-value">{{ lease.startDate | date:'longDate' }}</div>
+        </div>
+        <div class="detail-item">
+          <div class="d-label">End Date</div>
+          <div class="d-value">{{ lease.endDate | date:'longDate' }}</div>
+        </div>
+        <div class="detail-item">
+          <div class="d-label">Monthly Rent</div>
+          <div class="d-value">KES {{ lease.rentAmount | number }}</div>
+        </div>
+        <div class="detail-item">
+          <div class="d-label">Payment Due Day</div>
+          <div class="d-value">Day {{ lease.paymentDueDay }} of each month</div>
+        </div>
+        <div class="detail-item">
+          <div class="d-label">Deposit</div>
+          <div class="d-value">
+            KES {{ lease.depositAmount | number }}
+            <span class="badge" [class.paid]="lease.depositPaid" [class.unpaid]="!lease.depositPaid">
+              {{ lease.depositPaid ? 'Paid' : 'Unpaid' }}
+            </span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <div class="d-label">Payment Frequency</div>
+          <div class="d-value">{{ lease.paymentFrequency | titlecase }}</div>
+        </div>
+      </div>
+
+      <!-- Terms -->
+      <div class="terms-section" *ngIf="lease.terms">
+        <h3>Lease Terms &amp; Conditions</h3>
+        <div class="terms-body" [innerHTML]="lease.terms"></div>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<!-- Sign confirmation modal -->
+<div class="modal-overlay" *ngIf="showSignModal" (click)="showSignModal = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Confirm Lease Signature</h3>
+    <p>
+      By clicking <strong>I Agree &amp; Sign</strong>, you confirm that you have read and understood the lease agreement and agree to be bound by its terms.
+    </p>
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="showSignModal = false">Cancel</button>
+      <button class="btn-confirm" (click)="confirmSign()">✍️ I Agree &amp; Sign</button>
+    </div>
+  </div>
+</div>

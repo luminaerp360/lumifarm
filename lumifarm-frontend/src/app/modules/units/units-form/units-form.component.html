@@ -1,0 +1,155 @@
+<!-- Modal Backdrop -->
+<div *ngIf="isOpen" class="fixed inset-0 z-40 bg-black/50 transition-opacity"></div>
+
+<!-- Modal -->
+<div *ngIf="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="bg-white dark:bg-slate-800 rounded-xl max-w-md w-full shadow-lg border border-gray-200 dark:border-slate-700 animate-in fade-in zoom-in-95 duration-200">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-slate-700">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+        {{ isEditMode ? 'Edit Unit' : 'Create New Unit' }}
+      </h2>
+      <button
+        (click)="closeModal()"
+        [disabled]="loading"
+        class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+      >
+        <i class="fas fa-times text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="p-6 space-y-4">
+      <!-- Error Message -->
+      <div *ngIf="error" class="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-sm border border-red-200 dark:border-red-800">
+        <i class="fas fa-exclamation-circle mr-2"></i>{{ error }}
+      </div>
+
+      <!-- Property Selection -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Property <span class="text-red-500">*</span>
+        </label>
+        <div *ngIf="isEditMode" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm">
+          <p class="font-medium">{{ getPropertyName() }}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Cannot change property for existing unit</p>
+        </div>
+        <select
+          *ngIf="!isEditMode"
+          [(ngModel)]="form.propertyId"
+          [disabled]="loading || loadingProperties"
+          class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+        >
+          <option value="">-- Select a Property --</option>
+          <option *ngFor="let prop of properties" [value]="prop._id">
+            {{ prop.name }} ({{ prop.address }})
+          </option>
+        </select>
+        <div *ngIf="loadingProperties && !isEditMode" class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+          <i class="fas fa-spinner fa-spin mr-1"></i> Loading properties...
+        </div>
+      </div>
+
+      <!-- Unit Number -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Unit Number <span class="text-red-500">*</span>
+        </label>
+        <input
+          [(ngModel)]="form.unitNumber"
+          type="text"
+          placeholder="e.g., 101A, Unit 5"
+          [disabled]="loading"
+          class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          [style.--tw-ring-color]="themeService.accent + '33'"
+        />
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+        <textarea
+          [(ngModel)]="form.description"
+          placeholder="e.g., 2-bedroom corner unit with balcony"
+          [disabled]="loading"
+          rows="2"
+          class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0 resize-none"
+          [style.--tw-ring-color]="themeService.accent + '33'"
+        ></textarea>
+      </div>
+
+      <!-- Rent Amount -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Rent Amount <span class="text-red-500">*</span>
+        </label>
+        <div class="flex gap-2">
+          <input
+            [(ngModel)]="form.currency"
+            type="text"
+            placeholder="KES"
+            [disabled]="loading"
+            maxlength="3"
+            class="w-20 px-2 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0 uppercase"
+            [style.--tw-ring-color]="themeService.accent + '33'"
+          />
+          <input
+            [(ngModel)]="form.rentAmount"
+            type="number"
+            placeholder="0"
+            [disabled]="loading"
+            class="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+            [style.--tw-ring-color]="themeService.accent + '33'"
+          />
+        </div>
+      </div>
+
+      <!-- Security Deposit -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Security Deposit</label>
+        <input
+          [(ngModel)]="form.securityDeposit"
+          type="number"
+          placeholder="0"
+          [disabled]="loading"
+          class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          [style.--tw-ring-color]="themeService.accent + '33'"
+        />
+      </div>
+
+      <!-- Status -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+        <select
+          [(ngModel)]="form.status"
+          [disabled]="loading"
+          class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none focus:ring-2 focus:ring-offset-0"
+          [style.--tw-ring-color]="themeService.accent + '33'"
+        >
+          <option *ngFor="let option of statusOptions" [value]="option">{{ option | titlecase }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex gap-3 p-6 border-t border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-700/50">
+      <button
+        (click)="closeModal()"
+        [disabled]="loading"
+        class="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Cancel
+      </button>
+      <button
+        (click)="onSubmit()"
+        [disabled]="loading"
+        class="flex-1 px-4 py-2 rounded-lg text-white text-sm font-medium transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
+        [style.background-color]="themeService.accent"
+      >
+        <i *ngIf="!loading" class="fas mr-2" [class.fa-plus]="!isEditMode" [class.fa-save]="isEditMode"></i>
+        <i *ngIf="loading" class="fas fa-spinner fa-spin mr-2"></i>
+        {{ loading ? 'Saving...' : (isEditMode ? 'Update Unit' : 'Create Unit') }}
+      </button>
+    </div>
+  </div>
+</div>

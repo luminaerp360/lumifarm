@@ -1,0 +1,127 @@
+<div class="page">
+  <div class="page-header">
+    <h1>Make a Payment</h1>
+    <p>Pay your rent securely via M-Pesa</p>
+  </div>
+
+  <!-- Lease loading -->
+  <div class="loading-state" *ngIf="leaseLoading">
+    <div class="spinner"></div><p>Loading lease details…</p>
+  </div>
+
+  <ng-container *ngIf="!leaseLoading">
+    <!-- No lease -->
+    <div class="empty-state" *ngIf="!lease">
+      <div class="empty-icon">📄</div>
+      <h3>No active lease found</h3>
+      <p>Contact your property manager to set up your lease before making payments.</p>
+    </div>
+
+    <!-- STK initiated state -->
+    <div *ngIf="stkResponse && !paymentStatus?.status" class="stk-state">
+      <div class="stk-icon">📱</div>
+      <h2>Check your phone!</h2>
+      <p>An M-Pesa payment request has been sent to <strong>{{ form.value.phoneNumber }}</strong>. Enter your PIN to complete the payment.</p>
+      <p class="hint">Waiting for confirmation… <span class="dot-pulse"></span></p>
+      <button class="btn-secondary" (click)="reset()">Start a new payment</button>
+    </div>
+
+    <!-- Payment completed -->
+    <div *ngIf="paymentStatus?.status === 'completed'" class="result-state success">
+      <div class="result-icon">✓</div>
+      <h2>Payment Successful!</h2>
+      <p>KES {{ paymentStatus!.amount | number }} received. A receipt has been sent to your email.</p>
+      <div class="receipt-box">
+        <div class="receipt-row">
+          <span>Receipt No.</span><strong>{{ paymentStatus!.receiptNumber }}</strong>
+        </div>
+        <div class="receipt-row">
+          <span>M-Pesa Code</span><strong>{{ paymentStatus!.mpesaTransactionId }}</strong>
+        </div>
+        <div class="receipt-row">
+          <span>Amount</span><strong>KES {{ paymentStatus!.amount | number }}</strong>
+        </div>
+        <div class="receipt-row">
+          <span>Period</span><strong>{{ paymentStatus!.paymentPeriod || '—' }}</strong>
+        </div>
+      </div>
+      <button class="btn-primary" (click)="reset()">Make Another Payment</button>
+    </div>
+
+    <!-- Payment failed -->
+    <div *ngIf="paymentStatus?.status === 'failed'" class="result-state failed">
+      <div class="result-icon">✗</div>
+      <h2>Payment Failed</h2>
+      <p>{{ paymentStatus!.notes || 'The payment was not completed.' }}</p>
+      <button class="btn-primary" (click)="reset()">Try Again</button>
+    </div>
+
+    <!-- Payment form -->
+    <div class="payment-card" *ngIf="lease && !stkResponse">
+      <!-- Lease summary -->
+      <div class="lease-summary">
+        <div class="ls-title">
+          <span class="ls-icon">🏠</span>
+          <div>
+            <div class="ls-property">{{ lease.propertyName }}</div>
+            <div class="ls-lease">{{ lease.leaseNumber }}</div>
+          </div>
+        </div>
+        <div class="ls-amount">
+          <div class="ls-amount-label">Rent due</div>
+          <div class="ls-amount-value">KES {{ lease.rentAmount | number }}</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="error-alert" *ngIf="error">{{ error }}</div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-group">
+          <label>M-Pesa Phone Number</label>
+          <div class="phone-input">
+            <span class="phone-flag">🇰🇪</span>
+            <input
+              type="tel"
+              formControlName="phoneNumber"
+              placeholder="0712 345 678"
+            />
+          </div>
+          <div class="hint-text">Enter the phone number registered with M-Pesa</div>
+          <div class="field-error" *ngIf="form.get('phoneNumber')?.touched && form.get('phoneNumber')?.invalid">
+            Enter a valid Kenyan phone number (e.g. 0712345678)
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Amount (KES)</label>
+          <input type="number" formControlName="amount" placeholder="5000" />
+          <div class="hint-text">Pre-filled with your rent amount — adjust if needed</div>
+        </div>
+
+        <div class="form-group">
+          <label>Payment Period</label>
+          <input type="text" formControlName="paymentPeriod" placeholder="e.g. March 2026" />
+        </div>
+
+        <div class="form-group">
+          <label>Notes <span class="optional">(optional)</span></label>
+          <input type="text" formControlName="notes" placeholder="e.g. Partial payment" />
+        </div>
+
+        <div class="mpesa-branding">
+          <div class="mpesa-logo">
+            <span class="mpesa-text">M</span>-PESA
+          </div>
+          <span>Secure payment via Safaricom M-Pesa STK Push</span>
+        </div>
+
+        <button type="submit" class="btn-primary" [disabled]="loading || form.invalid">
+          <span *ngIf="!loading">📲 Pay KES {{ form.value.amount | number }}</span>
+          <span *ngIf="loading" class="spinner-inline"></span>
+        </button>
+      </form>
+    </div>
+  </ng-container>
+</div>

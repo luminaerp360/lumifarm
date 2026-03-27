@@ -1,0 +1,121 @@
+<div class="dashboard">
+  <div class="page-header">
+    <div>
+      <h1>Welcome back, {{ getFirstName(profile) }} 👋</h1>
+      <p>Here's an overview of your tenancy</p>
+    </div>
+    <button class="btn-pay" (click)="goToPayment()">💳 Pay Rent</button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading your dashboard…</p>
+  </div>
+
+  <ng-container *ngIf="!loading">
+    <!-- No lease -->
+    <div class="empty-state" *ngIf="!lease">
+      <div class="empty-icon">📄</div>
+      <h3>No active lease</h3>
+      <p>Your property manager hasn't set up your lease yet. Please check back soon.</p>
+    </div>
+
+    <ng-container *ngIf="lease">
+      <!-- Stat cards -->
+      <div class="stat-grid">
+        <div class="stat-card green">
+          <div class="stat-label">Monthly Rent</div>
+          <div class="stat-value">KES {{ lease.rentAmount | number }}</div>
+          <div class="stat-sub">{{ lease.paymentFrequency }}</div>
+        </div>
+        <div class="stat-card" [class.orange]="daysUntilDue !== null && daysUntilDue! <= 7">
+          <div class="stat-label">Next Due</div>
+          <div class="stat-value">
+            {{ daysUntilDue !== null ? daysUntilDue + ' days' : '—' }}
+          </div>
+          <div class="stat-sub">Day {{ lease.paymentDueDay }} of each month</div>
+        </div>
+        <div class="stat-card" [class.amber]="lease.status === 'draft'">
+          <div class="stat-label">Lease Status</div>
+          <div class="stat-value status-badge" [class]="lease.status">{{ lease.status | titlecase }}</div>
+          <div class="stat-sub">
+            {{ lease.isSigned ? '✓ Signed' : '! Awaiting your signature' }}
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Deposit</div>
+          <div class="stat-value">KES {{ lease.depositAmount | number }}</div>
+          <div class="stat-sub" [class.green-text]="lease.depositPaid" [class.red-text]="!lease.depositPaid">
+            {{ lease.depositPaid ? '✓ Paid' : '✗ Unpaid' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Lease card -->
+      <div class="card lease-card">
+        <div class="card-header">
+          <h2>My Lease</h2>
+          <a routerLink="/tenant-portal/lease" class="view-link">View full lease →</a>
+        </div>
+        <div class="lease-meta">
+          <div class="meta-item">
+            <span class="meta-label">Property</span>
+            <span class="meta-value">{{ lease.propertyName }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Lease No.</span>
+            <span class="meta-value">{{ lease.leaseNumber }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Start Date</span>
+            <span class="meta-value">{{ lease.startDate | date:'mediumDate' }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">End Date</span>
+            <span class="meta-value">{{ lease.endDate | date:'mediumDate' }}</span>
+          </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="progress-section">
+          <div class="progress-label">
+            <span>Lease progress</span>
+            <span>{{ leaseProgress }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="leaseProgress"></div>
+          </div>
+        </div>
+
+        <!-- Sign banner -->
+        <div class="sign-banner" *ngIf="!lease.isSigned">
+          <span>📝 Your lease needs your signature</span>
+          <a routerLink="/tenant-portal/lease" class="btn-sign">Sign Now</a>
+        </div>
+      </div>
+
+      <!-- Recent payments -->
+      <div class="card" *ngIf="recentPayments.length > 0">
+        <div class="card-header">
+          <h2>Recent Payments</h2>
+          <a routerLink="/tenant-portal/invoices" class="view-link">View all →</a>
+        </div>
+        <div class="payments-list">
+          <div class="payment-row" *ngFor="let p of recentPayments">
+            <div class="payment-icon" [class]="p.status">
+              <span *ngIf="p.status === 'completed'">✓</span>
+              <span *ngIf="p.status === 'pending'">⏳</span>
+              <span *ngIf="p.status === 'failed'">✗</span>
+            </div>
+            <div class="payment-info">
+              <div class="payment-label">{{ p.paymentPeriod || 'Rent Payment' }}</div>
+              <div class="payment-date">{{ p.paymentDate | date:'mediumDate' }}</div>
+            </div>
+            <div class="payment-amount" [class]="p.status">KES {{ p.amount | number }}</div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+</div>

@@ -1,26 +1,20 @@
-import { Injectable } from "@angular/core";
-import { HttpClient, HttpParams } from "@angular/common/http";
-import { Observable } from "rxjs";
-import { environment } from "../../../../environments/environment";
-import { Payment, PaginatedResponse } from "../../interfaces/models";
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+import { Payment, PaginatedResponse } from '../../interfaces/models';
 
-@Injectable({ providedIn: "root" })
-export class PaymentsService {
+@Injectable({ providedIn: 'root' })
+export class FarmFinanceService {
   private apiUrl = `${environment.apiUrl}/farm-finance`;
 
   constructor(private http: HttpClient) {}
 
-  getAll(
-    page = 1,
-    limit = 20,
-    search?: string,
-    status?: string,
-    paymentMethod?: string,
-  ): Observable<PaginatedResponse<Payment>> {
-    let params = new HttpParams().set("page", page).set("limit", limit);
-    if (search) params = params.set("search", search);
-    if (status) params = params.set("status", status);
-    if (paymentMethod) params = params.set("paymentMethod", paymentMethod);
+  getAll(page = 1, limit = 20, search?: string, status?: string, paymentMethod?: string): Observable<PaginatedResponse<Payment>> {
+    let params = new HttpParams().set('page', page).set('limit', limit);
+    if (search) params = params.set('search', search);
+    if (status) params = params.set('status', status);
+    if (paymentMethod) params = params.set('paymentMethod', paymentMethod);
     return this.http.get<PaginatedResponse<Payment>>(this.apiUrl, { params });
   }
 
@@ -37,15 +31,11 @@ export class PaymentsService {
   }
 
   getByTenant(propertyTenantId: string): Observable<Payment[]> {
-    return this.http.get<Payment[]>(
-      `${this.apiUrl}/by-tenant/${propertyTenantId}`,
-    );
+    return this.http.get<Payment[]>(`${this.apiUrl}/by-tenant/${propertyTenantId}`);
   }
 
   getByDateRange(startDate: string, endDate: string): Observable<Payment[]> {
-    return this.http.get<Payment[]>(`${this.apiUrl}/date-range`, {
-      params: { startDate, endDate },
-    });
+    return this.http.get<Payment[]>(`${this.apiUrl}/date-range`, { params: { startDate, endDate } });
   }
 
   create(data: Partial<Payment>): Observable<Payment> {

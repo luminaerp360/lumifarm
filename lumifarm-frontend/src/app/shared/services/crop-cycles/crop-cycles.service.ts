@@ -1,24 +1,19 @@
-import { Injectable } from "@angular/core";
-import { HttpClient, HttpParams } from "@angular/common/http";
-import { Observable } from "rxjs";
-import { environment } from "../../../../environments/environment";
-import { Lease, PaginatedResponse } from "../../interfaces/models";
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+import { Lease, PaginatedResponse } from '../../interfaces/models';
 
-@Injectable({ providedIn: "root" })
-export class LeasesService {
+@Injectable({ providedIn: 'root' })
+export class CropCyclesService {
   private apiUrl = `${environment.apiUrl}/crop-cycles`;
 
   constructor(private http: HttpClient) {}
 
-  getAll(
-    page = 1,
-    limit = 20,
-    search?: string,
-    status?: string,
-  ): Observable<PaginatedResponse<Lease>> {
-    let params = new HttpParams().set("page", page).set("limit", limit);
-    if (search) params = params.set("search", search);
-    if (status) params = params.set("status", status);
+  getAll(page = 1, limit = 20, search?: string, status?: string): Observable<PaginatedResponse<Lease>> {
+    let params = new HttpParams().set('page', page).set('limit', limit);
+    if (search) params = params.set('search', search);
+    if (status) params = params.set('status', status);
     return this.http.get<PaginatedResponse<Lease>>(this.apiUrl, { params });
   }
 
@@ -31,15 +26,11 @@ export class LeasesService {
   }
 
   getByTenant(propertyTenantId: string): Observable<Lease[]> {
-    return this.http.get<Lease[]>(
-      `${this.apiUrl}/by-tenant/${propertyTenantId}`,
-    );
+    return this.http.get<Lease[]>(`${this.apiUrl}/by-tenant/${propertyTenantId}`);
   }
 
   getExpiringSoon(days = 30): Observable<Lease[]> {
-    return this.http.get<Lease[]>(`${this.apiUrl}/expiring-soon`, {
-      params: { days },
-    });
+    return this.http.get<Lease[]>(`${this.apiUrl}/expiring-soon`, { params: { days } });
   }
 
   create(data: Partial<Lease>): Observable<Lease> {

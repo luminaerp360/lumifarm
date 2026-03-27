@@ -1,19 +1,25 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import { PropertyTenant, PaginatedResponse } from '../../interfaces/models';
+import { Injectable } from "@angular/core";
+import { HttpClient, HttpParams } from "@angular/common/http";
+import { Observable } from "rxjs";
+import { environment } from "../../../../environments/environment";
+import { PropertyTenant, PaginatedResponse } from "../../interfaces/models";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class PropertyTenantsService {
-  private apiUrl = `${environment.apiUrl}/property-tenants`;
+  private apiUrl = `${environment.apiUrl}/farm-workers`;
 
   constructor(private http: HttpClient) {}
 
-  getAll(page = 1, limit = 20, search?: string): Observable<PaginatedResponse<PropertyTenant>> {
-    let params = new HttpParams().set('page', page).set('limit', limit);
-    if (search) params = params.set('search', search);
-    return this.http.get<PaginatedResponse<PropertyTenant>>(this.apiUrl, { params });
+  getAll(
+    page = 1,
+    limit = 20,
+    search?: string,
+  ): Observable<PaginatedResponse<PropertyTenant>> {
+    let params = new HttpParams().set("page", page).set("limit", limit);
+    if (search) params = params.set("search", search);
+    return this.http.get<PaginatedResponse<PropertyTenant>>(this.apiUrl, {
+      params,
+    });
   }
 
   getById(id: string): Observable<PropertyTenant> {
@@ -21,14 +27,19 @@ export class PropertyTenantsService {
   }
 
   getByProperty(propertyId: string): Observable<PropertyTenant[]> {
-    return this.http.get<PropertyTenant[]>(`${this.apiUrl}/by-property/${propertyId}`);
+    return this.http.get<PropertyTenant[]>(
+      `${this.apiUrl}/by-property/${propertyId}`,
+    );
   }
 
   create(data: Partial<PropertyTenant>): Observable<PropertyTenant> {
     return this.http.post<PropertyTenant>(this.apiUrl, data);
   }
 
-  update(id: string, data: Partial<PropertyTenant>): Observable<PropertyTenant> {
+  update(
+    id: string,
+    data: Partial<PropertyTenant>,
+  ): Observable<PropertyTenant> {
     return this.http.put<PropertyTenant>(`${this.apiUrl}/${id}`, data);
   }
 

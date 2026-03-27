@@ -28,7 +28,7 @@ export interface PaginatedResponse<T> {
 }
 
 @Injectable({ providedIn: "root" })
-export class UnitsService {
+export class PlotsService {
   private apiUrl = `${environment.apiUrl}/plots`;
 
   constructor(private http: HttpClient) {}

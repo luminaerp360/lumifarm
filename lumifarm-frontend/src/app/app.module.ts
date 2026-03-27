@@ -1,66 +1,72 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgModule } from "@angular/core";
+import { BrowserModule } from "@angular/platform-browser";
+import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
+import { AppRoutingModule } from "./app-routing.module";
+import { AppComponent } from "./app.component";
 
 // Layout
-import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
-import { SidebarComponent } from './layout/sidebar/sidebar.component';
-import { HeaderComponent } from './layout/header/header.component';
+import { MainLayoutComponent } from "./layout/main-layout/main-layout.component";
+import { SidebarComponent } from "./layout/sidebar/sidebar.component";
+import { HeaderComponent } from "./layout/header/header.component";
 
 // Auth
-import { LoginComponent } from './modules/auth/login/login.component';
+import { LoginComponent } from "./modules/auth/login/login.component";
 
 // Dashboard
-import { DashboardComponent } from './modules/dashboard/dashboard.component';
+import { DashboardComponent } from "./modules/dashboard/dashboard.component";
 
-// Properties
-import { PropertiesListComponent } from './modules/properties/properties-list/properties-list.component';
-import { PropertyDetailComponent } from './modules/properties/property-detail/property-detail.component';
-import { PropertyFormComponent } from './modules/properties/property-form/property-form.component';
+// Farms
+import { FarmsListComponent } from "./modules/farms/farms-list/farms-list.component";
+import { FarmDetailComponent } from "./modules/farms/farm-detail/farm-detail.component";
+import { FarmFormComponent } from "./modules/farms/farm-form/farm-form.component";
 
-// Units
-import { UnitsListComponent } from './modules/units/units-list/units-list.component';
-import { UnitDetailComponent } from './modules/units/unit-detail/unit-detail.component';
-import { UnitsFormComponent } from './modules/units/units-form/units-form.component';
+// Plots
+import { PlotsListComponent } from "./modules/plots/plots-list/plots-list.component";
+import { PlotDetailComponent } from "./modules/plots/plot-detail/plot-detail.component";
+import { PlotsFormComponent } from "./modules/plots/plots-form/plots-form.component";
 
-// Property Tenants
-import { TenantsListComponent } from './modules/property-tenants/tenants-list/tenants-list.component';
-import { TenantDetailComponent } from './modules/property-tenants/tenant-detail/tenant-detail.component';
+// Farm Workers
+import { FarmWorkersListComponent } from "./modules/farm-workers/farm-workers-list/farm-workers-list.component";
+import { FarmWorkerDetailComponent } from "./modules/farm-workers/farm-worker-detail/farm-worker-detail.component";
 
-// Leases
-import { LeasesListComponent } from './modules/leases/leases-list/leases-list.component';
-import { LeaseDetailComponent } from './modules/leases/lease-detail/lease-detail.component';
+// Crop Cycles
+import { CropCyclesListComponent } from "./modules/crop-cycles/crop-cycles-list/crop-cycles-list.component";
+import { CropCycleDetailComponent } from "./modules/crop-cycles/crop-cycle-detail/crop-cycle-detail.component";
+import { CropCyclesFormComponent } from "./modules/crop-cycles/crop-cycles-form/crop-cycles-form.component";
 
-// Payments
-import { PaymentsListComponent } from './modules/payments/payments-list/payments-list.component';
-import { PaymentDetailComponent } from './modules/payments/payment-detail/payment-detail.component';
+// Farm Finance
+import { FarmFinanceListComponent } from "./modules/farm-finance/farm-finance-list/farm-finance-list.component";
+import { FarmFinanceDetailComponent } from "./modules/farm-finance/farm-finance-detail/farm-finance-detail.component";
+import { FarmFinanceFormComponent } from "./modules/farm-finance/farm-finance-form/farm-finance-form.component";
 
-// Damages
-import { DamagesListComponent } from './modules/damages/damages-list/damages-list.component';
-import { DamageDetailComponent } from './modules/damages/damage-detail/damage-detail.component';
+// Crop Issues
+import { CropIssuesListComponent } from "./modules/crop-issues/crop-issues-list/crop-issues-list.component";
+import { CropIssueDetailComponent } from "./modules/crop-issues/crop-issue-detail/crop-issue-detail.component";
+import { CropIssuesFormComponent } from "./modules/crop-issues/crop-issues-form/crop-issues-form.component";
+
+// Farm Workers - Form
+import { FarmWorkersFormComponent } from "./modules/farm-workers/farm-workers-form/farm-workers-form.component";
 
 // Reports
-import { ReportsComponent } from './modules/reports/reports.component';
+import { ReportsComponent } from "./modules/reports/reports.component";
 
 // Users
-import { UsersListComponent } from './modules/users/users-list/users-list.component';
+import { UsersListComponent } from "./modules/users/users-list/users-list.component";
 
 // Settings
-import { SettingsComponent } from './modules/settings/settings.component';
+import { SettingsComponent } from "./modules/settings/settings.component";
 
 // System Tenants
-import { SystemTenantsComponent } from './modules/system-tenants/system-tenants.component';
+import { SystemTenantsComponent } from "./modules/system-tenants/system-tenants.component";
 
 // Shared
-import { ColorPickerComponent } from './shared/components/color-picker/color-picker.component';
+import { ColorPickerComponent } from "./shared/components/color-picker/color-picker.component";
 
 // Interceptor
-import { AuthInterceptor } from './shared/interceptors/auth.interceptor';
+import { AuthInterceptor } from "./shared/interceptors/auth.interceptor";
 
 @NgModule({
   declarations: [
@@ -70,20 +76,24 @@ import { AuthInterceptor } from './shared/interceptors/auth.interceptor';
     HeaderComponent,
     LoginComponent,
     DashboardComponent,
-    PropertiesListComponent,
-    PropertyDetailComponent,
-    PropertyFormComponent,
-    UnitsListComponent,
-    UnitDetailComponent,
-    UnitsFormComponent,
-    TenantsListComponent,
-    TenantDetailComponent,
-    LeasesListComponent,
-    LeaseDetailComponent,
-    PaymentsListComponent,
-    PaymentDetailComponent,
-    DamagesListComponent,
-    DamageDetailComponent,
+    FarmsListComponent,
+    FarmDetailComponent,
+    FarmFormComponent,
+    PlotsListComponent,
+    PlotDetailComponent,
+    PlotsFormComponent,
+    FarmWorkersListComponent,
+    FarmWorkerDetailComponent,
+    FarmWorkersFormComponent,
+    CropCyclesListComponent,
+    CropCycleDetailComponent,
+    CropCyclesFormComponent,
+    FarmFinanceListComponent,
+    FarmFinanceDetailComponent,
+    FarmFinanceFormComponent,
+    CropIssuesListComponent,
+    CropIssueDetailComponent,
+    CropIssuesFormComponent,
     ReportsComponent,
     UsersListComponent,
     SettingsComponent,

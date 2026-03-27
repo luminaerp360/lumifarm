@@ -2,9 +2,9 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const SUPER_ADMIN_EMAIL = 'superadmin@rentium.co.ke';
-const SUPER_ADMIN_PASSWORD = 'SuperAdmin@2026';
-const SUPER_ADMIN_NAME = 'Super Admin';
+const SUPER_ADMIN_EMAIL = process.env.DEFAULT_ADMIN_EMAIL || 'admin@lumifarm.co.ke';
+const SUPER_ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || 'Lumifarm@2026';
+const SUPER_ADMIN_NAME = process.env.DEFAULT_ADMIN_NAME || 'Lumifarm Admin';
 
 async function seed() {
   const uri = process.env.MONGODB_URI;

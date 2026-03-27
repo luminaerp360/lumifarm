@@ -18,7 +18,10 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "seed:admin": "node seed-super-admin.js",
+    "seed:portal-tenant": "node seed-portal-tenant.js",
+    "seed:demo": "node seed-demo.js"
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.1",

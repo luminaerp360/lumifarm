@@ -1,63 +1,130 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { FarmWorkersService } from '../../../shared/services/farm-workers/farm-workers.service';
-import { ThemeService } from '../../../shared/services/theme/theme.service';
-import { PropertyTenant } from '../../../shared/interfaces/models';
+import { Component, OnInit } from "@angular/core";
+import { Router } from "@angular/router";
+import { FarmWorkersService } from "../../../shared/services/farm-workers/farm-workers.service";
+import { AuthService } from "../../../shared/services/auth/auth.service";
+import { ThemeService } from "../../../shared/services/theme/theme.service";
 
 @Component({
-  selector: 'app-farm-workers-list',
-  templateUrl: './farm-workers-list.component.html',
-  styleUrls: ['./farm-workers-list.component.scss'],
+  selector: "app-farm-workers-list",
+  templateUrl: "./farm-workers-list.component.html",
+  styleUrls: ["./farm-workers-list.component.scss"],
 })
 export class FarmWorkersListComponent implements OnInit {
-  tenants: PropertyTenant[] = [];
+  workers: any[] = [];
   loading = true;
-  search = '';
+  search = "";
   page = 1;
   limit = 20;
   total = 0;
   totalPages = 0;
   showForm = false;
-  editingTenant: PropertyTenant | null = null;
+  editingWorker: any = null;
   saving = false;
-  form: Partial<PropertyTenant> = { name: '', email: '', phone: '', idNumber: '', kraPin: '', occupation: '', employer: '' };
+
+  roleOptions = ["owner", "manager", "worker", "specialist", "contractor"];
+  availabilityOptions = ["full_time", "part_time", "seasonal"];
+
+  form: any = {
+    fullName: "",
+    phone: "",
+    email: "",
+    nationalId: "",
+    role: "worker",
+    availability: "full_time",
+    monthlyWage: 0,
+    address: "",
+    skills: "",
+  };
 
   constructor(
-    private tenantsService: FarmWorkersService,
+    private workersService: FarmWorkersService,
+    private authService: AuthService,
     public themeService: ThemeService,
     private router: Router,
   ) {}
 
-  ngOnInit(): void { this.loadTenants(); }
-
-  loadTenants(): void {
-    this.loading = true;
-    this.tenantsService.getAll(this.page, this.limit, this.search || undefined).subscribe({
-      next: (res) => { this.tenants = res.data; this.total = res.total; this.totalPages = res.totalPages; this.loading = false; },
-      error: () => { this.loading = false; },
-    });
+  ngOnInit(): void {
+    this.loadWorkers();
   }
 
-  onSearch(): void { this.page = 1; this.loadTenants(); }
-  goToPage(p: number): void { this.page = p; this.loadTenants(); }
+  loadWorkers(): void {
+    this.loading = true;
+    this.workersService
+      .getAll(this.page, this.limit, this.search || undefined)
+      .subscribe({
+        next: (res) => {
+          this.workers = res.data;
+          this.total = res.total;
+          this.totalPages = res.totalPages;
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+        },
+      });
+  }
 
-  openForm(tenant?: PropertyTenant): void {
-    this.editingTenant = tenant || null;
-    this.form = tenant ? { ...tenant } : { name: '', email: '', phone: '', idNumber: '', kraPin: '', occupation: '', employer: '' };
+  onSearch(): void {
+    this.page = 1;
+    this.loadWorkers();
+  }
+  goToPage(p: number): void {
+    this.page = p;
+    this.loadWorkers();
+  }
+
+  openForm(worker?: any): void {
+    this.editingWorker = worker || null;
+    this.form = worker
+      ? { ...worker }
+      : {
+          fullName: "",
+          phone: "",
+          email: "",
+          nationalId: "",
+          role: "worker",
+          availability: "full_time",
+          monthlyWage: 0,
+          address: "",
+          skills: "",
+        };
     this.showForm = true;
   }
 
   save(): void {
-    if (!this.form.name) return;
+    if (!this.form.fullName || !this.form.phone) return;
     this.saving = true;
-    const obs = this.editingTenant
-      ? this.tenantsService.update(this.editingTenant._id, this.form)
-      : this.tenantsService.create(this.form);
+    const tenantId = this.authService.getActiveTenantId();
+    const payload = {
+      tenantId,
+      fullName: this.form.fullName,
+      phone: this.form.phone,
+      email: this.form.email || "",
+      nationalId: this.form.nationalId || "",
+      role: this.form.role || "worker",
+      availability: this.form.availability || "full_time",
+      monthlyWage: Number(this.form.monthlyWage || 0),
+      address: this.form.address || "",
+      skills: this.form.skills || "",
+      joinDate: this.form.joinDate || new Date(),
+      isActive: true,
+    };
+    const obs = this.editingWorker
+      ? this.workersService.update(this.editingWorker._id, payload)
+      : this.workersService.create(payload);
     obs.subscribe({
-      next: () => { this.saving = false; this.showForm = false; this.loadTenants(); },
-      error: () => { this.saving = false; },
+      next: () => {
+        this.saving = false;
+        this.showForm = false;
+        this.loadWorkers();
+      },
+      error: () => {
+        this.saving = false;
+      },
     });
   }
 
-  viewTenant(id: string): void { this.router.navigate(['/tenants', id]); }
+  viewWorker(id: string): void {
+    this.router.navigate(["/farm-workers", id]);
+  }
 }

@@ -2,6 +2,11 @@ import { Component, OnInit } from "@angular/core";
 import { ThemeService } from "../../shared/services/theme/theme.service";
 import { TasksService } from "../../shared/services/tasks/tasks.service";
 import { AuthService } from "../../shared/services/auth/auth.service";
+import { FarmWorkersService } from "../../shared/services/farm-workers/farm-workers.service";
+import { FarmsService } from "../../shared/services/farms/farms.service";
+import { CropCyclesService } from "../../shared/services/crop-cycles/crop-cycles.service";
+import { UnitsService } from "../../shared/services/units/units.service";
+import { Task } from "../../shared/interfaces/models";
 
 @Component({
   selector: "app-tasks",
@@ -9,7 +14,7 @@ import { AuthService } from "../../shared/services/auth/auth.service";
   styleUrls: ["./tasks.component.scss"],
 })
 export class TasksComponent implements OnInit {
-  tasks: any[] = [];
+  tasks: Task[] = [];
   loading = false;
   search = "";
   page = 1;
@@ -32,9 +37,15 @@ export class TasksComponent implements OnInit {
     upcoming: 0,
   };
 
+  // Dropdown data
+  farmWorkers: any[] = [];
+  farms: any[] = [];
+  cropCycles: any[] = [];
+  plots: any[] = [];
+
   // Form
   showForm = false;
-  editingTask: any = null;
+  editingTask: Task | null = null;
   saving = false;
 
   form: any = {
@@ -45,9 +56,13 @@ export class TasksComponent implements OnInit {
     category: "general",
     dueDate: "",
     startDate: "",
+    assignedToId: "",
     assignedToName: "",
+    farmId: "",
     farmName: "",
+    plotId: "",
     plotName: "",
+    cropCycleId: "",
     cropCycleName: "",
     estimatedCost: 0,
     actualCost: 0,
@@ -58,7 +73,7 @@ export class TasksComponent implements OnInit {
   };
 
   // Detail view
-  selectedTask: any = null;
+  selectedTask: Task | null = null;
   showDetail = false;
 
   statusOptions = [
@@ -93,11 +108,31 @@ export class TasksComponent implements OnInit {
     public themeService: ThemeService,
     private tasksService: TasksService,
     private authService: AuthService,
+    private farmWorkersService: FarmWorkersService,
+    private farmsService: FarmsService,
+    private cropCyclesService: CropCyclesService,
+    private unitsService: UnitsService,
   ) {}
 
   ngOnInit() {
     this.loadTasks();
     this.loadStats();
+    this.loadDropdowns();
+  }
+
+  loadDropdowns() {
+    this.farmWorkersService.getAll(1, 100).subscribe({
+      next: (res: any) => (this.farmWorkers = res.data || []),
+    });
+    this.farmsService.getAll(1, 100).subscribe({
+      next: (res: any) => (this.farms = res.data || []),
+    });
+    this.cropCyclesService.getAll(1, 100).subscribe({
+      next: (res: any) => (this.cropCycles = res.data || []),
+    });
+    this.unitsService.getAll(1, 100).subscribe({
+      next: (res: any) => (this.plots = res.data || []),
+    });
   }
 
   loadTasks() {
@@ -173,9 +208,13 @@ export class TasksComponent implements OnInit {
       category: "general",
       dueDate: "",
       startDate: "",
+      assignedToId: "",
       assignedToName: "",
+      farmId: "",
       farmName: "",
+      plotId: "",
       plotName: "",
+      cropCycleId: "",
       cropCycleName: "",
       estimatedCost: 0,
       actualCost: 0,
@@ -197,9 +236,13 @@ export class TasksComponent implements OnInit {
       category: task.category || "general",
       dueDate: task.dueDate ? task.dueDate.substring(0, 10) : "",
       startDate: task.startDate ? task.startDate.substring(0, 10) : "",
+      assignedToId: task.assignedToId || "",
       assignedToName: task.assignedToName || "",
+      farmId: task.farmId || "",
       farmName: task.farmName || "",
+      plotId: task.plotId || "",
       plotName: task.plotName || "",
+      cropCycleId: task.cropCycleId || "",
       cropCycleName: task.cropCycleName || "",
       estimatedCost: task.estimatedCost || 0,
       actualCost: task.actualCost || 0,
@@ -245,6 +288,40 @@ export class TasksComponent implements OnInit {
       },
       error: () => (this.saving = false),
     });
+  }
+
+  onWorkerChange(): void {
+    const w = this.farmWorkers.find(
+      (w: any) => w._id === this.form.assignedToId,
+    );
+    this.form.assignedToName = w ? w.fullName : "";
+  }
+
+  onFarmChange(): void {
+    const f = this.farms.find((f: any) => f._id === this.form.farmId);
+    this.form.farmName = f ? f.name : "";
+    this.form.plotId = "";
+    this.form.plotName = "";
+  }
+
+  onPlotChange(): void {
+    const p = this.plots.find((p: any) => p._id === this.form.plotId);
+    this.form.plotName = p ? p.name : "";
+  }
+
+  onCropCycleChange(): void {
+    const c = this.cropCycles.find((c: any) => c._id === this.form.cropCycleId);
+    this.form.cropCycleName = c
+      ? c.cropType || c.seasonName || c.propertyName || ""
+      : "";
+  }
+
+  get filteredPlots(): any[] {
+    if (!this.form.farmId) return this.plots;
+    return this.plots.filter(
+      (p: any) =>
+        p.propertyId === this.form.farmId || p.farmId === this.form.farmId,
+    );
   }
 
   completeTask(task: any, event: Event) {

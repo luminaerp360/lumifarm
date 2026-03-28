@@ -498,7 +498,19 @@
               class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1 block"
               >Assigned To</label
             >
-            <span class="text-sm text-gray-700 dark:text-gray-300">
+            <a
+              *ngIf="selectedTask.assignedToId"
+              [routerLink]="['/farm-workers', selectedTask.assignedToId]"
+              class="text-sm inline-flex items-center gap-1.5 hover:underline"
+              [style.color]="themeService.accent"
+            >
+              <i class="fas fa-user text-xs"></i>
+              {{ selectedTask.assignedToName }}
+            </a>
+            <span
+              *ngIf="!selectedTask.assignedToId"
+              class="text-sm text-gray-700 dark:text-gray-300"
+            >
               <i
                 class="fas fa-user text-xs mr-1"
                 [style.color]="themeService.accent"
@@ -511,9 +523,18 @@
               class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1 block"
               >Farm</label
             >
-            <span class="text-sm text-gray-700 dark:text-gray-300">{{
-              selectedTask.farmName
-            }}</span>
+            <a
+              *ngIf="selectedTask.farmId"
+              [routerLink]="['/farms', selectedTask.farmId]"
+              class="text-sm hover:underline"
+              [style.color]="themeService.accent"
+              >{{ selectedTask.farmName }}</a
+            >
+            <span
+              *ngIf="!selectedTask.farmId"
+              class="text-sm text-gray-700 dark:text-gray-300"
+              >{{ selectedTask.farmName }}</span
+            >
           </div>
           <div *ngIf="selectedTask.plotName">
             <label
@@ -529,9 +550,18 @@
               class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1 block"
               >Crop Cycle</label
             >
-            <span class="text-sm text-gray-700 dark:text-gray-300">{{
-              selectedTask.cropCycleName
-            }}</span>
+            <a
+              *ngIf="selectedTask.cropCycleId"
+              [routerLink]="['/crop-cycles', selectedTask.cropCycleId]"
+              class="text-sm hover:underline"
+              [style.color]="themeService.accent"
+              >{{ selectedTask.cropCycleName }}</a
+            >
+            <span
+              *ngIf="!selectedTask.cropCycleId"
+              class="text-sm text-gray-700 dark:text-gray-300"
+              >{{ selectedTask.cropCycleName }}</span
+            >
           </div>
         </div>
 
@@ -864,24 +894,34 @@
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >Assigned To</label
             >
-            <input
-              type="text"
-              [(ngModel)]="form.assignedToName"
-              placeholder="Worker name"
+            <select
+              [(ngModel)]="form.assignedToId"
+              (change)="onWorkerChange()"
+              name="assignedToId"
               class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-800 dark:text-gray-200"
-            />
+            >
+              <option value="">Select worker</option>
+              <option *ngFor="let w of farmWorkers" [value]="w._id">
+                {{ w.fullName }}
+              </option>
+            </select>
           </div>
           <div>
             <label
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >Farm</label
             >
-            <input
-              type="text"
-              [(ngModel)]="form.farmName"
-              placeholder="Farm name"
+            <select
+              [(ngModel)]="form.farmId"
+              (change)="onFarmChange()"
+              name="farmId"
               class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-800 dark:text-gray-200"
-            />
+            >
+              <option value="">Select farm</option>
+              <option *ngFor="let f of farms" [value]="f._id">
+                {{ f.name }}
+              </option>
+            </select>
           </div>
         </div>
 
@@ -891,24 +931,34 @@
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >Plot</label
             >
-            <input
-              type="text"
-              [(ngModel)]="form.plotName"
-              placeholder="Plot name"
+            <select
+              [(ngModel)]="form.plotId"
+              (change)="onPlotChange()"
+              name="plotId"
               class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-800 dark:text-gray-200"
-            />
+            >
+              <option value="">Select plot</option>
+              <option *ngFor="let p of filteredPlots" [value]="p._id">
+                {{ p.name }}
+              </option>
+            </select>
           </div>
           <div>
             <label
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >Crop Cycle</label
             >
-            <input
-              type="text"
-              [(ngModel)]="form.cropCycleName"
-              placeholder="Crop cycle name"
+            <select
+              [(ngModel)]="form.cropCycleId"
+              (change)="onCropCycleChange()"
+              name="cropCycleId"
               class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-800 dark:text-gray-200"
-            />
+            >
+              <option value="">Select crop cycle</option>
+              <option *ngFor="let c of cropCycles" [value]="c._id">
+                {{ c.cropType || c.seasonName || c.propertyName }}
+              </option>
+            </select>
           </div>
         </div>
 

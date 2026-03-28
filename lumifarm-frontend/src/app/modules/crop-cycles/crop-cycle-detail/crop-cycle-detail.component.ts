@@ -5,12 +5,14 @@ import { CropActivitiesService } from "../../../shared/services/crop-activities/
 import { FarmFinanceService } from "../../../shared/services/farm-finance/farm-finance.service";
 import { FarmInputsService } from "../../../shared/services/farm-inputs/farm-inputs.service";
 import { FarmWorkersService } from "../../../shared/services/farm-workers/farm-workers.service";
+import { TasksService } from "../../../shared/services/tasks/tasks.service";
 import { ThemeService } from "../../../shared/services/theme/theme.service";
 import {
   CropCycle,
   CropActivity,
   FarmInput,
   FarmInputSummary,
+  Task,
 } from "../../../shared/interfaces/models";
 
 @Component({
@@ -26,7 +28,9 @@ export class CropCycleDetailComponent implements OnInit {
   inputSummary: FarmInputSummary | null = null;
   workers: any[] = [];
   loading = true;
-  activeTab: "timeline" | "inputs" | "expenses" | "harvest" = "timeline";
+  activeTab: "timeline" | "inputs" | "expenses" | "harvest" | "tasks" =
+    "timeline";
+  cycleTasks: Task[] = [];
 
   // Activity form
   showActivityForm = false;
@@ -138,6 +142,7 @@ export class CropCycleDetailComponent implements OnInit {
     private farmFinanceService: FarmFinanceService,
     private farmInputsService: FarmInputsService,
     private farmWorkersService: FarmWorkersService,
+    private tasksService: TasksService,
     public themeService: ThemeService,
   ) {}
 
@@ -157,6 +162,7 @@ export class CropCycleDetailComponent implements OnInit {
         this.loadActivities(id);
         this.loadExpenses(id);
         this.loadFarmInputs(id);
+        this.loadCycleTasks(id);
       },
       error: () => {
         this.loading = false;
@@ -187,6 +193,45 @@ export class CropCycleDetailComponent implements OnInit {
     this.farmInputsService.getSummary(cycleId).subscribe({
       next: (summary) => (this.inputSummary = summary),
     });
+  }
+
+  loadCycleTasks(cycleId: string): void {
+    this.tasksService.getByCropCycle(cycleId).subscribe({
+      next: (tasks) => (this.cycleTasks = tasks),
+    });
+  }
+
+  getTaskStatusClasses(status: string): string {
+    const map: Record<string, string> = {
+      todo: "bg-gray-100 text-gray-700 dark:bg-gray-700/30 dark:text-gray-400",
+      in_progress:
+        "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+      completed:
+        "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+      cancelled: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+    };
+    return map[status] || "";
+  }
+
+  getTaskPriorityClasses(priority: string): string {
+    const map: Record<string, string> = {
+      low: "bg-gray-100 text-gray-700 dark:bg-gray-700/30 dark:text-gray-400",
+      medium:
+        "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+      high: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
+      urgent: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+    };
+    return map[priority] || "";
+  }
+
+  getTaskStatusLabel(status: string): string {
+    const map: Record<string, string> = {
+      todo: "To Do",
+      in_progress: "In Progress",
+      completed: "Completed",
+      cancelled: "Cancelled",
+    };
+    return map[status] || status;
   }
 
   goBack(): void {

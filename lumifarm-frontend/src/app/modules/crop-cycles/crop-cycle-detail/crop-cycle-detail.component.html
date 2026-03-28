@@ -280,6 +280,22 @@
     >
       <i class="fas fa-truck-loading mr-1"></i> Harvest & Yield
     </button>
+    <button
+      (click)="activeTab = 'tasks'"
+      class="px-4 py-2 rounded-md text-sm font-medium transition-colors"
+      [class]="
+        activeTab === 'tasks'
+          ? 'bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-100 shadow-sm'
+          : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+      "
+    >
+      <i class="fas fa-tasks mr-1"></i> Tasks
+      <span
+        *ngIf="cycleTasks.length"
+        class="ml-1 px-1.5 py-0.5 rounded-full text-xs bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
+        >{{ cycleTasks.length }}</span
+      >
+    </button>
   </div>
 
   <!-- TAB: Activity Timeline -->
@@ -964,6 +980,104 @@
           <span class="text-gray-800 dark:text-gray-100 capitalize">{{
             cycle.weatherAtPlanting.soilMoisture || "—"
           }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Tasks -->
+  <div *ngIf="activeTab === 'tasks'">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">
+        Tasks
+      </h2>
+      <a
+        routerLink="/tasks"
+        class="px-4 py-2 rounded-lg text-white text-sm font-medium"
+        [style.background-color]="themeService.accent"
+      >
+        <i class="fas fa-plus mr-1"></i> Manage Tasks
+      </a>
+    </div>
+
+    <div *ngIf="cycleTasks.length === 0" class="text-center py-12">
+      <i
+        class="fas fa-tasks text-4xl text-gray-300 dark:text-gray-600 mb-3"
+      ></i>
+      <p class="text-gray-500 dark:text-gray-400">
+        No tasks linked to this crop cycle
+      </p>
+      <a
+        routerLink="/tasks"
+        class="mt-3 inline-block text-sm hover:underline"
+        [style.color]="themeService.accent"
+        >Go to Tasks to create one</a
+      >
+    </div>
+
+    <div *ngIf="cycleTasks.length > 0" class="space-y-3">
+      <div
+        *ngFor="let task of cycleTasks"
+        class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4 hover:shadow-md transition-shadow"
+      >
+        <div class="flex items-start justify-between">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <a
+                [routerLink]="['/tasks']"
+                class="text-sm font-semibold text-gray-800 dark:text-gray-100 hover:underline truncate"
+                [style.color]="themeService.accent"
+                >{{ task.title }}</a
+              >
+              <span
+                class="px-2 py-0.5 rounded-full text-xs font-medium"
+                [ngClass]="getTaskStatusClasses(task.status)"
+                >{{ getTaskStatusLabel(task.status) }}</span
+              >
+              <span
+                class="px-2 py-0.5 rounded-full text-xs font-medium"
+                [ngClass]="getTaskPriorityClasses(task.priority)"
+                >{{ task.priority }}</span
+              >
+            </div>
+            <p
+              *ngIf="task.description"
+              class="text-xs text-gray-500 dark:text-gray-400 line-clamp-1 mb-2"
+            >
+              {{ task.description }}
+            </p>
+            <div
+              class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400"
+            >
+              <span *ngIf="task.assignedToName">
+                <i
+                  class="fas fa-user mr-1"
+                  [style.color]="themeService.accent"
+                ></i>
+                <a
+                  *ngIf="task.assignedToId"
+                  [routerLink]="['/farm-workers', task.assignedToId]"
+                  class="hover:underline"
+                  [style.color]="themeService.accent"
+                  >{{ task.assignedToName }}</a
+                >
+                <span *ngIf="!task.assignedToId">{{
+                  task.assignedToName
+                }}</span>
+              </span>
+              <span *ngIf="task.dueDate">
+                <i class="fas fa-calendar mr-1"></i> Due:
+                {{ task.dueDate | date: "mediumDate" }}
+              </span>
+              <span *ngIf="task.category">
+                <i class="fas fa-tag mr-1"></i> {{ task.category | titlecase }}
+              </span>
+              <span *ngIf="task.estimatedCost">
+                <i class="fas fa-coins mr-1"></i> KES
+                {{ task.estimatedCost | number }}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

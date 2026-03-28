@@ -236,6 +236,53 @@ export interface FinancialSummary {
   profitMargin: number | string;
 }
 
+// ─── Tasks ─── //
+export type TaskPriority = "low" | "medium" | "high" | "urgent";
+export type TaskStatus = "todo" | "in_progress" | "completed" | "cancelled";
+export type TaskCategory =
+  | "soil_preparation"
+  | "planting"
+  | "weeding"
+  | "spraying"
+  | "fertilizing"
+  | "irrigation"
+  | "harvesting"
+  | "equipment_maintenance"
+  | "fencing"
+  | "general"
+  | "other";
+
+export interface Task {
+  _id: string;
+  tenantId: string;
+  title: string;
+  description: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  category: TaskCategory;
+  dueDate: string;
+  startDate: string;
+  completedDate: string;
+  assignedToId: string;
+  assignedToName: string;
+  farmId: string;
+  farmName: string;
+  plotId: string;
+  plotName: string;
+  cropCycleId: string;
+  cropCycleName: string;
+  estimatedCost: number;
+  actualCost: number;
+  currency: string;
+  estimatedHours: number;
+  actualHours: number;
+  notes: string;
+  createdBy: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 // ─── Damages ─── //
 export type DamageStatus =
   | "reported"

@@ -1,60 +1,69 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import { Payment, PaginatedResponse } from '../../interfaces/models';
+import { Injectable } from "@angular/core";
+import { HttpClient, HttpParams } from "@angular/common/http";
+import { Observable } from "rxjs";
+import { environment } from "../../../../environments/environment";
+import {
+  FarmFinance,
+  FinancialSummary,
+  PaginatedResponse,
+} from "../../interfaces/models";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class FarmFinanceService {
   private apiUrl = `${environment.apiUrl}/farm-finance`;
 
   constructor(private http: HttpClient) {}
 
-  getAll(page = 1, limit = 20, search?: string, status?: string, paymentMethod?: string): Observable<PaginatedResponse<Payment>> {
-    let params = new HttpParams().set('page', page).set('limit', limit);
-    if (search) params = params.set('search', search);
-    if (status) params = params.set('status', status);
-    if (paymentMethod) params = params.set('paymentMethod', paymentMethod);
-    return this.http.get<PaginatedResponse<Payment>>(this.apiUrl, { params });
+  getAll(
+    page = 1,
+    limit = 20,
+    search?: string,
+    transactionType?: string,
+    category?: string,
+  ): Observable<PaginatedResponse<FarmFinance>> {
+    let params = new HttpParams().set("page", page).set("limit", limit);
+    if (search) params = params.set("search", search);
+    if (transactionType)
+      params = params.set("transactionType", transactionType);
+    if (category) params = params.set("category", category);
+    return this.http.get<PaginatedResponse<FarmFinance>>(this.apiUrl, {
+      params,
+    });
   }
 
-  getById(id: string): Observable<Payment> {
-    return this.http.get<Payment>(`${this.apiUrl}/${id}`);
+  getById(id: string): Observable<FarmFinance> {
+    return this.http.get<FarmFinance>(`${this.apiUrl}/${id}`);
   }
 
-  getByLease(leaseId: string): Observable<Payment[]> {
-    return this.http.get<Payment[]>(`${this.apiUrl}/by-lease/${leaseId}`);
+  getSummary(): Observable<FinancialSummary> {
+    return this.http.get<FinancialSummary>(`${this.apiUrl}/summary`);
   }
 
-  getByProperty(propertyId: string): Observable<Payment[]> {
-    return this.http.get<Payment[]>(`${this.apiUrl}/by-property/${propertyId}`);
+  getExpenses(): Observable<FarmFinance[]> {
+    return this.http.get<FarmFinance[]>(`${this.apiUrl}/expenses`);
   }
 
-  getByTenant(propertyTenantId: string): Observable<Payment[]> {
-    return this.http.get<Payment[]>(`${this.apiUrl}/by-tenant/${propertyTenantId}`);
+  getIncome(): Observable<FarmFinance[]> {
+    return this.http.get<FarmFinance[]>(`${this.apiUrl}/income`);
   }
 
-  getByDateRange(startDate: string, endDate: string): Observable<Payment[]> {
-    return this.http.get<Payment[]>(`${this.apiUrl}/date-range`, { params: { startDate, endDate } });
+  getPendingPayments(): Observable<FarmFinance[]> {
+    return this.http.get<FarmFinance[]>(`${this.apiUrl}/pending-payments`);
   }
 
-  create(data: Partial<Payment>): Observable<Payment> {
-    return this.http.post<Payment>(this.apiUrl, data);
+  getOverduePayments(): Observable<FarmFinance[]> {
+    return this.http.get<FarmFinance[]>(`${this.apiUrl}/overdue-payments`);
   }
 
-  update(id: string, data: Partial<Payment>): Observable<Payment> {
-    return this.http.put<Payment>(`${this.apiUrl}/${id}`, data);
+  create(data: Partial<FarmFinance>): Observable<FarmFinance> {
+    return this.http.post<FarmFinance>(this.apiUrl, data);
   }
 
-  markCompleted(id: string): Observable<Payment> {
-    return this.http.put<Payment>(`${this.apiUrl}/${id}/complete`, {});
+  update(id: string, data: Partial<FarmFinance>): Observable<FarmFinance> {
+    return this.http.put<FarmFinance>(`${this.apiUrl}/${id}`, data);
   }
 
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
-
-  getStats(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/stats`);
   }
 }

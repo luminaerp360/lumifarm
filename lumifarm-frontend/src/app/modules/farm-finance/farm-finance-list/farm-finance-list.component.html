@@ -1,9 +1,11 @@
 <div>
+  <!-- Header -->
   <div
     class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6"
   >
     <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">
-      Farm Finance
+      <i class="fas fa-coins mr-2" [style.color]="themeService.accent"></i>Farm
+      Finance
     </h1>
     <button
       (click)="openForm()"
@@ -14,35 +16,137 @@
     </button>
   </div>
 
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center"
+        >
+          <i class="fas fa-arrow-down text-green-600 dark:text-green-400"></i>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">
+            Total Income
+          </div>
+          <div class="text-lg font-bold text-green-600 dark:text-green-400">
+            KES {{ summary.totalIncome | number }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center"
+        >
+          <i class="fas fa-arrow-up text-red-600 dark:text-red-400"></i>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">
+            Total Expenses
+          </div>
+          <div class="text-lg font-bold text-red-600 dark:text-red-400">
+            KES {{ summary.totalExpenses | number }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-lg flex items-center justify-center"
+          [ngClass]="
+            summary.netProfit >= 0
+              ? 'bg-green-100 dark:bg-green-900/30'
+              : 'bg-red-100 dark:bg-red-900/30'
+          "
+        >
+          <i
+            class="fas fa-chart-line"
+            [ngClass]="
+              summary.netProfit >= 0
+                ? 'text-green-600 dark:text-green-400'
+                : 'text-red-600 dark:text-red-400'
+            "
+          ></i>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">Net Profit</div>
+          <div
+            class="text-lg font-bold"
+            [ngClass]="
+              summary.netProfit >= 0
+                ? 'text-green-600 dark:text-green-400'
+                : 'text-red-600 dark:text-red-400'
+            "
+          >
+            KES {{ summary.netProfit | number }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="w-10 h-10 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center"
+        >
+          <i class="fas fa-clock text-yellow-600 dark:text-yellow-400"></i>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">
+            Pending / Overdue
+          </div>
+          <div class="text-lg font-bold text-yellow-600 dark:text-yellow-400">
+            {{ pendingCount }}
+            <span class="text-red-500 text-sm" *ngIf="overdueCount > 0"
+              >/ {{ overdueCount }} overdue</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Filters -->
   <div class="flex flex-col sm:flex-row gap-3 mb-6">
     <input
       type="text"
       [(ngModel)]="search"
       (keyup.enter)="onSearch()"
-      placeholder="Search transactions..."
+      placeholder="Search description, vendor, buyer, reference..."
       class="w-full sm:w-80 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none"
     />
     <select
-      [(ngModel)]="statusFilter"
+      [(ngModel)]="typeFilter"
       (change)="onFilterChange()"
       class="px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none"
     >
-      <option value="">All Statuses</option>
-      <option *ngFor="let s of statuses" [value]="s">
-        {{ s | titlecase }}
-      </option>
+      <option value="">All Types</option>
+      <option value="expense">Expenses</option>
+      <option value="income">Income</option>
     </select>
     <select
-      [(ngModel)]="methodFilter"
-      (change)="onFilterChange()"
+      [(ngModel)]="categoryFilter"
+      (change)="onCategoryChange()"
       class="px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none"
     >
-      <option value="">All Methods</option>
-      <option *ngFor="let m of methods" [value]="m">{{ m | titlecase }}</option>
+      <option value="">All Categories</option>
+      <option *ngFor="let c of categoryOptions" [value]="c.value">
+        {{ c.label }}
+      </option>
     </select>
   </div>
 
+  <!-- Loading -->
   <div *ngIf="loading" class="flex items-center justify-center py-20">
     <i
       class="fas fa-spinner fa-spin text-2xl"
@@ -50,6 +154,7 @@
     ></i>
   </div>
 
+  <!-- Transactions Table -->
   <div
     *ngIf="!loading"
     class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden"
@@ -66,24 +171,24 @@
               Date
             </th>
             <th
-              class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden sm:table-cell"
-            >
-              Farm
-            </th>
-            <th
-              class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden md:table-cell"
-            >
-              Worker
-            </th>
-            <th
               class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
             >
               Type
             </th>
             <th
+              class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
+            >
+              Category
+            </th>
+            <th
+              class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden md:table-cell"
+            >
+              Description
+            </th>
+            <th
               class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden lg:table-cell"
             >
-              Method
+              Vendor/Buyer
             </th>
             <th
               class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
@@ -99,60 +204,98 @@
         </thead>
         <tbody>
           <tr
-            *ngFor="let p of payments"
-            (click)="viewPayment(p._id)"
+            *ngFor="let t of transactions"
+            (click)="viewTransaction(t._id)"
             class="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors"
           >
-            <td class="px-4 py-3 text-gray-800 dark:text-gray-100">
-              {{ p.paymentDate | date: "mediumDate" }}
-            </td>
             <td
-              class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden sm:table-cell"
+              class="px-4 py-3 text-gray-800 dark:text-gray-100 whitespace-nowrap"
             >
-              {{ p.propertyName }}
-            </td>
-            <td
-              class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden md:table-cell"
-            >
-              {{ p.propertyTenantName }}
-            </td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 capitalize">
-              {{ p.paymentType }}
-            </td>
-            <td
-              class="px-4 py-3 text-gray-600 dark:text-gray-300 capitalize hidden lg:table-cell"
-            >
-              {{ p.paymentMethod }}
+              {{ t.transactionDate | date: "mediumDate" }}
             </td>
             <td class="px-4 py-3">
               <span
                 class="px-2 py-1 rounded-full text-xs font-medium"
-                [ngClass]="getStatusClasses(p.status)"
-                >{{ p.status }}</span
+                [ngClass]="getTypeClasses(t.transactionType)"
+              >
+                <i
+                  class="fas"
+                  [ngClass]="
+                    t.transactionType === 'income'
+                      ? 'fa-arrow-down'
+                      : 'fa-arrow-up'
+                  "
+                  style="font-size: 10px"
+                ></i>
+                {{ t.transactionType | titlecase }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300">
+              <span class="inline-flex items-center gap-1">
+                <i
+                  class="fas {{ getCategoryIcon(t.category) }} text-xs"
+                  [style.color]="themeService.accent"
+                ></i>
+                {{ getCategoryLabel(t.category) }}
+              </span>
+            </td>
+            <td
+              class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden md:table-cell max-w-xs truncate"
+            >
+              {{ t.description }}
+            </td>
+            <td
+              class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden lg:table-cell"
+            >
+              {{ t.transactionType === "expense" ? t.vendor : t.buyer || "—" }}
+            </td>
+            <td class="px-4 py-3">
+              <span
+                class="px-2 py-1 rounded-full text-xs font-medium"
+                [ngClass]="getStatusClasses(t.paymentStatus)"
+                >{{ t.paymentStatus | titlecase }}</span
               >
             </td>
             <td
-              class="px-4 py-3 text-right font-medium text-gray-800 dark:text-gray-100"
+              class="px-4 py-3 text-right font-medium whitespace-nowrap"
+              [ngClass]="
+                t.transactionType === 'income'
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-red-600 dark:text-red-400'
+              "
             >
-              {{ p.currency }} {{ p.amount | number }}
+              {{ t.transactionType === "income" ? "+" : "-" }}
+              {{ t.currency || "KES" }} {{ t.amount | number }}
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+
+    <!-- Empty State -->
     <div
-      *ngIf="payments.length === 0"
+      *ngIf="transactions.length === 0"
       class="text-center py-12 text-gray-500 dark:text-gray-400"
     >
-      <i class="fas fa-money-bill-wave text-3xl mb-3 block"></i>
-      <p>No transactions found</p>
+      <i class="fas fa-coins text-4xl mb-3 block opacity-50"></i>
+      <p class="text-lg font-medium mb-1">No transactions recorded</p>
+      <p class="text-sm">Start tracking your farm income and expenses</p>
+      <button
+        (click)="openForm()"
+        class="mt-4 px-4 py-2 rounded-lg text-white text-sm font-medium"
+        [style.background-color]="themeService.accent"
+      >
+        <i class="fas fa-plus mr-1"></i> Record First Transaction
+      </button>
     </div>
+
+    <!-- Pagination -->
     <div
       *ngIf="totalPages > 1"
       class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-slate-700"
     >
       <span class="text-sm text-gray-500 dark:text-gray-400"
-        >{{ total }} total</span
+        >{{ total }} total transactions</span
       >
       <div class="flex gap-1">
         <button
@@ -171,145 +314,12 @@
     </div>
   </div>
 
-  <!-- Record Transaction Modal -->
-  <div
+  <!-- Form Modal -->
+  <app-farm-finance-form
     *ngIf="showForm"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-  >
-    <div
-      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto"
-    >
-      <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
-        Record Transaction
-      </h2>
-      <div class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Amount *</label
-            >
-            <input
-              type="number"
-              [(ngModel)]="form.amount"
-              class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none"
-            />
-          </div>
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Date *</label
-            >
-            <input
-              type="date"
-              [(ngModel)]="form.paymentDate"
-              class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none"
-            />
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Payment Type</label
-            >
-            <select
-              [(ngModel)]="form.paymentType"
-              class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none"
-            >
-              <option value="rent">Rent</option>
-              <option value="deposit">Deposit</option>
-              <option value="late_fee">Late Fee</option>
-              <option value="damage">Damage</option>
-              <option value="utility">Utility</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Method</label
-            >
-            <select
-              [(ngModel)]="form.paymentMethod"
-              class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none"
-            >
-              <option value="mpesa">M-Pesa</option>
-              <option value="bank_transfer">Bank Transfer</option>
-              <option value="cash">Cash</option>
-              <option value="cheque">Cheque</option>
-              <option value="card">Card</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-        </div>
-        <div
-          *ngIf="form.paymentMethod === 'mpesa'"
-          class="grid grid-cols-2 gap-4"
-        >
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >M-Pesa Transaction ID</label
-            >
-            <input
-              type="text"
-              [(ngModel)]="form.mpesaTransactionId"
-              class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none"
-            />
-          </div>
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-              >Phone Number</label
-            >
-            <input
-              type="text"
-              [(ngModel)]="form.mpesaPhoneNumber"
-              class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none"
-            />
-          </div>
-        </div>
-        <div *ngIf="form.paymentMethod === 'bank_transfer'">
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Bank Reference</label
-          >
-          <input
-            type="text"
-            [(ngModel)]="form.bankReference"
-            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none"
-          />
-        </div>
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Notes</label
-          >
-          <textarea
-            [(ngModel)]="form.notes"
-            rows="2"
-            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm outline-none"
-          ></textarea>
-        </div>
-      </div>
-      <div class="flex justify-end gap-3 mt-6">
-        <button
-          (click)="showForm = false"
-          class="px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 text-sm text-gray-700 dark:text-gray-300"
-        >
-          Cancel
-        </button>
-        <button
-          (click)="save()"
-          [disabled]="saving"
-          class="px-6 py-2 rounded-lg text-white text-sm font-medium"
-          [style.background-color]="themeService.accent"
-          [class.opacity-50]="saving"
-        >
-          {{ saving ? "Saving..." : "Record" }}
-        </button>
-      </div>
-    </div>
-  </div>
+    [isOpen]="showForm"
+    [transaction]="editingTransaction"
+    (save)="onFormSave($event)"
+    (close)="onFormClose()"
+  ></app-farm-finance-form>
 </div>

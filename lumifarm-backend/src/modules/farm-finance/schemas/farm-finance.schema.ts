@@ -1,38 +1,51 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { BaseDocument } from '../../database/schemas/base.schema';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { BaseDocument } from "../../database/schemas/base.schema";
 
 export enum TransactionType {
-  EXPENSE = 'expense',
-  INCOME = 'income',
+  EXPENSE = "expense",
+  INCOME = "income",
 }
 
 export enum ExpenseCategory {
-  SEED = 'seed',
-  FERTILIZER = 'fertilizer',
-  PESTICIDES = 'pesticides',
-  LABOR = 'labor',
-  WATER = 'water',
-  EQUIPMENT = 'equipment',
-  TRANSPORT = 'transport',
-  STORAGE = 'storage',
-  UTILITIES = 'utilities',
-  MAINTENANCE = 'maintenance',
-  OTHER = 'other',
+  SEED = "seed",
+  FERTILIZER = "fertilizer",
+  PESTICIDES = "pesticides",
+  HERBICIDES = "herbicides",
+  FUNGICIDES = "fungicides",
+  LABOR = "labor",
+  WATER = "water",
+  EQUIPMENT = "equipment",
+  EQUIPMENT_HIRE = "equipment_hire",
+  TRANSPORT = "transport",
+  STORAGE = "storage",
+  UTILITIES = "utilities",
+  MAINTENANCE = "maintenance",
+  FUEL = "fuel",
+  PACKAGING = "packaging",
+  IRRIGATION = "irrigation",
+  LAND_PREPARATION = "land_preparation",
+  VETERINARY = "veterinary",
+  INSURANCE = "insurance",
+  LAND_RENT = "land_rent",
+  OTHER = "other",
 }
 
 export enum IncomeCategory {
-  CROP_SALE = 'crop_sale',
-  LIVESTOCK_SALE = 'livestock_sale',
-  SUBSIDY = 'subsidy',
-  GRANT = 'grant',
-  OTHER = 'other',
+  CROP_SALE = "crop_sale",
+  LIVESTOCK_SALE = "livestock_sale",
+  PRODUCE_SALE = "produce_sale",
+  SUBSIDY = "subsidy",
+  GRANT = "grant",
+  CONTRACT_FARMING = "contract_farming",
+  RENTAL_INCOME = "rental_income",
+  OTHER = "other",
 }
 
 export enum PaymentStatus {
-  PENDING = 'pending',
-  PAID = 'paid',
-  OVERDUE = 'overdue',
-  PARTIALLY_PAID = 'partially_paid',
+  PENDING = "pending",
+  PAID = "paid",
+  OVERDUE = "overdue",
+  PARTIALLY_PAID = "partially_paid",
 }
 
 @Schema({ timestamps: true })
@@ -40,13 +53,17 @@ export class FarmFinance extends BaseDocument {
   @Prop({ required: true })
   tenantId: string;
 
-  @Prop({ required: false, default: '' })
+  @Prop({ required: false, default: "" })
   farmId: string;
 
-  @Prop({ required: false, default: '' })
+  @Prop({ required: false, default: "" })
   cropCycleId: string;
 
-  @Prop({ type: String, enum: TransactionType, default: TransactionType.EXPENSE })
+  @Prop({
+    type: String,
+    enum: TransactionType,
+    default: TransactionType.EXPENSE,
+  })
   transactionType: TransactionType;
 
   @Prop({
@@ -61,7 +78,7 @@ export class FarmFinance extends BaseDocument {
   @Prop({ required: true })
   amount: number;
 
-  @Prop({ required: false, default: 'KES' })
+  @Prop({ required: false, default: "KES" })
   currency: string;
 
   @Prop({ type: String, enum: PaymentStatus, default: PaymentStatus.PENDING })
@@ -73,16 +90,16 @@ export class FarmFinance extends BaseDocument {
   @Prop({ required: false })
   paidDate: Date;
 
-  @Prop({ required: false, default: '' })
+  @Prop({ required: false, default: "" })
   paymentMethod: string; // e.g., "cash", "mobile_money", "bank_transfer"
 
-  @Prop({ required: false, default: '' })
+  @Prop({ required: false, default: "" })
   reference: string; // Transaction reference/receipt number
 
-  @Prop({ required: false, default: '' })
+  @Prop({ required: false, default: "" })
   vendor: string; // For expenses
 
-  @Prop({ required: false, default: '' })
+  @Prop({ required: false, default: "" })
   buyer: string; // For income
 
   @Prop({ required: false, default: 0 })
@@ -91,13 +108,13 @@ export class FarmFinance extends BaseDocument {
   @Prop({ required: false, default: 0 })
   pricePerUnit: number; // For income transactions
 
-  @Prop({ required: false, default: '' })
+  @Prop({ required: false, default: "" })
   notes: string;
 
   @Prop({ type: [String], default: [] })
   documents: string[]; // Receipts, invoices
 
-  @Prop({ required: false, default: '' })
+  @Prop({ required: false, default: "" })
   recordedBy: string; // User ID who recorded this
 }
 

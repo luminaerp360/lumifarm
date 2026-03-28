@@ -154,6 +154,88 @@ export interface Payment {
   updatedAt: string;
 }
 
+// ─── Farm Finance ─── //
+export type TransactionType = "expense" | "income";
+export type FinanceExpenseCategory =
+  | "seed"
+  | "fertilizer"
+  | "pesticides"
+  | "herbicides"
+  | "fungicides"
+  | "labor"
+  | "water"
+  | "equipment"
+  | "equipment_hire"
+  | "transport"
+  | "storage"
+  | "utilities"
+  | "maintenance"
+  | "fuel"
+  | "packaging"
+  | "irrigation"
+  | "land_preparation"
+  | "veterinary"
+  | "insurance"
+  | "land_rent"
+  | "other";
+export type FinanceIncomeCategory =
+  | "crop_sale"
+  | "livestock_sale"
+  | "produce_sale"
+  | "subsidy"
+  | "grant"
+  | "contract_farming"
+  | "rental_income"
+  | "other";
+export type FinancePaymentStatus =
+  | "pending"
+  | "paid"
+  | "overdue"
+  | "partially_paid";
+export type FinancePaymentMethod =
+  | "cash"
+  | "mpesa"
+  | "bank_transfer"
+  | "cheque"
+  | "mobile_money"
+  | "on_account"
+  | "other";
+
+export interface FarmFinance {
+  _id: string;
+  tenantId: string;
+  farmId: string;
+  cropCycleId: string;
+  transactionType: TransactionType;
+  category: FinanceExpenseCategory | FinanceIncomeCategory;
+  description: string;
+  amount: number;
+  currency: string;
+  paymentStatus: FinancePaymentStatus;
+  transactionDate: string;
+  paidDate: string;
+  paymentMethod: FinancePaymentMethod;
+  reference: string;
+  vendor: string;
+  buyer: string;
+  quantitySold: number;
+  pricePerUnit: number;
+  notes: string;
+  documents: string[];
+  recordedBy: string;
+  farmName?: string;
+  cropCycleName?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FinancialSummary {
+  totalExpenses: number;
+  totalIncome: number;
+  netProfit: number;
+  profitMargin: number | string;
+}
+
 // ─── Damages ─── //
 export type DamageStatus =
   | "reported"

@@ -5,7 +5,7 @@
   <div
     class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
   >
-    <!-- Sticky Header -->
+    <!-- Header -->
     <div
       class="sticky top-0 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 px-6 py-4 flex justify-between items-center"
     >
@@ -61,92 +61,101 @@
         (ngSubmit)="onSubmit()"
         class="space-y-4"
       >
-        <!-- Transaction Type -->
+        <!-- Transaction Type & Category -->
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Transaction Type</label
             >
-              Transaction Type
-            </label>
             <select
               [(ngModel)]="form.transactionType"
               name="transactionType"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
             >
               <option *ngFor="let type of transactionTypes" [value]="type">
-                {{ type }}
+                {{ type | titlecase }}
               </option>
             </select>
           </div>
           <div>
             <label
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Category</label
             >
-              Category
-            </label>
             <select
               [(ngModel)]="form.category"
               name="category"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
             >
-              <option *ngFor="let cat of categoryOptions" [value]="cat">
-                {{ cat }}
+              <option *ngFor="let cat of categoryOptions" [value]="cat.value">
+                {{ cat.label }}
               </option>
             </select>
           </div>
         </div>
 
-        <!-- Farm & Asset Selection -->
+        <!-- Farm & Crop Cycle -->
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Farm</label
             >
-              Farm
-            </label>
             <select
               [(ngModel)]="form.farmId"
               name="farmId"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
             >
-              <option value="">Select Farm</option>
+              <option value="">Select Farm (Optional)</option>
+              <option *ngFor="let farm of farms" [value]="farm._id">
+                {{ farm.name }}
+              </option>
             </select>
           </div>
           <div>
             <label
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Crop Cycle</label
             >
-              Crop Cycle
-            </label>
             <select
               [(ngModel)]="form.cropCycleId"
               name="cropCycleId"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
             >
-              <option value="">Select Crop Cycle</option>
+              <option value="">Select Crop Cycle (Optional)</option>
+              <option *ngFor="let cycle of cropCycles" [value]="cycle._id">
+                {{ cycle.propertyName }} —
+                {{ cycle.startDate | date: "mediumDate" }}
+              </option>
             </select>
           </div>
         </div>
 
-        <!-- Detailed Info -->
-        <div>
+        <!-- Vendor / Buyer -->
+        <div *ngIf="form.transactionType === 'expense'">
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >Vendor</label
           >
-            {{ form.transactionType === "expense" ? "Vendor" : "Buyer" }}
-          </label>
           <input
-            [(ngModel)]="
-              form.transactionType === 'expense' ? form.vendor : form.buyer
-            "
+            [(ngModel)]="form.vendor"
             type="text"
-            [name]="form.transactionType === 'expense' ? 'vendor' : 'buyer'"
-            [placeholder]="
-              form.transactionType === 'expense'
-                ? 'e.g., ABC Seeds Ltd'
-                : 'e.g., Market Trader'
-            "
+            name="vendor"
+            placeholder="e.g., ABC Seeds Ltd"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+          />
+        </div>
+        <div *ngIf="form.transactionType === 'income'">
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >Buyer</label
+          >
+          <input
+            [(ngModel)]="form.buyer"
+            type="text"
+            name="buyer"
+            placeholder="e.g., Market Trader"
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
           />
         </div>
@@ -155,9 +164,8 @@
         <div>
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >Description <span class="text-red-500">*</span></label
           >
-            Description <span class="text-red-500">*</span>
-          </label>
           <textarea
             [(ngModel)]="form.description"
             name="description"
@@ -173,9 +181,8 @@
           <div>
             <label
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Amount (KES) <span class="text-red-500">*</span></label
             >
-              Amount <span class="text-red-500">*</span>
-            </label>
             <input
               [(ngModel)]="form.amount"
               type="number"
@@ -189,9 +196,8 @@
           <div>
             <label
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Transaction Date <span class="text-red-500">*</span></label
             >
-              Transaction Date <span class="text-red-500">*</span>
-            </label>
             <input
               [(ngModel)]="form.transactionDate"
               type="date"
@@ -202,44 +208,45 @@
           </div>
         </div>
 
-        <!-- Payment Info -->
+        <!-- Payment Method & Status -->
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Payment Method</label
             >
-              Payment Method
-            </label>
             <select
               [(ngModel)]="form.paymentMethod"
               name="paymentMethod"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
             >
               <option value="">Select Method</option>
-              <option *ngFor="let method of paymentMethods" [value]="method">
-                {{ method }}
+              <option
+                *ngFor="let method of paymentMethods"
+                [value]="method.value"
+              >
+                {{ method.label }}
               </option>
             </select>
           </div>
           <div>
             <label
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Payment Status</label
             >
-              Payment Status
-            </label>
             <select
               [(ngModel)]="form.paymentStatus"
               name="paymentStatus"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
             >
               <option *ngFor="let status of paymentStatuses" [value]="status">
-                {{ status }}
+                {{ status | titlecase }}
               </option>
             </select>
           </div>
         </div>
 
-        <!-- Income Specific -->
+        <!-- Income-specific: Quantity & Price Per Unit -->
         <div
           *ngIf="form.transactionType === 'income'"
           class="grid grid-cols-2 gap-4"
@@ -247,14 +254,27 @@
           <div>
             <label
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Quantity Sold</label
             >
-              Quantity Sold
-            </label>
             <input
               [(ngModel)]="form.quantitySold"
               type="number"
               name="quantitySold"
               placeholder="0"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >Price Per Unit</label
+            >
+            <input
+              [(ngModel)]="form.pricePerUnit"
+              type="number"
+              name="pricePerUnit"
+              placeholder="0"
+              step="0.01"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
             />
           </div>
@@ -264,9 +284,8 @@
         <div>
           <label
             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >Reference (Receipt #, Invoice #, etc.)</label
           >
-            Reference (Receipt #, Invoice #, etc.)
-          </label>
           <input
             [(ngModel)]="form.reference"
             type="text"
@@ -275,10 +294,25 @@
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
           />
         </div>
+
+        <!-- Notes -->
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >Notes</label
+          >
+          <textarea
+            [(ngModel)]="form.notes"
+            name="notes"
+            rows="2"
+            placeholder="Any additional notes..."
+            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
+          ></textarea>
+        </div>
       </form>
     </div>
 
-    <!-- Sticky Footer -->
+    <!-- Footer -->
     <div
       class="sticky bottom-0 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 px-6 py-4 flex justify-end gap-3"
     >
@@ -291,7 +325,9 @@
       <button
         (click)="onSubmit()"
         [disabled]="loading || tenantMissing || tenantRefreshLoading"
-        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 flex items-center gap-2"
+        class="px-4 py-2 text-white rounded-lg flex items-center gap-2"
+        [style.background-color]="themeService.accent"
+        [class.opacity-50]="loading || tenantMissing || tenantRefreshLoading"
       >
         <span
           *ngIf="loading"

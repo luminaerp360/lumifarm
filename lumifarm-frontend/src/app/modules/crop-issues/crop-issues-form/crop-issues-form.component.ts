@@ -1,13 +1,16 @@
-import { Component, Input, Output, EventEmitter, OnInit } from "@angular/core";
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from "@angular/core";
 import { AuthService } from "../../../shared/services/auth/auth.service";
 import { ThemeService } from "../../../shared/services/theme/theme.service";
+import { FarmsService } from "../../../shared/services/farms/farms.service";
+import { UnitsService } from "../../../shared/services/units/units.service";
+import { CropCyclesService } from "../../../shared/services/crop-cycles/crop-cycles.service";
 
 @Component({
   selector: "app-crop-issues-form",
   templateUrl: "./crop-issues-form.component.html",
   styleUrls: ["./crop-issues-form.component.scss"],
 })
-export class CropIssuesFormComponent implements OnInit {
+export class CropIssuesFormComponent implements OnInit, OnChanges {
   @Input() isOpen = false;
   @Input() issue: any | null = null;
   @Output() close = new EventEmitter<void>();
@@ -17,6 +20,10 @@ export class CropIssuesFormComponent implements OnInit {
   error = "";
   tenantRefreshLoading = false;
   tenantMissing = false;
+
+  farms: any[] = [];
+  plots: any[] = [];
+  cropCycles: any[] = [];
 
   issueTypes = [
     "pest_infestation",
@@ -55,6 +62,9 @@ export class CropIssuesFormComponent implements OnInit {
   constructor(
     private themeServiceRef: ThemeService,
     public authService: AuthService,
+    private farmsService: FarmsService,
+    private unitsService: UnitsService,
+    private cropCyclesService: CropCyclesService,
   ) {}
 
   ngOnInit(): void {
@@ -65,6 +75,8 @@ export class CropIssuesFormComponent implements OnInit {
         if (!this.authService.getActiveTenantId()) {
           this.tenantMissing = true;
           this.error = "No organization linked to your account.";
+        } else {
+          this.loadDropdowns();
         }
       },
       error: () => {
@@ -72,11 +84,42 @@ export class CropIssuesFormComponent implements OnInit {
         if (!this.authService.getActiveTenantId()) {
           this.tenantMissing = true;
           this.error = "Unable to load organization.";
+        } else {
+          this.loadDropdowns();
         }
       },
     });
     if (this.issue) {
       this.form = { ...this.issue };
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['issue'] && this.issue) {
+      this.form = { ...this.issue };
+      if (this.issue.farmId) this.onFarmChange();
+    } else if (changes['issue'] && !this.issue) {
+      this.resetForm();
+    }
+  }
+
+  loadDropdowns(): void {
+    this.farmsService.getAll(1, 100).subscribe({
+      next: (res) => this.farms = res.data || [],
+    });
+    this.cropCyclesService.getAll(1, 100).subscribe({
+      next: (res) => this.cropCycles = res.data || [],
+    });
+  }
+
+  onFarmChange(): void {
+    if (this.form.farmId) {
+      this.unitsService.getByFarm(this.form.farmId).subscribe({
+        next: (plots: any[]) => this.plots = plots || [],
+      });
+    } else {
+      this.plots = [];
+      this.form.plotId = '';
     }
   }
 
@@ -96,20 +139,31 @@ export class CropIssuesFormComponent implements OnInit {
     this.loading = true;
     this.error = "";
 
+    const selectedFarm = this.farms.find((f: any) => f._id === this.form.farmId);
+    const selectedPlot = this.plots.find((p: any) => p._id === this.form.plotId);
+    const selectedCycle = this.cropCycles.find((c: any) => c._id === this.form.cropCycleId);
+
     const payload = {
       tenantId,
       ...this.form,
+      farmName: selectedFarm?.name || '',
+      plotName: selectedPlot?.unitNumber || selectedPlot?.name || '',
+      cropCycleName: selectedCycle?.cropName || selectedCycle?.name || '',
       costToFix: Number(this.form.costToFix || 0),
       reportedDate: this.form.reportedDate || new Date(),
     };
 
-    // TODO: Call crop issues service
     this.loading = false;
     this.save.emit(payload);
     this.closeModal();
   }
 
   closeModal(): void {
+    this.resetForm();
+    this.close.emit();
+  }
+
+  resetForm(): void {
     this.form = {
       farmId: "",
       plotId: "",
@@ -130,7 +184,6 @@ export class CropIssuesFormComponent implements OnInit {
     };
     this.error = "";
     this.tenantMissing = false;
-    this.close.emit();
   }
 
   get isEditMode(): boolean {

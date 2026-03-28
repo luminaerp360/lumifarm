@@ -122,7 +122,7 @@
         class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4"
       >
         <div class="text-sm text-gray-500 dark:text-gray-400">
-          Active Leases
+          Crop Cycles
         </div>
         <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">
           {{ leases.length }}
@@ -155,7 +155,7 @@
   >
     <div class="px-4 py-3 border-b border-gray-200 dark:border-slate-700">
       <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">
-        Leases
+        Crop Cycles
       </h2>
     </div>
     <div class="overflow-x-auto">
@@ -167,12 +167,12 @@
             <th
               class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
             >
-              Lease #
+              Cycle #
             </th>
             <th
               class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
             >
-              Property
+              Farm
             </th>
             <th
               class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
@@ -187,21 +187,21 @@
             <th
               class="text-right px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
             >
-              Rent
+              Expenses
             </th>
           </tr>
         </thead>
         <tbody>
           <tr
             *ngFor="let l of leases"
-            [routerLink]="['/leases', l._id]"
+            [routerLink]="['/crop-cycles', l._id]"
             class="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors"
           >
             <td class="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">
-              {{ l.leaseNumber }}
+              {{ l.cycleNumber }}
             </td>
             <td class="px-4 py-3 text-gray-600 dark:text-gray-300">
-              {{ l.propertyName }}
+              {{ l.farmName }}
             </td>
             <td class="px-4 py-3">
               <span
@@ -210,13 +210,13 @@
               >
             </td>
             <td class="px-4 py-3 text-gray-600 dark:text-gray-300">
-              {{ l.startDate | date: "MMM y" }} –
-              {{ l.endDate | date: "MMM y" }}
+              {{ l.plantingDate | date: "MMM y" }} –
+              {{ l.expectedHarvestDate | date: "MMM y" }}
             </td>
             <td
               class="px-4 py-3 text-right font-medium text-gray-800 dark:text-gray-100"
             >
-              {{ l.currency }} {{ l.rentAmount | number }}
+              {{ l.currency }} {{ l.totalExpenses | number }}
             </td>
           </tr>
         </tbody>
@@ -226,7 +226,7 @@
       *ngIf="leases.length === 0"
       class="text-center py-8 text-gray-500 dark:text-gray-400 text-sm"
     >
-      No leases found
+      No crop cycles found
     </div>
   </div>
 
@@ -404,7 +404,7 @@
               >
             </td>
             <td class="px-4 py-3 text-gray-600 dark:text-gray-300 capitalize">
-              {{ task.category?.replace("_", " ") || "—" }}
+              {{ task.category.replace("_", " ") || "—" }}
             </td>
             <td class="px-4 py-3">
               <span

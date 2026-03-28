@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { Lease, PaginatedResponse } from '../../interfaces/models';
+import { CropCycle, PaginatedResponse } from '../../interfaces/models';
 
 @Injectable({ providedIn: 'root' })
 export class CropCyclesService {
@@ -10,43 +10,35 @@ export class CropCyclesService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(page = 1, limit = 20, search?: string, status?: string): Observable<PaginatedResponse<Lease>> {
+  getAll(page = 1, limit = 20, search?: string, status?: string): Observable<PaginatedResponse<CropCycle>> {
     let params = new HttpParams().set('page', page).set('limit', limit);
     if (search) params = params.set('search', search);
     if (status) params = params.set('status', status);
-    return this.http.get<PaginatedResponse<Lease>>(this.apiUrl, { params });
+    return this.http.get<PaginatedResponse<CropCycle>>(this.apiUrl, { params });
   }
 
-  getById(id: string): Observable<Lease> {
-    return this.http.get<Lease>(`${this.apiUrl}/${id}`);
+  getById(id: string): Observable<CropCycle> {
+    return this.http.get<CropCycle>(`${this.apiUrl}/${id}`);
   }
 
-  getByProperty(propertyId: string): Observable<Lease[]> {
-    return this.http.get<Lease[]>(`${this.apiUrl}/by-property/${propertyId}`);
+  getByFarm(farmId: string): Observable<CropCycle[]> {
+    return this.http.get<CropCycle[]>(`${this.apiUrl}/by-property/${farmId}`);
   }
 
-  getByTenant(propertyTenantId: string): Observable<Lease[]> {
-    return this.http.get<Lease[]>(`${this.apiUrl}/by-tenant/${propertyTenantId}`);
+  create(data: Partial<CropCycle>): Observable<CropCycle> {
+    return this.http.post<CropCycle>(this.apiUrl, data);
   }
 
-  getExpiringSoon(days = 30): Observable<Lease[]> {
-    return this.http.get<Lease[]>(`${this.apiUrl}/expiring-soon`, { params: { days } });
+  update(id: string, data: Partial<CropCycle>): Observable<CropCycle> {
+    return this.http.put<CropCycle>(`${this.apiUrl}/${id}`, data);
   }
 
-  create(data: Partial<Lease>): Observable<Lease> {
-    return this.http.post<Lease>(this.apiUrl, data);
+  activate(id: string): Observable<CropCycle> {
+    return this.http.put<CropCycle>(`${this.apiUrl}/${id}/activate`, {});
   }
 
-  update(id: string, data: Partial<Lease>): Observable<Lease> {
-    return this.http.put<Lease>(`${this.apiUrl}/${id}`, data);
-  }
-
-  activate(id: string): Observable<Lease> {
-    return this.http.put<Lease>(`${this.apiUrl}/${id}/activate`, {});
-  }
-
-  terminate(id: string, reason: string): Observable<Lease> {
-    return this.http.put<Lease>(`${this.apiUrl}/${id}/terminate`, { reason });
+  terminate(id: string, reason: string): Observable<CropCycle> {
+    return this.http.put<CropCycle>(`${this.apiUrl}/${id}/terminate`, { reason });
   }
 
   delete(id: string): Observable<void> {

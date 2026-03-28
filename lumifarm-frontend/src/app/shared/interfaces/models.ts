@@ -283,6 +283,120 @@ export interface Task {
   updatedAt: string;
 }
 
+// ─── Crop Issues ─── //
+export type IssueType =
+  | "pest_infestation"
+  | "disease"
+  | "weather_damage"
+  | "soil_deficiency"
+  | "water_stress"
+  | "flood"
+  | "drought"
+  | "equipment_failure"
+  | "labor_shortage"
+  | "other";
+export type IssueSeverity = "low" | "medium" | "high" | "critical";
+export type IssueStatus = "reported" | "in_treatment" | "resolved" | "closed";
+
+export interface CropIssue {
+  _id: string;
+  tenantId: string;
+  farmId: string;
+  farmName: string;
+  plotId: string;
+  plotName: string;
+  cropCycleId: string;
+  cropCycleName: string;
+  issueType: IssueType;
+  severity: IssueSeverity;
+  status: IssueStatus;
+  description: string;
+  affectedArea: string;
+  diagnosis: string;
+  remedialMeasure: string;
+  costToFix: number;
+  currency: string;
+  reportedDate: string;
+  treatedDate: string;
+  resolvedDate: string;
+  reportedBy: string;
+  treatedBy: string;
+  images: string[];
+  notes: string;
+  pestName: string;
+  diseaseName: string;
+  chemicalUsed: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ─── Equipment ─── //
+export type EquipmentCategory =
+  | "tractor"
+  | "sprayer"
+  | "plough"
+  | "harrow"
+  | "seeder"
+  | "harvester"
+  | "irrigation_pump"
+  | "water_tank"
+  | "trailer"
+  | "vehicle"
+  | "generator"
+  | "hand_tool"
+  | "power_tool"
+  | "storage"
+  | "other";
+export type EquipmentStatus =
+  | "operational"
+  | "maintenance"
+  | "repair"
+  | "idle"
+  | "retired";
+export type EquipmentCondition = "excellent" | "good" | "fair" | "poor";
+
+export interface MaintenanceRecord {
+  date: string;
+  description: string;
+  cost: number;
+  performedBy: string;
+  type: string;
+}
+
+export interface Equipment {
+  _id: string;
+  tenantId: string;
+  name: string;
+  category: EquipmentCategory;
+  brand: string;
+  modelName: string;
+  serialNumber: string;
+  status: EquipmentStatus;
+  condition: EquipmentCondition;
+  farmId: string;
+  farmName: string;
+  assignedToId: string;
+  assignedToName: string;
+  purchaseDate: string;
+  purchasePrice: number;
+  currentValue: number;
+  currency: string;
+  fuelType: string;
+  enginePower: string;
+  capacity: string;
+  lastMaintenanceDate: string;
+  nextMaintenanceDate: string;
+  totalMaintenanceCost: number;
+  maintenanceHistory: MaintenanceRecord[];
+  insuranceProvider: string;
+  insuranceExpiry: string;
+  registrationNumber: string;
+  images: string[];
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // ─── Damages ─── //
 export type DamageStatus =
   | "reported"

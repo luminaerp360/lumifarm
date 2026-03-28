@@ -1,49 +1,263 @@
-<div class="p-6">
-  <div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">
-      Equipment & Assets
-    </h1>
-    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-      Track farm machinery, tools, and infrastructure assets
-    </p>
+<div>
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Equipment & Assets</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Track farm machinery, tools, and infrastructure assets</p>
+    </div>
+    <button (click)="openForm()" class="px-4 py-2 rounded-lg text-white text-sm font-medium" [style.background-color]="themeService.accent">
+      <i class="fas fa-plus mr-1"></i> Add Equipment
+    </button>
   </div>
 
-  <div
-    class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-12 text-center"
-  >
-    <div
-      class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
-      [style.background-color]="themeService.accent + '20'"
-    >
-      <i
-        class="fas fa-tractor text-2xl"
-        [style.color]="themeService.accent"
-      ></i>
+  <!-- Stats -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
+      <div class="text-sm text-gray-500 dark:text-gray-400">Total Equipment</div>
+      <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats.total || total }}</div>
     </div>
-    <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">
-      Coming Soon
-    </h2>
-    <p class="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-      Equipment management will help you register farm machinery and tools,
-      schedule maintenance, track usage hours, and manage asset depreciation.
-    </p>
-    <div class="mt-6 flex flex-wrap justify-center gap-2 text-xs">
-      <span
-        class="px-3 py-1 rounded-full bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
-        >Tractors & Vehicles</span
-      >
-      <span
-        class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400"
-        >Irrigation Systems</span
-      >
-      <span
-        class="px-3 py-1 rounded-full bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400"
-        >Maintenance Logs</span
-      >
-      <span
-        class="px-3 py-1 rounded-full bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400"
-        >Asset Tracking</span
-      >
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
+      <div class="text-sm text-gray-500 dark:text-gray-400">Operational</div>
+      <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ stats.operational || 0 }}</div>
+    </div>
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
+      <div class="text-sm text-gray-500 dark:text-gray-400">Total Value</div>
+      <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">KES {{ (stats.totalValue || 0) | number }}</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex flex-col sm:flex-row gap-3 mb-6">
+    <input type="text" [(ngModel)]="search" (keyup.enter)="onSearch()" placeholder="Search equipment..."
+      class="w-full sm:w-80 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none" />
+    <select [(ngModel)]="statusFilter" (change)="onFilterChange()"
+      class="px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none">
+      <option value="">All Statuses</option>
+      <option *ngFor="let s of statuses" [value]="s">{{ s | titlecase }}</option>
+    </select>
+    <select [(ngModel)]="categoryFilter" (change)="onFilterChange()"
+      class="px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none">
+      <option value="">All Categories</option>
+      <option *ngFor="let c of categories" [value]="c">{{ c | titlecase }}</option>
+    </select>
+  </div>
+
+  <div *ngIf="loading" class="flex items-center justify-center py-20">
+    <i class="fas fa-spinner fa-spin text-2xl" [style.color]="themeService.accent"></i>
+  </div>
+
+  <div *ngIf="!loading" class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-700/50">
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Name</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden sm:table-cell">Category</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden md:table-cell">Farm</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Status</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden lg:table-cell">Condition</th>
+            <th class="text-right px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden lg:table-cell">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let eq of items" (click)="viewDetail(eq)"
+            class="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors">
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-2">
+                <i class="fas {{ getCategoryIcon(eq.category) }} text-gray-400 dark:text-gray-500"></i>
+                <div>
+                  <span class="font-medium text-gray-800 dark:text-gray-100 block">{{ eq.name }}</span>
+                  <span *ngIf="eq.brand" class="text-xs text-gray-500 dark:text-gray-400">{{ eq.brand }} {{ eq.modelName }}</span>
+                </div>
+              </div>
+            </td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 capitalize hidden sm:table-cell">{{ eq.category.replace('_', ' ') }}</td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden md:table-cell">{{ eq.farmName || '—' }}</td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getStatusClasses(eq.status)">{{ eq.status }}</span>
+            </td>
+            <td class="px-4 py-3 hidden lg:table-cell">
+              <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getConditionClasses(eq.condition)">{{ eq.condition }}</span>
+            </td>
+            <td class="px-4 py-3 text-right font-medium text-gray-800 dark:text-gray-100 hidden lg:table-cell">{{ eq.currency || 'KES' }} {{ eq.currentValue | number }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="items.length === 0" class="text-center py-12 text-gray-500 dark:text-gray-400">
+      <i class="fas fa-tractor text-3xl mb-3 block"></i>
+      <p>No equipment registered yet</p>
+    </div>
+    <div *ngIf="totalPages > 1" class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-slate-700">
+      <span class="text-sm text-gray-500 dark:text-gray-400">{{ total }} total</span>
+      <div class="flex gap-1">
+        <button *ngFor="let p of [].constructor(totalPages); let i = index" (click)="goToPage(i + 1)"
+          class="w-8 h-8 rounded text-sm font-medium" [class.text-white]="page === i + 1"
+          [style.background-color]="page === i + 1 ? themeService.accent : 'transparent'" [class.text-gray-600]="page !== i + 1">
+          {{ i + 1 }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Slide-Over -->
+<div *ngIf="showDetail && selectedItem" class="fixed inset-0 bg-black bg-opacity-50 z-50 dark:bg-opacity-70" (click)="closeDetail()">
+  <div class="absolute right-0 top-0 h-full w-full max-w-lg bg-white dark:bg-slate-900 shadow-xl overflow-y-auto" (click)="$event.stopPropagation()">
+    <div class="sticky top-0 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 px-6 py-4 flex justify-between items-center">
+      <h2 class="text-lg font-bold text-gray-900 dark:text-white">Equipment Details</h2>
+      <div class="flex gap-2">
+        <button (click)="openForm(selectedItem)" class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700">
+          <i class="fas fa-edit mr-1"></i> Edit
+        </button>
+        <button (click)="deleteItem(selectedItem._id)" class="px-3 py-1.5 text-sm rounded-lg border border-red-300 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400">
+          <i class="fas fa-trash mr-1"></i> Delete
+        </button>
+        <button (click)="closeDetail()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">✕</button>
+      </div>
+    </div>
+    <div class="p-6 space-y-4 text-sm">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 rounded-lg flex items-center justify-center" [style.background-color]="themeService.accent + '20'">
+          <i class="fas {{ getCategoryIcon(selectedItem.category) }} text-xl" [style.color]="themeService.accent"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">{{ selectedItem.name }}</h3>
+          <span class="text-gray-500 dark:text-gray-400 capitalize">{{ selectedItem.category.replace('_', ' ') }}</span>
+        </div>
+      </div>
+      <div class="flex gap-2 mb-4">
+        <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getStatusClasses(selectedItem.status)">{{ selectedItem.status }}</span>
+        <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getConditionClasses(selectedItem.condition)">{{ selectedItem.condition }}</span>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div *ngIf="selectedItem.brand"><span class="text-gray-500 dark:text-gray-400 block">Brand</span><span class="text-gray-800 dark:text-gray-100">{{ selectedItem.brand }}</span></div>
+        <div *ngIf="selectedItem.modelName"><span class="text-gray-500 dark:text-gray-400 block">Model</span><span class="text-gray-800 dark:text-gray-100">{{ selectedItem.modelName }}</span></div>
+        <div *ngIf="selectedItem.serialNumber"><span class="text-gray-500 dark:text-gray-400 block">Serial #</span><span class="text-gray-800 dark:text-gray-100">{{ selectedItem.serialNumber }}</span></div>
+        <div *ngIf="selectedItem.farmName"><span class="text-gray-500 dark:text-gray-400 block">Farm</span><span class="text-gray-800 dark:text-gray-100">{{ selectedItem.farmName }}</span></div>
+        <div><span class="text-gray-500 dark:text-gray-400 block">Purchase Price</span><span class="text-gray-800 dark:text-gray-100">{{ selectedItem.currency || 'KES' }} {{ selectedItem.purchasePrice | number }}</span></div>
+        <div><span class="text-gray-500 dark:text-gray-400 block">Current Value</span><span class="text-gray-800 dark:text-gray-100 font-medium">{{ selectedItem.currency || 'KES' }} {{ selectedItem.currentValue | number }}</span></div>
+        <div *ngIf="selectedItem.purchaseDate"><span class="text-gray-500 dark:text-gray-400 block">Purchase Date</span><span class="text-gray-800 dark:text-gray-100">{{ selectedItem.purchaseDate | date:'mediumDate' }}</span></div>
+        <div *ngIf="selectedItem.fuelType"><span class="text-gray-500 dark:text-gray-400 block">Fuel Type</span><span class="text-gray-800 dark:text-gray-100 capitalize">{{ selectedItem.fuelType }}</span></div>
+        <div *ngIf="selectedItem.enginePower"><span class="text-gray-500 dark:text-gray-400 block">Engine Power</span><span class="text-gray-800 dark:text-gray-100">{{ selectedItem.enginePower }}</span></div>
+        <div *ngIf="selectedItem.lastMaintenanceDate"><span class="text-gray-500 dark:text-gray-400 block">Last Maintenance</span><span class="text-gray-800 dark:text-gray-100">{{ selectedItem.lastMaintenanceDate | date:'mediumDate' }}</span></div>
+        <div *ngIf="selectedItem.nextMaintenanceDate"><span class="text-gray-500 dark:text-gray-400 block">Next Maintenance</span><span class="text-gray-800 dark:text-gray-100">{{ selectedItem.nextMaintenanceDate | date:'mediumDate' }}</span></div>
+      </div>
+
+      <!-- Maintenance History -->
+      <div *ngIf="selectedItem.maintenanceHistory?.length" class="mt-6">
+        <h4 class="font-semibold text-gray-800 dark:text-gray-100 mb-3">Maintenance History</h4>
+        <div *ngFor="let m of selectedItem.maintenanceHistory" class="border-l-2 border-gray-300 dark:border-slate-600 pl-4 mb-3">
+          <div class="text-gray-800 dark:text-gray-100 font-medium">{{ m.description }}</div>
+          <div class="text-xs text-gray-500 dark:text-gray-400">{{ m.date | date:'mediumDate' }} · {{ m.type }} · {{ selectedItem.currency || 'KES' }} {{ m.cost | number }}</div>
+          <div *ngIf="m.performedBy" class="text-xs text-gray-500 dark:text-gray-400">By: {{ m.performedBy }}</div>
+        </div>
+      </div>
+
+      <div *ngIf="selectedItem.notes" class="mt-4">
+        <span class="text-gray-500 dark:text-gray-400 block">Notes</span>
+        <p class="text-gray-800 dark:text-gray-100">{{ selectedItem.notes }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Form Modal -->
+<div *ngIf="showForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 dark:bg-opacity-70">
+  <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="sticky top-0 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 px-6 py-4 flex justify-between items-center">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ selectedItem?._id ? 'Edit Equipment' : 'Add Equipment' }}</h2>
+      <button (click)="closeForm()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">✕</button>
+    </div>
+    <div class="overflow-y-auto flex-1 px-6 py-4">
+      <div *ngIf="formError" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
+        <p class="text-red-800 dark:text-red-200 text-sm">{{ formError }}</p>
+      </div>
+      <form (ngSubmit)="saveItem()" class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name <span class="text-red-500">*</span></label>
+            <input [(ngModel)]="form.name" name="name" type="text" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category <span class="text-red-500">*</span></label>
+            <select [(ngModel)]="form.category" name="category" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+              <option *ngFor="let c of categories" [value]="c">{{ c | titlecase }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Brand</label>
+            <input [(ngModel)]="form.brand" name="brand" type="text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Model</label>
+            <input [(ngModel)]="form.modelName" name="modelName" type="text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Serial Number</label>
+            <input [(ngModel)]="form.serialNumber" name="serialNumber" type="text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Farm</label>
+            <select [(ngModel)]="form.farmId" name="farmId" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+              <option value="">Select Farm</option>
+              <option *ngFor="let f of farms" [value]="f._id">{{ f.name }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+            <select [(ngModel)]="form.status" name="status" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+              <option *ngFor="let s of statuses" [value]="s">{{ s | titlecase }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Condition</label>
+            <select [(ngModel)]="form.condition" name="condition" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+              <option *ngFor="let c of conditions" [value]="c">{{ c | titlecase }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Purchase Price</label>
+            <input [(ngModel)]="form.purchasePrice" name="purchasePrice" type="number" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Value</label>
+            <input [(ngModel)]="form.currentValue" name="currentValue" type="number" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Purchase Date</label>
+            <input [(ngModel)]="form.purchaseDate" name="purchaseDate" type="date" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fuel Type</label>
+            <input [(ngModel)]="form.fuelType" name="fuelType" type="text" placeholder="Diesel, Petrol..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Engine Power</label>
+            <input [(ngModel)]="form.enginePower" name="enginePower" type="text" placeholder="e.g., 75 HP" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+          <textarea [(ngModel)]="form.notes" name="notes" rows="2" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="sticky bottom-0 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 px-6 py-4 flex justify-end gap-3">
+      <button (click)="closeForm()" class="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700">Cancel</button>
+      <button (click)="saveItem()" [disabled]="formLoading" class="px-4 py-2 text-white rounded-lg flex items-center gap-2" [style.background-color]="themeService.accent">
+        <span *ngIf="formLoading" class="animate-spin inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+        {{ selectedItem?._id ? 'Update' : 'Add' }} Equipment
+      </button>
     </div>
   </div>
 </div>

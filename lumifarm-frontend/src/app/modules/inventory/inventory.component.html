@@ -1,50 +1,254 @@
-<div class="p-6">
-  <div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">
-      Inventory & Inputs
-    </h1>
-    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-      Manage seeds, fertilizers, pesticides, and other farm inputs
-    </p>
+<div>
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Inventory & Inputs</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage seeds, fertilizers, pesticides, and other farm inputs</p>
+    </div>
+    <button (click)="openForm()" class="px-4 py-2 rounded-lg text-white text-sm font-medium" [style.background-color]="themeService.accent">
+      <i class="fas fa-plus mr-1"></i> Add Input
+    </button>
   </div>
 
-  <div
-    class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-12 text-center"
-  >
-    <div
-      class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
-      [style.background-color]="themeService.accent + '20'"
-    >
-      <i
-        class="fas fa-warehouse text-2xl"
-        [style.color]="themeService.accent"
-      ></i>
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
+      <div class="text-sm text-gray-500 dark:text-gray-400">Total Records</div>
+      <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ inputCount }}</div>
     </div>
-    <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">
-      Coming Soon
-    </h2>
-    <p class="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-      Track farm inventory including seeds, fertilizers, pesticides, animal
-      feed, and other supplies. Monitor stock levels, usage, and set reorder
-      alerts.
-    </p>
-    <div class="mt-6 flex flex-wrap justify-center gap-2 text-xs">
-      <span
-        class="px-3 py-1 rounded-full bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
-        >Seeds & Seedlings</span
-      >
-      <span
-        class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400"
-        >Fertilizers</span
-      >
-      <span
-        class="px-3 py-1 rounded-full bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
-        >Pesticides</span
-      >
-      <span
-        class="px-3 py-1 rounded-full bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400"
-        >Stock Alerts</span
-      >
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
+      <div class="text-sm text-gray-500 dark:text-gray-400">Total Cost</div>
+      <div class="text-2xl font-bold text-gray-800 dark:text-gray-100">KES {{ totalCost | number }}</div>
+    </div>
+    <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4">
+      <div class="text-sm text-gray-500 dark:text-gray-400">Total Paid</div>
+      <div class="text-2xl font-bold text-green-600 dark:text-green-400">KES {{ totalPaid | number }}</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex flex-col sm:flex-row gap-3 mb-6">
+    <input type="text" [(ngModel)]="search" (keyup.enter)="onSearch()" placeholder="Search inputs..."
+      class="w-full sm:w-80 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none" />
+    <select [(ngModel)]="categoryFilter" (change)="onFilterChange()"
+      class="px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 text-sm outline-none">
+      <option value="">All Categories</option>
+      <option *ngFor="let c of categories" [value]="c">{{ c | titlecase }}</option>
+    </select>
+  </div>
+
+  <div *ngIf="loading" class="flex items-center justify-center py-20">
+    <i class="fas fa-spinner fa-spin text-2xl" [style.color]="themeService.accent"></i>
+  </div>
+
+  <div *ngIf="!loading" class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-700/50">
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Name</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden sm:table-cell">Category</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden md:table-cell">Qty</th>
+            <th class="text-right px-4 py-3 font-medium text-gray-600 dark:text-gray-300">Total</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden lg:table-cell">Payment</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300 hidden lg:table-cell">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let inp of inputs" (click)="viewDetail(inp)"
+            class="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/30 cursor-pointer transition-colors">
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-2">
+                <i class="fas {{ getCategoryIcon(inp.category) }} text-gray-400 dark:text-gray-500"></i>
+                <span class="font-medium text-gray-800 dark:text-gray-100">{{ inp.name }}</span>
+              </div>
+            </td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 capitalize hidden sm:table-cell">{{ inp.category.replace('_', ' ') }}</td>
+            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 hidden md:table-cell">{{ inp.quantity }} {{ inp.unit }}</td>
+            <td class="px-4 py-3 text-right font-medium text-gray-800 dark:text-gray-100">{{ inp.currency }} {{ inp.totalAmount | number }}</td>
+            <td class="px-4 py-3 hidden lg:table-cell">
+              <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getPaymentStatusClasses(inp.paymentStatus)">{{ inp.paymentStatus }}</span>
+            </td>
+            <td class="px-4 py-3 text-gray-500 dark:text-gray-400 hidden lg:table-cell">{{ inp.purchaseDate | date:'mediumDate' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="inputs.length === 0" class="text-center py-12 text-gray-500 dark:text-gray-400">
+      <i class="fas fa-warehouse text-3xl mb-3 block"></i>
+      <p>No inputs recorded yet</p>
+    </div>
+    <div *ngIf="totalPages > 1" class="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-slate-700">
+      <span class="text-sm text-gray-500 dark:text-gray-400">{{ total }} total</span>
+      <div class="flex gap-1">
+        <button *ngFor="let p of [].constructor(totalPages); let i = index" (click)="goToPage(i + 1)"
+          class="w-8 h-8 rounded text-sm font-medium" [class.text-white]="page === i + 1"
+          [style.background-color]="page === i + 1 ? themeService.accent : 'transparent'" [class.text-gray-600]="page !== i + 1">
+          {{ i + 1 }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Slide-Over -->
+<div *ngIf="showDetail && selectedInput" class="fixed inset-0 bg-black bg-opacity-50 z-50 dark:bg-opacity-70" (click)="closeDetail()">
+  <div class="absolute right-0 top-0 h-full w-full max-w-lg bg-white dark:bg-slate-900 shadow-xl overflow-y-auto" (click)="$event.stopPropagation()">
+    <div class="sticky top-0 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 px-6 py-4 flex justify-between items-center">
+      <h2 class="text-lg font-bold text-gray-900 dark:text-white">Input Details</h2>
+      <div class="flex gap-2">
+        <button (click)="openForm(selectedInput)" class="px-3 py-1.5 text-sm rounded-lg border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700">
+          <i class="fas fa-edit mr-1"></i> Edit
+        </button>
+        <button (click)="deleteInput(selectedInput._id)" class="px-3 py-1.5 text-sm rounded-lg border border-red-300 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400">
+          <i class="fas fa-trash mr-1"></i> Delete
+        </button>
+        <button (click)="closeDetail()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">✕</button>
+      </div>
+    </div>
+    <div class="p-6 space-y-4 text-sm">
+      <div><span class="text-gray-500 dark:text-gray-400 block">Name</span><span class="text-gray-800 dark:text-gray-100 font-medium">{{ selectedInput.name }}</span></div>
+      <div class="grid grid-cols-2 gap-4">
+        <div><span class="text-gray-500 dark:text-gray-400 block">Category</span><span class="text-gray-800 dark:text-gray-100 capitalize">{{ selectedInput.category.replace('_', ' ') }}</span></div>
+        <div><span class="text-gray-500 dark:text-gray-400 block">Brand</span><span class="text-gray-800 dark:text-gray-100">{{ selectedInput.brand || '—' }}</span></div>
+        <div><span class="text-gray-500 dark:text-gray-400 block">Supplier</span><span class="text-gray-800 dark:text-gray-100">{{ selectedInput.supplier || '—' }}</span></div>
+        <div><span class="text-gray-500 dark:text-gray-400 block">Quantity</span><span class="text-gray-800 dark:text-gray-100">{{ selectedInput.quantity }} {{ selectedInput.unit }}</span></div>
+        <div><span class="text-gray-500 dark:text-gray-400 block">Unit Price</span><span class="text-gray-800 dark:text-gray-100">{{ selectedInput.currency }} {{ selectedInput.unitPrice | number }}</span></div>
+        <div><span class="text-gray-500 dark:text-gray-400 block">Total Amount</span><span class="text-gray-800 dark:text-gray-100 font-medium">{{ selectedInput.currency }} {{ selectedInput.totalAmount | number }}</span></div>
+        <div><span class="text-gray-500 dark:text-gray-400 block">Payment Method</span><span class="text-gray-800 dark:text-gray-100 capitalize">{{ selectedInput.paymentMethod.replace('_', ' ') }}</span></div>
+        <div><span class="text-gray-500 dark:text-gray-400 block">Payment Status</span>
+          <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="getPaymentStatusClasses(selectedInput.paymentStatus)">{{ selectedInput.paymentStatus }}</span>
+        </div>
+        <div><span class="text-gray-500 dark:text-gray-400 block">Amount Paid</span><span class="text-gray-800 dark:text-gray-100">{{ selectedInput.currency }} {{ selectedInput.amountPaid | number }}</span></div>
+        <div *ngIf="selectedInput.receiptNumber"><span class="text-gray-500 dark:text-gray-400 block">Receipt #</span><span class="text-gray-800 dark:text-gray-100">{{ selectedInput.receiptNumber }}</span></div>
+        <div><span class="text-gray-500 dark:text-gray-400 block">Purchase Date</span><span class="text-gray-800 dark:text-gray-100">{{ selectedInput.purchaseDate | date:'mediumDate' }}</span></div>
+        <div *ngIf="selectedInput.applicationDate"><span class="text-gray-500 dark:text-gray-400 block">Application Date</span><span class="text-gray-800 dark:text-gray-100">{{ selectedInput.applicationDate | date:'mediumDate' }}</span></div>
+      </div>
+      <div *ngIf="selectedInput.notes"><span class="text-gray-500 dark:text-gray-400 block">Notes</span><p class="text-gray-800 dark:text-gray-100">{{ selectedInput.notes }}</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- Form Modal -->
+<div *ngIf="showForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 dark:bg-opacity-70">
+  <div class="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div class="sticky top-0 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 px-6 py-4 flex justify-between items-center">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ selectedInput?._id ? 'Edit Input' : 'Add Input' }}</h2>
+      <button (click)="closeForm()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">✕</button>
+    </div>
+    <div class="overflow-y-auto flex-1 px-6 py-4">
+      <div *ngIf="formError" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
+        <p class="text-red-800 dark:text-red-200 text-sm">{{ formError }}</p>
+      </div>
+      <form (ngSubmit)="saveInput()" class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name <span class="text-red-500">*</span></label>
+            <input [(ngModel)]="form.name" name="name" type="text" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category <span class="text-red-500">*</span></label>
+            <select [(ngModel)]="form.category" name="category" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+              <option *ngFor="let c of categories" [value]="c">{{ c | titlecase }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Brand</label>
+            <input [(ngModel)]="form.brand" name="brand" type="text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Supplier</label>
+            <input [(ngModel)]="form.supplier" name="supplier" type="text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Farm</label>
+            <select [(ngModel)]="form.farmId" name="farmId" (change)="onFarmChange()" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+              <option value="">Select Farm</option>
+              <option *ngFor="let f of farms" [value]="f._id">{{ f.name }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Plot</label>
+            <select [(ngModel)]="form.plotId" name="plotId" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+              <option value="">Select Plot</option>
+              <option *ngFor="let p of plots" [value]="p._id">{{ p.unitNumber || p.name }}</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Crop Cycle</label>
+          <select [(ngModel)]="form.cropCycleId" name="cropCycleId" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+            <option value="">Select Crop Cycle</option>
+            <option *ngFor="let c of cropCycles" [value]="c._id">{{ c.cropName || c.name }} — {{ c.seasonName }}</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity</label>
+            <input [(ngModel)]="form.quantity" name="quantity" type="number" step="0.01" (input)="calcTotal()" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit</label>
+            <input [(ngModel)]="form.unit" name="unit" type="text" placeholder="kg, litres..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit Price</label>
+            <input [(ngModel)]="form.unitPrice" name="unitPrice" type="number" step="0.01" (input)="calcTotal()" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Total Amount</label>
+            <input [(ngModel)]="form.totalAmount" name="totalAmount" type="number" step="0.01" readonly class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-white" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount Paid</label>
+            <input [(ngModel)]="form.amountPaid" name="amountPaid" type="number" step="0.01" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Payment Method</label>
+            <select [(ngModel)]="form.paymentMethod" name="paymentMethod" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+              <option *ngFor="let m of paymentMethods" [value]="m">{{ m | titlecase }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Payment Status</label>
+            <select [(ngModel)]="form.paymentStatus" name="paymentStatus" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
+              <option *ngFor="let s of paymentStatuses" [value]="s">{{ s | titlecase }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Purchase Date</label>
+            <input [(ngModel)]="form.purchaseDate" name="purchaseDate" type="date" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Application Date</label>
+            <input [(ngModel)]="form.applicationDate" name="applicationDate" type="date" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Receipt Number</label>
+          <input [(ngModel)]="form.receiptNumber" name="receiptNumber" type="text" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+          <textarea [(ngModel)]="form.notes" name="notes" rows="2" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="sticky bottom-0 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 px-6 py-4 flex justify-end gap-3">
+      <button (click)="closeForm()" class="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700">Cancel</button>
+      <button (click)="saveInput()" [disabled]="formLoading" class="px-4 py-2 text-white rounded-lg flex items-center gap-2" [style.background-color]="themeService.accent">
+        <span *ngIf="formLoading" class="animate-spin inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+        {{ selectedInput?._id ? 'Update' : 'Add' }} Input
+      </button>
     </div>
   </div>
 </div>

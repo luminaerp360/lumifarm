@@ -109,9 +109,11 @@
             <select
               [(ngModel)]="form.farmId"
               name="farmId"
+              (change)="onFarmChange()"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
             >
               <option value="">Select Farm</option>
+              <option *ngFor="let f of farms" [value]="f._id">{{ f.name }}</option>
             </select>
           </div>
           <div>
@@ -126,6 +128,7 @@
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
             >
               <option value="">Select Plot</option>
+              <option *ngFor="let p of plots" [value]="p._id">{{ p.unitNumber || p.name }}</option>
             </select>
           </div>
         </div>
@@ -143,6 +146,7 @@
             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
           >
             <option value="">Select Crop Cycle</option>
+            <option *ngFor="let c of cropCycles" [value]="c._id">{{ c.cropName || c.name }} — {{ c.season }}</option>
           </select>
         </div>
 

@@ -125,8 +125,8 @@
             >
               <option value="">Select Crop Cycle (Optional)</option>
               <option *ngFor="let cycle of cropCycles" [value]="cycle._id">
-                {{ cycle.propertyName }} —
-                {{ cycle.startDate | date: "mediumDate" }}
+                {{ cycle.farmName }} —
+                {{ cycle.plantingDate | date: "mediumDate" }}
               </option>
             </select>
           </div>

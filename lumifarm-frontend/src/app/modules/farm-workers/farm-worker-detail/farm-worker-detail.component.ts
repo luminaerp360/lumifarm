@@ -7,7 +7,7 @@ import { TasksService } from "../../../shared/services/tasks/tasks.service";
 import { ThemeService } from "../../../shared/services/theme/theme.service";
 import {
   PropertyTenant,
-  Lease,
+  CropCycle,
   FarmFinance,
   Task,
 } from "../../../shared/interfaces/models";
@@ -19,7 +19,7 @@ import {
 })
 export class FarmWorkerDetailComponent implements OnInit {
   tenant: PropertyTenant | null = null;
-  leases: Lease[] = [];
+  leases: CropCycle[] = [];
   payments: FarmFinance[] = [];
   workerTasks: Task[] = [];
   loading = true;
@@ -44,8 +44,8 @@ export class FarmWorkerDetailComponent implements OnInit {
       next: (t) => {
         this.tenant = t;
         this.loading = false;
-        this.CropCyclesService.getByTenant(id).subscribe(
-          (l) => (this.leases = l),
+        this.CropCyclesService.getByFarm(id).subscribe(
+          (l: CropCycle[]) => (this.leases = l),
         );
         this.FarmFinanceService.getAll(1, 100).subscribe(
           (res) => (this.payments = res.data),

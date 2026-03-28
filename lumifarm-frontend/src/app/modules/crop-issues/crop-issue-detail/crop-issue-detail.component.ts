@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CropIssuesService } from '../../../shared/services/crop-issues/crop-issues.service';
 import { ThemeService } from '../../../shared/services/theme/theme.service';
-import { Damage } from '../../../shared/interfaces/models';
+import { CropIssue } from '../../../shared/interfaces/models';
 
 @Component({
   selector: 'app-crop-issue-detail',
@@ -10,13 +10,13 @@ import { Damage } from '../../../shared/interfaces/models';
   styleUrls: ['./crop-issue-detail.component.scss'],
 })
 export class CropIssueDetailComponent implements OnInit {
-  damage: Damage | null = null;
+  issue: CropIssue | null = null;
   loading = true;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private CropIssuesService: CropIssuesService,
+    private cropIssuesService: CropIssuesService,
     public themeService: ThemeService,
   ) {}
 
@@ -26,26 +26,24 @@ export class CropIssueDetailComponent implements OnInit {
   }
 
   load(id: string): void {
-    this.CropIssuesService.getById(id).subscribe({
-      next: (d) => { this.damage = d; this.loading = false; },
+    this.cropIssuesService.getById(id).subscribe({
+      next: (d) => { this.issue = d; this.loading = false; },
       error: () => { this.loading = false; },
     });
   }
 
-  goBack(): void { this.router.navigate(['/damages']); }
+  goBack(): void { this.router.navigate(['/crop-issues']); }
 
-  deleteDamage(): void {
-    if (!this.damage || !confirm('Delete this damage report?')) return;
-    this.CropIssuesService.delete(this.damage._id).subscribe(() => this.goBack());
+  deleteIssue(): void {
+    if (!this.issue || !confirm('Delete this crop issue?')) return;
+    this.cropIssuesService.delete(this.issue._id).subscribe(() => this.goBack());
   }
 
   getStatusClasses(status: string): string {
     const map: Record<string, string> = {
       reported: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-      assessed: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-      in_repair: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-      repaired: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-      deducted: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+      in_treatment: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+      resolved: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
       closed: 'bg-gray-100 text-gray-700 dark:bg-gray-700/30 dark:text-gray-400',
     };
     return map[status] || '';

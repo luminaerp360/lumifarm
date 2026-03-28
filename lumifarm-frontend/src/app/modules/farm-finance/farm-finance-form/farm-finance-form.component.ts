@@ -3,7 +3,7 @@ import { AuthService } from "../../../shared/services/auth/auth.service";
 import { ThemeService } from "../../../shared/services/theme/theme.service";
 import { FarmsService } from "../../../shared/services/farms/farms.service";
 import { CropCyclesService } from "../../../shared/services/crop-cycles/crop-cycles.service";
-import { Property, Lease } from "../../../shared/interfaces/models";
+import { Property, CropCycle } from "../../../shared/interfaces/models";
 
 @Component({
   selector: "app-farm-finance-form",
@@ -22,7 +22,7 @@ export class FarmFinanceFormComponent implements OnInit {
   tenantMissing = false;
 
   farms: Property[] = [];
-  cropCycles: Lease[] = [];
+  cropCycles: CropCycle[] = [];
 
   transactionTypes = ["expense", "income"];
 

@@ -22,7 +22,7 @@
           {{ cycle.cropType }} —
           {{ cycle.seasonName || cycle.cycleNumber || "Cycle" }}
         </h1>
-        <div class="flex items-center gap-2 mt-1 flex-wrap">
+        <div class="flex items-center gap-2 mt-1">
           <span
             class="px-2 py-0.5 rounded-full text-xs font-medium"
             [ngClass]="getStatusClasses(cycle.status)"
@@ -32,13 +32,6 @@
             >{{ cycle.plantingDate | date: "mediumDate" }} →
             {{ cycle.expectedHarvestDate | date: "mediumDate" }}</span
           >
-          <span
-            *ngIf="cycle.farmWorkerName"
-            class="text-sm text-gray-400 dark:text-gray-500"
-          >
-            · <i class="fas fa-user text-xs mr-0.5"></i>
-            {{ cycle.farmWorkerName }}
-          </span>
         </div>
       </div>
     </div>
@@ -81,55 +74,6 @@
     </div>
   </div>
 
-  <!-- Managers Section -->
-  <div
-    class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4 mb-6"
-  >
-    <div class="flex items-center justify-between mb-3">
-      <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-        <i class="fas fa-user-tie mr-1"></i> Cycle Managers
-      </h3>
-      <button
-        (click)="openManagerForm()"
-        class="text-xs px-3 py-1 rounded-lg"
-        [style.color]="themeService.accent"
-        [style.border]="'1px solid ' + themeService.accent"
-      >
-        <i class="fas fa-plus mr-1"></i> Add Manager
-      </button>
-    </div>
-    <div
-      *ngIf="cycle.managers && cycle.managers.length > 0"
-      class="flex flex-wrap gap-2"
-    >
-      <div
-        *ngFor="let mgr of cycle.managers; let i = index"
-        class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600"
-      >
-        <i class="fas fa-user-circle text-gray-400"></i>
-        <span class="text-sm text-gray-800 dark:text-gray-100 font-medium">{{
-          mgr.managerName
-        }}</span>
-        <span
-          class="text-xs px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 capitalize"
-          >{{ mgr.role }}</span
-        >
-        <button
-          (click)="removeManager(i)"
-          class="text-red-400 hover:text-red-600 ml-1"
-        >
-          <i class="fas fa-times text-xs"></i>
-        </button>
-      </div>
-    </div>
-    <div
-      *ngIf="!cycle.managers || cycle.managers.length === 0"
-      class="text-sm text-gray-400 dark:text-gray-500"
-    >
-      No managers assigned. Add supervisors, agronomists, or team leads.
-    </div>
-  </div>
-
   <!-- Progress Bar -->
   <div
     class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4 mb-6"
@@ -160,7 +104,7 @@
   </div>
 
   <!-- Summary Cards -->
-  <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
     <div
       class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4"
     >
@@ -189,25 +133,13 @@
       class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4"
     >
       <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
-        Farm Inputs
-      </div>
-      <div class="text-lg font-bold text-orange-600 dark:text-orange-400">
-        {{ cycle.currency }} {{ getTotalInputsCost() | number }}
-      </div>
-      <div class="text-xs text-gray-400">
-        {{ inputSummary?.inputCount || 0 }} items
-      </div>
-    </div>
-    <div
-      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4"
-    >
-      <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
         Total Expenses
       </div>
       <div class="text-lg font-bold text-red-600 dark:text-red-400">
-        {{ cycle.currency }} {{ getAllExpensesTotal() | number }}
+        {{ cycle.currency }}
+        {{ getTotalActivityCost() + getTotalExpenses() | number }}
       </div>
-      <div class="text-xs text-gray-400">all costs combined</div>
+      <div class="text-xs text-gray-400">activities + inputs</div>
     </div>
     <div
       class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4"
@@ -220,9 +152,6 @@
       </div>
       <div class="text-xs text-green-600" *ngIf="cycle.actualYield">
         Actual: {{ cycle.actualYield | number }} {{ cycle.yieldUnit || "kg" }}
-      </div>
-      <div class="text-xs text-gray-400" *ngIf="cycle.areaPlanted">
-        {{ cycle.areaPlanted }} acres
       </div>
     </div>
   </div>
@@ -240,23 +169,7 @@
           : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
       "
     >
-      <i class="fas fa-stream mr-1"></i> Activities
-    </button>
-    <button
-      (click)="activeTab = 'inputs'"
-      class="px-4 py-2 rounded-md text-sm font-medium transition-colors"
-      [class]="
-        activeTab === 'inputs'
-          ? 'bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-100 shadow-sm'
-          : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
-      "
-    >
-      <i class="fas fa-boxes mr-1"></i> Farm Inputs
-      <span
-        *ngIf="farmInputs.length"
-        class="ml-1 px-1.5 py-0.5 rounded-full text-xs bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
-        >{{ farmInputs.length }}</span
-      >
+      <i class="fas fa-stream mr-1"></i> Activity Timeline
     </button>
     <button
       (click)="activeTab = 'expenses'"
@@ -422,257 +335,6 @@
     </div>
   </div>
 
-  <!-- TAB: Farm Inputs -->
-  <div *ngIf="activeTab === 'inputs'">
-    <!-- Input Summary Cards -->
-    <div
-      *ngIf="inputSummary"
-      class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4"
-    >
-      <div
-        class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4"
-      >
-        <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
-          Total Input Cost
-        </div>
-        <div class="text-lg font-bold text-orange-600 dark:text-orange-400">
-          {{ cycle.currency }} {{ inputSummary.totalInputsCost | number }}
-        </div>
-      </div>
-      <div
-        class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4"
-      >
-        <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
-          Amount Paid
-        </div>
-        <div class="text-lg font-bold text-green-600 dark:text-green-400">
-          {{ cycle.currency }} {{ inputSummary.totalPaid | number }}
-        </div>
-      </div>
-      <div
-        class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4"
-      >
-        <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Pending</div>
-        <div class="text-lg font-bold text-yellow-600 dark:text-yellow-400">
-          {{ cycle.currency }} {{ inputSummary.totalPending | number }}
-        </div>
-      </div>
-      <div
-        class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4"
-      >
-        <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
-          Total Items
-        </div>
-        <div class="text-lg font-bold text-gray-800 dark:text-gray-100">
-          {{ inputSummary.inputCount }}
-        </div>
-      </div>
-    </div>
-
-    <!-- Category Breakdown -->
-    <div
-      *ngIf="
-        inputSummary &&
-        inputSummary.byCategory &&
-        inputSummary.byCategory.length > 0
-      "
-      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4 mb-4"
-    >
-      <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-        Spending by Category
-      </h3>
-      <div class="flex flex-wrap gap-2">
-        <div
-          *ngFor="let cat of inputSummary.byCategory"
-          class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600"
-        >
-          <i
-            [class]="getCategoryIcon(cat._id)"
-            class="text-xs text-gray-400"
-          ></i>
-          <span class="text-sm text-gray-700 dark:text-gray-300 capitalize">{{
-            getCategoryLabel(cat._id)
-          }}</span>
-          <span
-            class="text-sm font-semibold"
-            [style.color]="themeService.accent"
-            >{{ cycle.currency }} {{ cat.total | number }}</span
-          >
-          <span class="text-xs text-gray-400">({{ cat.count }})</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Inputs List Header -->
-    <div class="flex items-center justify-between mb-4">
-      <div class="flex items-center gap-3">
-        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">
-          Farm Inputs
-        </h2>
-        <select
-          [(ngModel)]="inputCategoryFilter"
-          class="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-        >
-          <option value="">All Categories</option>
-          <option *ngFor="let cat of inputCategories" [value]="cat.value">
-            {{ cat.label }}
-          </option>
-        </select>
-      </div>
-      <button
-        (click)="openInputForm()"
-        class="px-4 py-2 rounded-lg text-white text-sm font-medium"
-        [style.background-color]="themeService.accent"
-      >
-        <i class="fas fa-plus mr-1"></i> Add Input
-      </button>
-    </div>
-
-    <!-- Inputs Table -->
-    <div
-      *ngIf="filteredInputs.length > 0"
-      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden"
-    >
-      <table class="w-full text-sm">
-        <thead>
-          <tr
-            class="border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-700/50"
-          >
-            <th
-              class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
-            >
-              Input
-            </th>
-            <th
-              class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
-            >
-              Category
-            </th>
-            <th
-              class="text-right px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
-            >
-              Qty
-            </th>
-            <th
-              class="text-right px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
-            >
-              Unit Price
-            </th>
-            <th
-              class="text-right px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
-            >
-              Total
-            </th>
-            <th
-              class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
-            >
-              Payment
-            </th>
-            <th
-              class="text-left px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
-            >
-              Date
-            </th>
-            <th
-              class="text-center px-4 py-3 font-medium text-gray-600 dark:text-gray-300"
-            >
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            *ngFor="let inp of filteredInputs"
-            class="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/30"
-          >
-            <td class="px-4 py-3">
-              <div class="font-medium text-gray-800 dark:text-gray-100">
-                {{ inp.name }}
-              </div>
-              <div
-                *ngIf="inp.brand || inp.supplier"
-                class="text-xs text-gray-400"
-              >
-                <span *ngIf="inp.brand">{{ inp.brand }}</span>
-                <span *ngIf="inp.brand && inp.supplier"> · </span>
-                <span *ngIf="inp.supplier">{{ inp.supplier }}</span>
-              </div>
-            </td>
-            <td class="px-4 py-3">
-              <span class="flex items-center gap-1.5">
-                <i
-                  [class]="getCategoryIcon(inp.category)"
-                  class="text-xs text-gray-400"
-                ></i>
-                <span class="text-gray-600 dark:text-gray-300 capitalize">{{
-                  getCategoryLabel(inp.category)
-                }}</span>
-              </span>
-            </td>
-            <td class="px-4 py-3 text-right text-gray-800 dark:text-gray-100">
-              {{ inp.quantity }} {{ inp.unit }}
-            </td>
-            <td class="px-4 py-3 text-right text-gray-600 dark:text-gray-300">
-              {{ inp.currency }} {{ inp.unitPrice | number }}
-            </td>
-            <td
-              class="px-4 py-3 text-right font-semibold text-gray-800 dark:text-gray-100"
-            >
-              {{ inp.currency }} {{ inp.totalAmount | number }}
-            </td>
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-1.5">
-                <span
-                  class="px-2 py-0.5 rounded-full text-xs font-medium"
-                  [ngClass]="getPaymentStatusClasses(inp.paymentStatus)"
-                  >{{ inp.paymentStatus }}</span
-                >
-                <span class="text-xs text-gray-400 capitalize">{{
-                  inp.paymentMethod
-                }}</span>
-              </div>
-            </td>
-            <td class="px-4 py-3 text-gray-600 dark:text-gray-300 text-sm">
-              {{ inp.purchaseDate | date: "d MMM" }}
-            </td>
-            <td class="px-4 py-3 text-center">
-              <div class="flex items-center justify-center gap-1">
-                <button
-                  (click)="openInputForm(inp)"
-                  class="w-7 h-7 rounded-lg flex items-center justify-center text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                  title="Edit"
-                >
-                  <i class="fas fa-pen text-xs"></i>
-                </button>
-                <button
-                  (click)="deleteInput(inp)"
-                  class="w-7 h-7 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
-                  title="Delete"
-                >
-                  <i class="fas fa-trash text-xs"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div
-      *ngIf="filteredInputs.length === 0"
-      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-12 text-center"
-    >
-      <i
-        class="fas fa-boxes text-3xl text-gray-300 dark:text-gray-600 mb-3"
-      ></i>
-      <p class="text-gray-500 dark:text-gray-400">No farm inputs added yet.</p>
-      <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
-        Track seeds, fertilizers, pesticides, labor costs and all expenses for
-        this crop cycle.
-      </p>
-    </div>
-  </div>
-
   <!-- TAB: Expenses -->
   <div *ngIf="activeTab === 'expenses'">
     <div
@@ -750,7 +412,6 @@
   <!-- TAB: Harvest & Yield -->
   <div *ngIf="activeTab === 'harvest'">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Yield Tracking -->
       <div
         class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6"
       >
@@ -758,58 +419,25 @@
           Yield Tracking
         </h3>
         <div class="space-y-3 text-sm">
-          <div *ngIf="cycle.areaPlanted" class="flex justify-between">
-            <span class="text-gray-500 dark:text-gray-400">Area Planted</span>
-            <span class="text-gray-800 dark:text-gray-100 font-medium"
-              >{{ cycle.areaPlanted }} acres</span
-            >
-          </div>
           <div class="flex justify-between">
-            <span class="text-gray-500 dark:text-gray-400"
-              >Projected Yield</span
-            >
-            <span class="text-gray-800 dark:text-gray-100 font-medium"
+            <span class="text-gray-500 dark:text-gray-400">Projected Yield</span
+            ><span class="text-gray-800 dark:text-gray-100 font-medium"
               >{{ cycle.projectedYield | number }}
               {{ cycle.yieldUnit || "kg" }}</span
             >
           </div>
-          <div *ngIf="cycle.expectedYieldPerAcre" class="flex justify-between">
-            <span class="text-gray-500 dark:text-gray-400"
-              >Expected Yield/Acre</span
-            >
-            <span class="text-gray-800 dark:text-gray-100"
-              >{{ cycle.expectedYieldPerAcre | number }}
-              {{ cycle.yieldUnit || "kg" }}/acre</span
-            >
-          </div>
           <div class="flex justify-between">
-            <span class="text-gray-500 dark:text-gray-400">Actual Yield</span>
-            <span
+            <span class="text-gray-500 dark:text-gray-400">Actual Yield</span
+            ><span
               class="font-medium"
               [class]="
                 cycle.actualYield >= cycle.projectedYield
                   ? 'text-green-600'
                   : 'text-red-600'
               "
+              >{{ cycle.actualYield | number }}
+              {{ cycle.yieldUnit || "kg" }}</span
             >
-              {{ cycle.actualYield | number }} {{ cycle.yieldUnit || "kg" }}
-            </span>
-          </div>
-          <div *ngIf="cycle.actualYieldPerAcre" class="flex justify-between">
-            <span class="text-gray-500 dark:text-gray-400"
-              >Actual Yield/Acre</span
-            >
-            <span
-              class="font-medium"
-              [class]="
-                cycle.actualYieldPerAcre >= (cycle.expectedYieldPerAcre || 0)
-                  ? 'text-green-600'
-                  : 'text-red-600'
-              "
-            >
-              {{ cycle.actualYieldPerAcre | number }}
-              {{ cycle.yieldUnit || "kg" }}/acre
-            </span>
           </div>
           <div *ngIf="cycle.projectedYield > 0" class="flex justify-between">
             <span class="text-gray-500 dark:text-gray-400">Yield Rate</span>
@@ -829,37 +457,26 @@
           </div>
           <hr class="dark:border-slate-700" />
           <div class="flex justify-between">
-            <span class="text-gray-500 dark:text-gray-400"
-              >Harvest Quality</span
-            >
-            <span class="text-gray-800 dark:text-gray-100">{{
+            <span class="text-gray-500 dark:text-gray-400">Harvest Quality</span
+            ><span class="text-gray-800 dark:text-gray-100">{{
               cycle.harvestQuality || "Not recorded"
             }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-500 dark:text-gray-400">Storage</span>
-            <span class="text-gray-800 dark:text-gray-100">{{
+            <span class="text-gray-500 dark:text-gray-400">Storage</span
+            ><span class="text-gray-800 dark:text-gray-100">{{
               cycle.storageLocation || "Not set"
             }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-500 dark:text-gray-400">Buyer</span>
-            <span class="text-gray-800 dark:text-gray-100">{{
+            <span class="text-gray-500 dark:text-gray-400">Buyer</span
+            ><span class="text-gray-800 dark:text-gray-100">{{
               cycle.buyerName || "—"
             }}</span>
-          </div>
-          <div *ngIf="cycle.yieldEstimationNotes" class="mt-2">
-            <span class="text-gray-500 dark:text-gray-400 block text-xs mb-1"
-              >Yield Notes</span
-            >
-            <p class="text-gray-700 dark:text-gray-300 text-sm">
-              {{ cycle.yieldEstimationNotes }}
-            </p>
           </div>
         </div>
       </div>
 
-      <!-- Financial Summary -->
       <div
         class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6"
       >
@@ -868,45 +485,44 @@
         </h3>
         <div class="space-y-3 text-sm">
           <div class="flex justify-between">
-            <span class="text-gray-500 dark:text-gray-400">Seed Cost</span>
-            <span class="text-gray-800 dark:text-gray-100"
+            <span class="text-gray-500 dark:text-gray-400">Seed Cost</span
+            ><span class="text-gray-800 dark:text-gray-100"
               >{{ cycle.currency }} {{ cycle.totalSeedCost | number }}</span
             >
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-500 dark:text-gray-400">Activity Costs</span>
-            <span class="text-gray-800 dark:text-gray-100"
+            <span class="text-gray-500 dark:text-gray-400">Activity Costs</span
+            ><span class="text-gray-800 dark:text-gray-100"
               >{{ cycle.currency }} {{ getTotalActivityCost() | number }}</span
             >
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-500 dark:text-gray-400">Farm Inputs</span>
-            <span class="text-orange-600 dark:text-orange-400 font-medium"
-              >{{ cycle.currency }} {{ getTotalInputsCost() | number }}</span
-            >
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-500 dark:text-gray-400">Other Expenses</span>
-            <span class="text-gray-800 dark:text-gray-100"
+            <span class="text-gray-500 dark:text-gray-400">Other Expenses</span
+            ><span class="text-gray-800 dark:text-gray-100"
               >{{ cycle.currency }} {{ getTotalExpenses() | number }}</span
             >
           </div>
           <hr class="dark:border-slate-700" />
           <div class="flex justify-between font-semibold">
-            <span class="text-red-600 dark:text-red-400">Total Spent</span>
-            <span class="text-red-600 dark:text-red-400"
-              >{{ cycle.currency }} {{ getAllExpensesTotal() | number }}</span
+            <span class="text-red-600 dark:text-red-400">Total Spent</span
+            ><span class="text-red-600 dark:text-red-400"
+              >{{ cycle.currency }}
+              {{
+                cycle.totalSeedCost +
+                  getTotalActivityCost() +
+                  getTotalExpenses() | number
+              }}</span
             >
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-500 dark:text-gray-400">Expected Value</span>
-            <span class="text-gray-800 dark:text-gray-100"
+            <span class="text-gray-500 dark:text-gray-400">Expected Value</span
+            ><span class="text-gray-800 dark:text-gray-100"
               >{{ cycle.currency }} {{ cycle.expectedCropValue | number }}</span
             >
           </div>
           <div class="flex justify-between">
-            <span class="text-gray-500 dark:text-gray-400">Actual Revenue</span>
-            <span class="text-green-600 font-medium"
+            <span class="text-gray-500 dark:text-gray-400">Actual Revenue</span
+            ><span class="text-green-600 font-medium"
               >{{ cycle.currency }} {{ cycle.actualCropValue | number }}</span
             >
           </div>
@@ -915,20 +531,28 @@
             <span>Profit/Loss</span>
             <span
               [class]="
-                cycle.actualCropValue - getAllExpensesTotal() >= 0
+                cycle.actualCropValue -
+                  (cycle.totalSeedCost +
+                    getTotalActivityCost() +
+                    getTotalExpenses()) >=
+                0
                   ? 'text-green-600'
                   : 'text-red-600'
               "
             >
               {{ cycle.currency }}
-              {{ cycle.actualCropValue - getAllExpensesTotal() | number }}
+              {{
+                cycle.actualCropValue -
+                  (cycle.totalSeedCost +
+                    getTotalActivityCost() +
+                    getTotalExpenses()) | number
+              }}
             </span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Weather at Planting -->
     <div
       *ngIf="cycle.weatherAtPlanting?.condition"
       class="mt-6 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6"
@@ -938,341 +562,30 @@
       </h3>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
         <div>
-          <span class="text-gray-500 dark:text-gray-400 block">Condition</span>
-          <span class="text-gray-800 dark:text-gray-100 capitalize">{{
+          <span class="text-gray-500 dark:text-gray-400 block">Condition</span
+          ><span class="text-gray-800 dark:text-gray-100 capitalize">{{
             cycle.weatherAtPlanting.condition
           }}</span>
         </div>
         <div>
-          <span class="text-gray-500 dark:text-gray-400 block"
-            >Temperature</span
-          >
-          <span class="text-gray-800 dark:text-gray-100">{{
+          <span class="text-gray-500 dark:text-gray-400 block">Temperature</span
+          ><span class="text-gray-800 dark:text-gray-100">{{
             cycle.weatherAtPlanting.temperature || "—"
           }}</span>
         </div>
         <div>
-          <span class="text-gray-500 dark:text-gray-400 block">Rainfall</span>
-          <span class="text-gray-800 dark:text-gray-100 capitalize">{{
+          <span class="text-gray-500 dark:text-gray-400 block">Rainfall</span
+          ><span class="text-gray-800 dark:text-gray-100 capitalize">{{
             cycle.weatherAtPlanting.rainfall || "—"
           }}</span>
         </div>
         <div>
           <span class="text-gray-500 dark:text-gray-400 block"
             >Soil Moisture</span
-          >
-          <span class="text-gray-800 dark:text-gray-100 capitalize">{{
+          ><span class="text-gray-800 dark:text-gray-100 capitalize">{{
             cycle.weatherAtPlanting.soilMoisture || "—"
           }}</span>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: Add Farm Input -->
-  <div
-    *ngIf="showInputForm"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 overflow-y-auto py-8"
-  >
-    <div
-      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto"
-    >
-      <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
-        {{ editingInput ? "Edit Farm Input" : "Add Farm Input" }}
-      </h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Input Name *</label
-          >
-          <input
-            [(ngModel)]="inputForm.name"
-            type="text"
-            placeholder="e.g. DAP Fertilizer, Ridomil Gold"
-            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-          />
-        </div>
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Category *</label
-          >
-          <select
-            [(ngModel)]="inputForm.category"
-            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-          >
-            <option *ngFor="let cat of inputCategories" [value]="cat.value">
-              {{ cat.label }}
-            </option>
-          </select>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Brand</label
-          >
-          <input
-            [(ngModel)]="inputForm.brand"
-            type="text"
-            placeholder="e.g. Syngenta, BASF"
-            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-          />
-        </div>
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Supplier</label
-          >
-          <input
-            [(ngModel)]="inputForm.supplier"
-            type="text"
-            placeholder="e.g. Local Agrovet"
-            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-          />
-        </div>
-      </div>
-      <div class="grid grid-cols-4 gap-4 mt-4">
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Quantity</label
-          >
-          <input
-            [(ngModel)]="inputForm.quantity"
-            type="number"
-            placeholder="0"
-            (ngModelChange)="calculateInputAmount()"
-            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-          />
-        </div>
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Unit</label
-          >
-          <select
-            [(ngModel)]="inputForm.unit"
-            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-          >
-            <option value="kg">kg</option>
-            <option value="litres">litres</option>
-            <option value="bags">bags</option>
-            <option value="pieces">pieces</option>
-            <option value="tonnes">tonnes</option>
-            <option value="grams">grams</option>
-            <option value="ml">ml</option>
-            <option value="acres">acres</option>
-            <option value="hours">hours</option>
-            <option value="days">days</option>
-          </select>
-        </div>
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Unit Price (KES)</label
-          >
-          <input
-            [(ngModel)]="inputForm.unitPrice"
-            type="number"
-            placeholder="0"
-            (ngModelChange)="calculateInputAmount()"
-            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-          />
-        </div>
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Total Amount</label
-          >
-          <input
-            [value]="inputForm.totalAmount | number"
-            type="text"
-            readonly
-            class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-slate-600 text-gray-900 dark:text-white text-sm font-semibold"
-          />
-        </div>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Payment Method</label
-          >
-          <select
-            [(ngModel)]="inputForm.paymentMethod"
-            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-          >
-            <option *ngFor="let pm of paymentMethods" [value]="pm.value">
-              {{ pm.label }}
-            </option>
-          </select>
-        </div>
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Payment Status</label
-          >
-          <select
-            [(ngModel)]="inputForm.paymentStatus"
-            (ngModelChange)="calculateInputAmount()"
-            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-          >
-            <option *ngFor="let ps of paymentStatuses" [value]="ps.value">
-              {{ ps.label }}
-            </option>
-          </select>
-        </div>
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Amount Paid (KES)</label
-          >
-          <input
-            [(ngModel)]="inputForm.amountPaid"
-            type="number"
-            placeholder="0"
-            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-          />
-        </div>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Receipt Number</label
-          >
-          <input
-            [(ngModel)]="inputForm.receiptNumber"
-            type="text"
-            placeholder="Optional"
-            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-          />
-        </div>
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Purchase Date</label
-          >
-          <input
-            [(ngModel)]="inputForm.purchaseDate"
-            type="date"
-            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-          />
-        </div>
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Application Date</label
-          >
-          <input
-            [(ngModel)]="inputForm.applicationDate"
-            type="date"
-            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-          />
-        </div>
-      </div>
-      <div class="mt-4">
-        <label
-          class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-          >Notes</label
-        >
-        <textarea
-          [(ngModel)]="inputForm.notes"
-          rows="2"
-          placeholder="Any additional notes..."
-          class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-        ></textarea>
-      </div>
-      <div class="flex justify-end gap-3 mt-6">
-        <button
-          (click)="showInputForm = false; editingInput = null"
-          class="px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 text-sm text-gray-700 dark:text-gray-300"
-        >
-          Cancel
-        </button>
-        <button
-          (click)="saveInput()"
-          class="px-6 py-2 rounded-lg text-white text-sm font-medium"
-          [style.background-color]="themeService.accent"
-        >
-          {{ editingInput ? "Update Input" : "Save Input" }}
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: Add Manager -->
-  <div
-    *ngIf="showManagerForm"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-  >
-    <div
-      class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-6 w-full max-w-md mx-4"
-    >
-      <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
-        Add Cycle Manager
-      </h2>
-      <div class="space-y-4">
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Select Worker</label
-          >
-          <select
-            [(ngModel)]="managerForm.managerId"
-            (ngModelChange)="onManagerWorkerChange()"
-            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-          >
-            <option value="">Select from workers</option>
-            <option *ngFor="let w of workers" [value]="w._id">
-              {{ w.fullName }}
-            </option>
-          </select>
-        </div>
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Or Enter Name</label
-          >
-          <input
-            [(ngModel)]="managerForm.managerName"
-            type="text"
-            placeholder="Manager name"
-            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-          />
-        </div>
-        <div>
-          <label
-            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >Role</label
-          >
-          <select
-            [(ngModel)]="managerForm.role"
-            class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-          >
-            <option *ngFor="let r of managerRoles" [value]="r">
-              {{ r | titlecase }}
-            </option>
-          </select>
-        </div>
-      </div>
-      <div class="flex justify-end gap-3 mt-6">
-        <button
-          (click)="showManagerForm = false"
-          class="px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 text-sm text-gray-700 dark:text-gray-300"
-        >
-          Cancel
-        </button>
-        <button
-          (click)="saveManager()"
-          class="px-6 py-2 rounded-lg text-white text-sm font-medium"
-          [style.background-color]="themeService.accent"
-        >
-          Add Manager
-        </button>
       </div>
     </div>
   </div>
@@ -1391,7 +704,7 @@
           [(ngModel)]="activityForm.description"
           rows="2"
           class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-sm"
-          placeholder="e.g. Apply Ridomil Gold MZ at 50g/20L water"
+          placeholder="e.g. Apply Ridomil Gold MZ at 50g/20L water for late blight prevention"
         ></textarea>
       </div>
       <div class="mt-4">
@@ -1432,7 +745,7 @@
               [(ngModel)]="inp.quantity"
               type="number"
               placeholder="Qty"
-              (ngModelChange)="calculateActivityInputTotal(inp)"
+              (ngModelChange)="calculateInputTotal(inp)"
               class="w-full px-2 py-1.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-xs"
             />
           </div>
@@ -1441,7 +754,7 @@
               [(ngModel)]="inp.costPerUnit"
               type="number"
               placeholder="Cost/unit"
-              (ngModelChange)="calculateActivityInputTotal(inp)"
+              (ngModelChange)="calculateInputTotal(inp)"
               class="w-full px-2 py-1.5 rounded-md border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 text-xs"
             />
           </div>

@@ -60,6 +60,7 @@ export class CropCyclesFormComponent implements OnInit {
     farmId: "",
     plotId: "",
     farmWorkerId: "",
+    farmWorkerName: "",
     cropType: "",
     seasonName: "",
     seasonYear: new Date().getFullYear(),
@@ -84,6 +85,8 @@ export class CropCyclesFormComponent implements OnInit {
     yieldUnit: "kg",
     expectedCropValue: 0,
     pricePerUnit: 0,
+    areaPlanted: 0,
+    expectedYieldPerAcre: 0,
     fertilizer: "",
     pesticides: "",
     waterConsumption: 0,
@@ -152,6 +155,20 @@ export class CropCyclesFormComponent implements OnInit {
     this.form.plotId = "";
   }
 
+  onWorkerChange(): void {
+    const worker = this.workers.find(
+      (w: any) => w._id === this.form.farmWorkerId,
+    );
+    this.form.farmWorkerName = worker ? worker.fullName : "";
+  }
+
+  calculateProjectedYield(): void {
+    if (this.form.areaPlanted && this.form.expectedYieldPerAcre) {
+      this.form.projectedYield =
+        this.form.areaPlanted * this.form.expectedYieldPerAcre;
+    }
+  }
+
   get filteredPlots(): any[] {
     if (!this.form.farmId) return this.plots;
     return this.plots.filter(
@@ -193,6 +210,8 @@ export class CropCyclesFormComponent implements OnInit {
       totalSeedCost: Number(this.form.totalSeedCost || 0),
       pricePerUnit: Number(this.form.pricePerUnit || 0),
       seasonYear: Number(this.form.seasonYear || new Date().getFullYear()),
+      areaPlanted: Number(this.form.areaPlanted || 0),
+      expectedYieldPerAcre: Number(this.form.expectedYieldPerAcre || 0),
     };
 
     this.loading = false;
@@ -205,6 +224,7 @@ export class CropCyclesFormComponent implements OnInit {
       farmId: "",
       plotId: "",
       farmWorkerId: "",
+      farmWorkerName: "",
       cropType: "",
       seasonName: "",
       seasonYear: new Date().getFullYear(),
@@ -229,6 +249,8 @@ export class CropCyclesFormComponent implements OnInit {
       yieldUnit: "kg",
       expectedCropValue: 0,
       pricePerUnit: 0,
+      areaPlanted: 0,
+      expectedYieldPerAcre: 0,
       fertilizer: "",
       pesticides: "",
       waterConsumption: 0,

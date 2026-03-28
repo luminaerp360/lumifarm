@@ -333,6 +333,8 @@ export interface CropCycle {
   farmId: string;
   plotId: string;
   farmWorkerId: string;
+  farmWorkerName: string;
+  managers: CycleManager[];
   cycleNumber: string;
   seasonName: string;
   seasonYear: string;
@@ -372,6 +374,10 @@ export interface CropCycle {
   profitOrLoss: number;
   farmingPractices: string;
   pestManagementMethod: string;
+  areaPlanted: number;
+  expectedYieldPerAcre: number;
+  actualYieldPerAcre: number;
+  yieldEstimationNotes: string;
   terms: string;
   notes: string;
   documents: string[];
@@ -379,7 +385,6 @@ export interface CropCycle {
   abandonmentReason: string;
   renewedFromCycleId: string;
   farmName: string;
-  farmWorkerName: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -441,4 +446,75 @@ export interface CropActivity {
   images: string[];
   createdAt: string;
   updatedAt: string;
+}
+
+// ─── Farm Inputs ─── //
+export type InputCategory =
+  | "seed"
+  | "fertilizer"
+  | "pesticide"
+  | "herbicide"
+  | "fungicide"
+  | "insecticide"
+  | "manure"
+  | "fuel"
+  | "equipment_hire"
+  | "labor"
+  | "transport"
+  | "packaging"
+  | "irrigation"
+  | "land_preparation"
+  | "other";
+
+export type InputPaymentMethod =
+  | "cash"
+  | "mpesa"
+  | "bank_transfer"
+  | "cheque"
+  | "credit"
+  | "on_account"
+  | "other";
+
+export type InputPaymentStatus = "paid" | "pending" | "partial";
+
+export interface FarmInput {
+  _id: string;
+  tenantId: string;
+  cropCycleId: string;
+  farmId: string;
+  plotId: string;
+  name: string;
+  category: InputCategory;
+  brand: string;
+  supplier: string;
+  quantity: number;
+  unit: string;
+  unitPrice: number;
+  totalAmount: number;
+  currency: string;
+  paymentMethod: InputPaymentMethod;
+  paymentStatus: InputPaymentStatus;
+  amountPaid: number;
+  receiptNumber: string;
+  purchaseDate: string;
+  applicationDate: string;
+  notes: string;
+  addedBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FarmInputSummary {
+  totalInputsCost: number;
+  totalPaid: number;
+  totalPending: number;
+  inputCount: number;
+  byCategory: { _id: string; total: number; count: number }[];
+}
+
+// ─── Cycle Manager ─── //
+export interface CycleManager {
+  managerId: string;
+  managerName: string;
+  role: string;
 }

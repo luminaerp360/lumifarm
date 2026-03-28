@@ -1,7 +1,25 @@
-import { IsString, IsNotEmpty, IsOptional, IsEnum, IsNumber, IsArray, IsDate, ValidateNested } from 'class-validator';
-import { PartialType } from '@nestjs/mapped-types';
-import { Type } from 'class-transformer';
-import { CropCycleStatus, HarvestFrequency } from '../schemas/crop-cycle.schema';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsEnum,
+  IsNumber,
+  IsArray,
+  IsDate,
+  ValidateNested,
+} from "class-validator";
+import { PartialType } from "@nestjs/mapped-types";
+import { Type } from "class-transformer";
+import {
+  CropCycleStatus,
+  HarvestFrequency,
+} from "../schemas/crop-cycle.schema";
+
+export class CycleManagerDto {
+  @IsString() @IsOptional() managerId?: string;
+  @IsString() @IsOptional() managerName?: string;
+  @IsString() @IsOptional() role?: string;
+}
 
 export class WeatherAtPlantingDto {
   @IsString()
@@ -40,6 +58,16 @@ export class CreateCropCycleDto {
 
   @IsString()
   @IsOptional()
+  farmWorkerName?: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CycleManagerDto)
+  @IsOptional()
+  managers?: CycleManagerDto[];
+
+  @IsString()
+  @IsOptional()
   cycleNumber?: string;
 
   @IsDate()
@@ -69,6 +97,22 @@ export class CreateCropCycleDto {
   @IsNumber()
   @IsOptional()
   expectedCropValue?: number;
+
+  @IsNumber()
+  @IsOptional()
+  areaPlanted?: number;
+
+  @IsNumber()
+  @IsOptional()
+  expectedYieldPerAcre?: number;
+
+  @IsNumber()
+  @IsOptional()
+  actualYieldPerAcre?: number;
+
+  @IsString()
+  @IsOptional()
+  yieldEstimationNotes?: string;
 
   @IsString()
   @IsOptional()

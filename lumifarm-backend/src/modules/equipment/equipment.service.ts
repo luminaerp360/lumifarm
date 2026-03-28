@@ -63,11 +63,7 @@ export class EquipmentService {
     return this.equipmentRepository.delete(id);
   }
 
-  async addMaintenance(
-    tenantId: string,
-    id: string,
-    dto: AddMaintenanceDto,
-  ) {
+  async addMaintenance(tenantId: string, id: string, dto: AddMaintenanceDto) {
     const equipment = await this.findById(tenantId, id);
     const history = [
       ...(equipment.maintenanceHistory || []),

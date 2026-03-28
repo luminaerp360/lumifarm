@@ -17,10 +17,7 @@ export class EquipmentRepository extends BaseRepository<Equipment> {
       .exec();
   }
 
-  async findByStatus(
-    tenantId: string,
-    status: string,
-  ): Promise<Equipment[]> {
+  async findByStatus(tenantId: string, status: string): Promise<Equipment[]> {
     return this.model
       .find({ tenantId, status, isDeleted: false })
       .sort({ createdAt: -1 })

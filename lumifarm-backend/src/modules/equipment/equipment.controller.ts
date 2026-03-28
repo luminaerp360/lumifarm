@@ -68,11 +68,7 @@ export class EquipmentController {
   }
 
   @Put(":id")
-  update(
-    @Req() req,
-    @Param("id") id: string,
-    @Body() dto: UpdateEquipmentDto,
-  ) {
+  update(@Req() req, @Param("id") id: string, @Body() dto: UpdateEquipmentDto) {
     return this.equipmentService.update(req.user.tenantId, id, dto);
   }
 

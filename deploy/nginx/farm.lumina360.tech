@@ -1,0 +1,58 @@
+# ── farm.lumina360.tech — LumiFarm Frontend SPA ───────────────────────────────
+# Place at: /etc/nginx/sites-available/farm.lumina360.tech
+# Enable:   ln -s /etc/nginx/sites-available/farm.lumina360.tech /etc/nginx/sites-enabled/
+
+# HTTP → HTTPS redirect
+server {
+    listen 80;
+    listen [::]:80;
+    server_name farm.lumina360.tech;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# HTTPS — Angular SPA reverse proxy
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
+    server_name farm.lumina360.tech;
+
+    ssl_certificate     /etc/letsencrypt/live/farm.lumina360.tech/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/farm.lumina360.tech/privkey.pem;
+    include             /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;
+
+    # Security headers
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Content-Type-Options    "nosniff"                              always;
+    add_header X-Frame-Options           "SAMEORIGIN"                           always;
+    add_header X-XSS-Protection          "1; mode=block"                        always;
+    add_header Referrer-Policy           "strict-origin-when-cross-origin"      always;
+    add_header Content-Security-Policy   "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://farmapi.lumina360.tech;" always;
+
+    # Response compression
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css application/javascript application/json image/svg+xml;
+
+    location / {
+        proxy_pass         http://lumifarm_frontend;
+        proxy_http_version 1.1;
+
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_cache_bypass $http_upgrade;
+    }
+}

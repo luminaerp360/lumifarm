@@ -1,0 +1,17 @@
+node_modules
+dist
+.env
+*.env
+.env.*
+.git
+.gitignore
+README.md
+*.md
+*.log
+coverage
+.angular
+test
+seed-*.js
+test-*.js
+FIX_INSTRUCTIONS.sh
+*.spec.ts

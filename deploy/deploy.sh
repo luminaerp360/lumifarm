@@ -23,10 +23,10 @@ FRONTEND_STATE_FILE="$DEPLOY_DIR/.active-frontend"
 NGINX_UPSTREAM_CONF="/etc/nginx/conf.d/lumifarm-upstreams.conf"
 
 # ── Port map ──────────────────────────────────────────────────────────────────
-BACKEND_BLUE_PORT=3401
-BACKEND_GREEN_PORT=3402
-FRONTEND_BLUE_PORT=4001
-FRONTEND_GREEN_PORT=4002
+BACKEND_BLUE_PORT=3601
+BACKEND_GREEN_PORT=3602
+FRONTEND_BLUE_PORT=4601
+FRONTEND_GREEN_PORT=4602
 
 # ── Health check settings ─────────────────────────────────────────────────────
 HEALTH_RETRIES=30

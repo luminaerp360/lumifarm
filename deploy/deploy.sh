@@ -272,6 +272,12 @@ if [ "$CMD" != "rollback" ]; then
   # Uses deploy key configured in ~/.ssh/config (Host: github-lumifarm)
   GIT_SSH_COMMAND="ssh -i /root/.ssh/lumifarm_deploy -o StrictHostKeyChecking=no" \
     git pull origin main
+
+  # Sync nginx site configs from repo to server (picks up any config changes)
+  log "Syncing nginx site configs ..."
+  cp "$PROJECT_ROOT/deploy/nginx/farmapi.lumina360.tech" /etc/nginx/sites-available/farmapi.lumina360.tech
+  cp "$PROJECT_ROOT/deploy/nginx/farm.lumina360.tech"    /etc/nginx/sites-available/farm.lumina360.tech
+  cp "$PROJECT_ROOT/deploy/nginx/lumifarm-upstreams.conf" /etc/nginx/conf.d/lumifarm-upstreams.conf
 fi
 
 case "$CMD" in

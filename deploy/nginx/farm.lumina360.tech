@@ -19,9 +19,8 @@ server {
 
 # HTTPS — Angular SPA reverse proxy
 server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-    http2 on;
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
     server_name farm.lumina360.tech;
 
     ssl_certificate     /etc/letsencrypt/live/farm.lumina360.tech/fullchain.pem;

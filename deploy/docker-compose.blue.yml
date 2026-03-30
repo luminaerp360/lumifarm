@@ -8,7 +8,7 @@ services:
       dockerfile: Dockerfile
     container_name: lumifarm-backend-blue
     ports:
-      - "127.0.0.1:3401:3400"
+      - "127.0.0.1:3601:3400"
     env_file:
       - ../lumifarm-backend/.env
     restart: unless-stopped
@@ -36,7 +36,7 @@ services:
       dockerfile: Dockerfile
     container_name: lumifarm-frontend-blue
     ports:
-      - "127.0.0.1:4001:80"
+      - "127.0.0.1:4601:80"
     restart: unless-stopped
     deploy:
       resources:

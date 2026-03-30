@@ -93,8 +93,11 @@ upstream lumifarm_frontend {
 NGINX_CONF
 
   mv "$tmp_file" "$NGINX_UPSTREAM_CONF"
-  nginx -t -q && nginx -s reload
-  log "Nginx reloaded → backend:${backend_port}  frontend:${frontend_port}"
+  if nginx -t -q && nginx -s reload; then
+    log "Nginx reloaded → backend:${backend_port}  frontend:${frontend_port}"
+  else
+    log "WARNING: nginx reload failed — old upstream config may still be active"
+  fi
 }
 
 # Poll a URL until it responds 200 or retries are exhausted
@@ -140,7 +143,7 @@ deploy_backend() {
   log "Starting lumifarm-backend-${next_col} ..."
   docker compose -f deploy/docker-compose.${next_col}.yml up -d lumifarm-backend-${next_col}
 
-  if ! health_check "http://localhost:${next_port}/docs" "backend-${next_col}"; then
+  if ! health_check "http://127.0.0.1:${next_port}/docs" "backend-${next_col}"; then
     log "Rolling back: stopping lumifarm-backend-${next_col}"
     docker compose -f deploy/docker-compose.${next_col}.yml stop lumifarm-backend-${next_col} || true
     die "Backend deploy failed. Old container (${cur_color}) is still serving traffic."
@@ -177,7 +180,7 @@ deploy_frontend() {
   log "Starting lumifarm-frontend-${next_col} ..."
   docker compose -f deploy/docker-compose.${next_col}.yml up -d lumifarm-frontend-${next_col}
 
-  if ! health_check "http://localhost:${next_port}/" "frontend-${next_col}"; then
+  if ! health_check "http://127.0.0.1:${next_port}/" "frontend-${next_col}"; then
     log "Rolling back: stopping lumifarm-frontend-${next_col}"
     docker compose -f deploy/docker-compose.${next_col}.yml stop lumifarm-frontend-${next_col} || true
     die "Frontend deploy failed. Old container (${cur_color}) is still serving traffic."
@@ -213,7 +216,7 @@ rollback_backend() {
   cd "$PROJECT_ROOT"
   docker compose -f deploy/docker-compose.${prev_color}.yml start lumifarm-backend-${prev_color}
 
-  if ! health_check "http://localhost:${prev_port}/docs" "backend-${prev_color}"; then
+  if ! health_check "http://127.0.0.1:${prev_port}/docs" "backend-${prev_color}"; then
     die "Rollback target (${prev_color}) is also unhealthy. Manual intervention required."
   fi
 
@@ -242,7 +245,7 @@ rollback_frontend() {
   cd "$PROJECT_ROOT"
   docker compose -f deploy/docker-compose.${prev_color}.yml start lumifarm-frontend-${prev_color}
 
-  if ! health_check "http://localhost:${prev_port}/" "frontend-${prev_color}"; then
+  if ! health_check "http://127.0.0.1:${prev_port}/" "frontend-${prev_color}"; then
     die "Rollback target (${prev_color}) is also unhealthy. Manual intervention required."
   fi
 

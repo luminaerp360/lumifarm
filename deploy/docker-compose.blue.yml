@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  lumifarm-backend-blue:
+    image: lumifarm-backend:blue
+    build:
+      context: ../lumifarm-backend
+      dockerfile: Dockerfile
+    container_name: lumifarm-backend-blue
+    ports:
+      - "127.0.0.1:3401:3400"
+    env_file:
+      - ../lumifarm-backend/.env
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://localhost:3400/docs > /dev/null 2>&1 || exit 1",
+        ]
+      interval: 15s
+      timeout: 10s
+      start_period: 40s
+      retries: 3
+    networks:
+      - lumifarm-net
+
+  lumifarm-frontend-blue:
+    image: lumifarm-frontend:blue
+    build:
+      context: ../lumifarm-frontend
+      dockerfile: Dockerfile
+    container_name: lumifarm-frontend-blue
+    ports:
+      - "127.0.0.1:4001:80"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+    healthcheck:
+      test:
+        ["CMD-SHELL", "wget -qO- http://localhost/ > /dev/null 2>&1 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      start_period: 20s
+      retries: 3
+    networks:
+      - lumifarm-net
+
+networks:
+  lumifarm-net:
+    name: lumifarm-net
+    external: true

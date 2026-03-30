@@ -8,6 +8,10 @@ dist/
 # Environment files
 .env
 
+# Deploy state files (server-side tracking, not committed)
+deploy/.active-backend
+deploy/.active-frontend
+
 # IDE
 .idea/
 .vscode/

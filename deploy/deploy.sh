@@ -269,7 +269,9 @@ log "═════════════════════════
 if [ "$CMD" != "rollback" ]; then
   cd "$PROJECT_ROOT"
   log "Pulling latest code from origin/main ..."
-  git pull origin main
+  # Uses deploy key configured in ~/.ssh/config (Host: github-lumifarm)
+  GIT_SSH_COMMAND="ssh -i /root/.ssh/lumifarm_deploy -o StrictHostKeyChecking=no" \
+    git pull origin main
 fi
 
 case "$CMD" in
